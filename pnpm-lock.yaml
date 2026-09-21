@@ -11,6 +11,9 @@ importers:
       '@biomejs/biome':
         specifier: ^1.9.4
         version: 1.9.4
+      '@plainconceptsplatform/workflows':
+        specifier: 0.28.11
+        version: 0.28.11
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -649,6 +652,11 @@ packages:
   '@orama/orama@3.1.18':
     resolution: {integrity: sha512-a61ljmRVVyG5MC/698C8/FfFDw5a8LOIvyOLW5fztgUXqUpc1jOfQzOitSCbge657OgXXThmY3Tk8fpiDb4UcA==}
     engines: {node: '>= 20.0.0'}
+
+  '@plainconceptsplatform/workflows@0.28.11':
+    resolution: {integrity: sha512-lf7UNDcUSIzweNL2UjawkvJ9HaiTWs+2FoOVifUdVAPn5/AHlIE91AH9z/SHLdNhmOqF7TB63qjWfcOL1huisw==}
+    engines: {node: '>=20.19'}
+    hasBin: true
 
   '@playwright/test@1.61.1':
     resolution: {integrity: sha512-8nKv6+0RJSL9FE4jYOEGXnPeM/Hg12qZpmqzZjRh3qM0Y7c3z1mrOTfFLids72RDQYVh9WpLEfR5WdpNX4fkig==}
@@ -3490,6 +3498,10 @@ snapshots:
       fastq: 1.20.3
 
   '@orama/orama@3.1.18': {}
+
+  '@plainconceptsplatform/workflows@0.28.11':
+    dependencies:
+      yaml: 2.9.0
 
   '@playwright/test@1.61.1':
     dependencies:
@@ -6525,8 +6537,7 @@ snapshots:
       d3-time: 3.1.0
       d3-timer: 3.0.1
 
-  yaml@2.9.0:
-    optional: true
+  yaml@2.9.0: {}
 
   zod@4.4.3: {}
 
