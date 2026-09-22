@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@plainconceptsplatform/workflows": "0.28.11",
+    "@plainconceptsplatform/workflows": "0.28.12",
     "husky": "^9.1.7",
     "lint-staged": "^17.2.0",
     "markdownlint-cli2": "0.23.2",
