@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Managed by @plainconceptsplatform/workflows@0.27.5. Source: loops/actions/collect-app-errors/query-app-errors.sh. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows. Source: loops/actions/collect-app-errors/query-app-errors.sh. Update with `workflows update --force`; consumer edits may be overwritten.
 #
 # Ask the Log Analytics workspace what the application threw, and write the rows to a file.
 #
@@ -47,20 +47,25 @@ let window = ago(${LOOKBACK_HOURS}h);
 let thrown =
     AppExceptions
     | where TimeGenerated > window
-    | extend Problem = ProblemId, Kind = ExceptionType, Stack = Details;
+    | extend Problem = ProblemId, Kind = ExceptionType, Stack = Details,
+             Msg = outerMessage, Category = "";
 let logged =
     AppTraces
     | where TimeGenerated > window
     | where SeverityLevel >= 3
     | extend Problem = tostring(coalesce(Properties["OriginalFormat"], Message)),
              Kind    = tostring(coalesce(Properties["ExceptionType"], "LoggedError")),
-             Stack   = dynamic([]);
+             Stack   = dynamic([]),
+             Msg     = Message,
+             Category = tostring(coalesce(Properties["SourceContext"], Properties["Category"], ""));
 union thrown, logged
 | summarize Occurrences = sum(ItemCount),
             Operations  = dcount(OperationName),
             FirstSeen   = min(TimeGenerated),
             LastSeen    = max(TimeGenerated),
-            AnyDetails  = any(Stack)
+            AnyDetails  = any(Stack),
+            AnyMessage  = any(Msg),
+            AnyCategory = any(Category)
     by ProblemId = Problem, ExceptionType = Kind, OperationName, AppRoleName
 | where Occurrences >= ${MIN_OCCURRENCES}
 | order by Occurrences desc

@@ -1,4 +1,4 @@
-# Managed by @plainconceptsplatform/workflows@0.27.5. Source: loops/actions/decide-agent-retry/action.yml. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows. Source: loops/actions/decide-agent-retry/action.yml. Update with `workflows update --force`; consumer edits may be overwritten.
 name: Decide agent retry
 description: Say whether an agent job that failed is worth running again, from how long it ran and how many attempts have been made.
 inputs:
@@ -35,7 +35,7 @@ runs:
     #
     # Written once here because the rule was in the implement worker alone, and refine, triage and
     # apply-review parked instead -- an Odyssey refine died in three minutes on
-    # `Model 'glm-5-3' not found`, a gateway fault that clears in seconds, and waited on the
+    # `Model 'glm-5-2' not found`, a gateway fault that clears in seconds, and waited on the
     # janitor's six-hourly sweep. Five copies of sixty lines is how one rule becomes five.
     - name: Decide whether this failure is worth repeating
       id: decide
