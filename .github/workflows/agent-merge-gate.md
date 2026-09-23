@@ -1,7 +1,7 @@
 ---
-# Managed by @plainconceptsplatform/workflows. Source: loops/workflows/agent-merge-gate.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/workflows/agent-merge-gate.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
-  VERIFY_COMMANDS: ""
+  VERIFY_COMMANDS: "pnpm verify"
   REPO_RULES: "Review the selected bot pull request for defects and report what you verified. Do not decide the outcome: the workflow computes it from your report and from facts it measured before you ran."
   # Where to look first, not what to escalate on. This list used to be the check that decided
   # whether a machine merged without a human, and it decided by category: the prompt told the

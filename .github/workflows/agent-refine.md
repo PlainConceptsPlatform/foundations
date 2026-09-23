@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows. Source: loops/workflows/agent-refine.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/workflows/agent-refine.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   REPO_RULES: "Refine only the selected issue into a grounded, implementation-ready user story. Read repository documentation for domain context. Write acceptance criteria that match existing patterns. Do not implement code."
   # The estimate decides whether a story gets split, and the prompt tells the agent these bands

@@ -1,4 +1,4 @@
-# Managed by @plainconceptsplatform/workflows. Source: loops/actions/require-open-issue/action.yml. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/actions/require-open-issue/action.yml. Update with `workflows update --force`; consumer edits may be overwritten.
 name: Require an open issue
 description: Report whether the issue is still open, read now rather than from the event that started the run.
 inputs:

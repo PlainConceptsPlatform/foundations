@@ -1,4 +1,4 @@
-# Managed by @plainconceptsplatform/workflows. Source: loops/actions/verify-app-errors/action.yml. Update with workflows update --force; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/actions/verify-app-errors/action.yml. Update with workflows update --force; consumer edits may be overwritten.
 name: Verify application error collection
 description: >-
   Run the grouping and redaction that collect-app-errors ships, against rows shaped the way

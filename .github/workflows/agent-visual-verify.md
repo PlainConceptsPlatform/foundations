@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows. Source: loops/workflows/agent-visual-verify.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/workflows/agent-visual-verify.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   # Consumer must set these to the dev server and build commands for the app under verification.
   # When empty, the worker writes a warning comment and skips browser capture.

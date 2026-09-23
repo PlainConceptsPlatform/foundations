@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows. Source: loops/workflows/agent-triage.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/workflows/agent-triage.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   REPO_RULES: "Triage issues opened by outside collaborators. Assess template completeness, security risk, change size, danger level, duplicates, clarity, reproducibility, acceptance criteria, and cross-cutting impact. Do not implement code. Do not modify the issue body."
   # What a product owner may ask for, and what has to become a maintainer-owned technical
