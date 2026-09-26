@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/actions/verify-composite-actions/verify-composite-actions.sh. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.14. Source: loops/actions/verify-composite-actions/verify-composite-actions.sh. Update with `workflows update --force`; consumer edits may be overwritten.
 # Validate every local composite action manifest.
 #
 # The runner evaluates ${{ }} everywhere in an action.yml, including inside `description:`,

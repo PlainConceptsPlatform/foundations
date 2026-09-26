@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/workflows/agent-implement.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.14. Source: loops/workflows/agent-implement.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   VERIFY_COMMANDS: "dotnet restore && dotnet build -c Release --no-restore && dotnet test -c Release --no-build"
   REPO_RULES: "Implement only the selected issue. Follow repository documentation and existing conventions. Do not weaken tests, lower coverage thresholds, or bypass checks."
@@ -110,6 +110,7 @@ jobs:
   # and gate both the reservation and the agent on it.
   still_open:
     runs-on: agents-arc
+    timeout-minutes: 5
     permissions:
       contents: read
       issues: read
@@ -128,6 +129,7 @@ jobs:
           issue-number: ${{ inputs.issue-number }}
   eligibility:
     runs-on: agents-arc
+    timeout-minutes: 5
     permissions:
       issues: read
     outputs:
@@ -175,6 +177,7 @@ jobs:
     needs: [eligibility, still_open]
     if: needs.eligibility.outputs.eligible == 'true' && needs.still_open.outputs.open == 'true'
     runs-on: agents-arc
+    timeout-minutes: 5
     permissions:
       contents: read
       issues: write

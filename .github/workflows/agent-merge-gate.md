@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/workflows/agent-merge-gate.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.14. Source: loops/workflows/agent-merge-gate.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   VERIFY_COMMANDS: "pnpm verify"
   REPO_RULES: "Review the selected bot pull request for defects and report what you verified. Do not decide the outcome: the workflow computes it from your report and from facts it measured before you ran."
@@ -141,6 +141,7 @@ on:
 jobs:
   subject:
     runs-on: agents-arc
+    timeout-minutes: 5
     permissions:
       contents: read
       issues: read
@@ -196,6 +197,7 @@ jobs:
     needs: subject
     if: needs.subject.outputs.found == 'true'
     runs-on: agents-arc
+    timeout-minutes: 5
     permissions:
       contents: read
       pull-requests: read
@@ -242,6 +244,7 @@ jobs:
     # there are no protected files instead of skipping it and blocking remediation.
     if: always() && needs.subject.outputs.found == 'true'
     runs-on: agents-arc
+    timeout-minutes: 5
     permissions:
       contents: read
       issues: write
@@ -301,6 +304,7 @@ jobs:
     needs: subject
     if: needs.subject.outputs.found == 'true'
     runs-on: agents-arc
+    timeout-minutes: 5
     permissions:
       contents: read
       issues: write

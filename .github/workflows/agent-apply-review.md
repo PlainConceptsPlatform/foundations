@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/workflows/agent-apply-review.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.14. Source: loops/workflows/agent-apply-review.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   # Printed by the prompt as the verification block. Consumers set their own commands.
   VERIFY_COMMANDS: "pnpm verify"
@@ -81,6 +81,7 @@ jobs:
   # and gate both the reservation and the agent on it.
   still_open:
     runs-on: agents-arc
+    timeout-minutes: 5
     permissions:
       contents: read
       issues: read
@@ -99,6 +100,7 @@ jobs:
           issue-number: ${{ inputs.issue-number }}
   subject:
     runs-on: agents-arc
+    timeout-minutes: 5
     permissions:
       contents: read
       issues: read
@@ -168,6 +170,7 @@ jobs:
     needs: [subject, still_open]
     if: needs.subject.outputs.found == 'true' && needs.subject.outputs.issue != '' && needs.still_open.outputs.open == 'true'
     runs-on: agents-arc
+    timeout-minutes: 5
     permissions:
       contents: read
       issues: write

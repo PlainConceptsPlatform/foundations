@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/workflows/agent-visual-verify.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.14. Source: loops/workflows/agent-visual-verify.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   # Consumer must set these to the dev server and build commands for the app under verification.
   # When empty, the worker writes a warning comment and skips browser capture.
@@ -53,6 +53,7 @@ on:
 jobs:
   subject:
     runs-on: agents-arc
+    timeout-minutes: 5
     permissions:
       contents: read
       issues: read

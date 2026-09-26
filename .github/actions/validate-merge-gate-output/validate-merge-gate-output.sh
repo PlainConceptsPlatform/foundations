@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/actions/validate-merge-gate-output/validate-merge-gate-output.sh. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.14. Source: loops/actions/validate-merge-gate-output/validate-merge-gate-output.sh. Update with `workflows update --force`; consumer edits may be overwritten.
 # Print the merge-gate disposition: auto-merge, human-review, owner-review, blocked,
 # remediated, or invalid.
 #

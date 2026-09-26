@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/workflows/agent-refine.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.14. Source: loops/workflows/agent-refine.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   REPO_RULES: "Refine only the selected issue into a grounded, implementation-ready user story. Read repository documentation for domain context. Write acceptance criteria that match existing patterns. Do not implement code."
   # The estimate decides whether a story gets split, and the prompt tells the agent these bands
@@ -117,6 +117,7 @@ jobs:
   # and gate both the reservation and the agent on it.
   still_open:
     runs-on: agents-arc
+    timeout-minutes: 5
     permissions:
       contents: read
       issues: read
@@ -267,6 +268,7 @@ jobs:
     needs: [still_open, size_guard, eligibility]
     if: needs.still_open.outputs.open == 'true' && needs.eligibility.outputs.eligible == 'true' && needs.size_guard.outputs.too_big != 'true'
     runs-on: agents-arc
+    timeout-minutes: 5
     permissions:
       contents: read
       issues: write
@@ -692,6 +694,11 @@ safe-outputs:
   # under noise nobody closes.
   report-failure-as-issue: false
   threat-detection: false
+  # Stage the comment so it is only published after validate_output confirms the
+  # refined story is valid. Without staging, the agent's add_comment ("refinement
+  # complete") lands before validation, and a malformed output leaves the issue
+  # with a success comment and an incomplete status simultaneously (Pliny-Bot #383).
+  staged: true
   # The refined story replaces the issue body, which is one call carrying the whole
   # thing. The allowance is three rather than one because a single malformed call the
   # bridge accepts as spent would otherwise end the run with the body unwritten and a

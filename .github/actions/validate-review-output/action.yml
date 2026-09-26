@@ -1,4 +1,4 @@
-# Managed by @plainconceptsplatform/workflows@0.28.13. Source: loops/actions/validate-review-output/action.yml. Update with workflows update --force; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.14. Source: loops/actions/validate-review-output/action.yml. Update with workflows update --force; consumer edits may be overwritten.
 name: Validate review output
 description: Verify an apply-review outcome accounts for every unresolved review thread.
 inputs:
