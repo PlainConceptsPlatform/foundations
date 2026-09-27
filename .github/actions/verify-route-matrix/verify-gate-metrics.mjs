@@ -1,4 +1,4 @@
-// Managed by @plainconceptsplatform/workflows@0.28.14. Source: loops/actions/verify-route-matrix/verify-gate-metrics.mjs. Update with `workflows update --force`; consumer edits may be overwritten.
+// Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/actions/verify-route-matrix/verify-gate-metrics.mjs. Update with `workflows update --force`; consumer edits may be overwritten.
 // Runs the housekeeping digest's gate-metrics renderer against fixtures. The auto-merge rate
 // is the number the merge gate asks to be judged on, and the one Phase 7 would widen trust
 // from, so "it cannot merge anything wrong" is not a reason to leave its arithmetic untested.

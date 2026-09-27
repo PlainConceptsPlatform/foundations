@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows@0.28.14. Source: loops/workflows/shared/opencode-ci.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/workflows/shared/opencode-ci.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   AGENTMEMORY_VERSION: "0.9.28"
   CODEGRAPH_VERSION: "1.6.0"

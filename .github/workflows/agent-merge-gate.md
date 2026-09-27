@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows@0.28.14. Source: loops/workflows/agent-merge-gate.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/workflows/agent-merge-gate.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   VERIFY_COMMANDS: "pnpm verify"
   REPO_RULES: "Review the selected bot pull request for defects and report what you verified. Do not decide the outcome: the workflow computes it from your report and from facts it measured before you ran."
@@ -140,7 +140,7 @@ on:
 # values and `on.steps` outputs do not reach the agent job.
 jobs:
   subject:
-    runs-on: agents-arc
+    runs-on: RunnerLandingZone
     timeout-minutes: 5
     permissions:
       contents: read
@@ -196,7 +196,7 @@ jobs:
   protected_changes:
     needs: subject
     if: needs.subject.outputs.found == 'true'
-    runs-on: agents-arc
+    runs-on: RunnerLandingZone
     timeout-minutes: 5
     permissions:
       contents: read
@@ -243,7 +243,7 @@ jobs:
     # gh-aw makes the agent depend on custom jobs. Keep this job successful when
     # there are no protected files instead of skipping it and blocking remediation.
     if: always() && needs.subject.outputs.found == 'true'
-    runs-on: agents-arc
+    runs-on: RunnerLandingZone
     timeout-minutes: 5
     permissions:
       contents: read
@@ -303,7 +303,7 @@ jobs:
   reserve:
     needs: subject
     if: needs.subject.outputs.found == 'true'
-    runs-on: agents-arc
+    runs-on: RunnerLandingZone
     timeout-minutes: 5
     permissions:
       contents: read
@@ -353,7 +353,7 @@ jobs:
       always() &&
       needs.agent.result == 'success' &&
       needs.safe_outputs.result == 'success'
-    runs-on: agents-arc
+    runs-on: RunnerLandingZone
     permissions:
       contents: read
     outputs:
@@ -581,7 +581,7 @@ jobs:
          needs.safe_outputs.result != 'success' ||
          needs.validate_output.outputs.valid != 'true'
        )
-    runs-on: agents-arc
+    runs-on: RunnerLandingZone
     permissions:
       contents: read
       issues: write

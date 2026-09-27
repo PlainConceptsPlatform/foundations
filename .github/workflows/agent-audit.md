@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows@0.28.14. Source: loops/workflows/agent-audit.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/workflows/agent-audit.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   REPO_RULES: "Read-only repository audit. Report only reproducible, actionable defects with evidence. Do not modify files, commit, push, or run write operations."
   # Split out of REPO_RULES, which carried both the read-only discipline above and the list
@@ -89,7 +89,7 @@ jobs:
       needs.agent.result == 'success' &&
       needs.safe_outputs.result == 'success' &&
       needs.safe_outputs.outputs.process_safe_outputs_processed_count != '0'
-    runs-on: agents-arc
+    runs-on: RunnerLandingZone
     permissions:
       contents: read
       issues: write
@@ -143,7 +143,7 @@ jobs:
     if: >
       needs.agent.result == 'success' &&
       needs.safe_outputs.outputs.process_safe_outputs_processed_count == '0'
-    runs-on: agents-arc
+    runs-on: RunnerLandingZone
     permissions:
       contents: read
     steps:

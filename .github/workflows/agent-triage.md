@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows@0.28.14. Source: loops/workflows/agent-triage.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/workflows/agent-triage.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   REPO_RULES: "Triage issues opened by outside collaborators. Assess template completeness, security risk, change size, danger level, duplicates, clarity, reproducibility, acceptance criteria, and cross-cutting impact. Do not implement code. Do not modify the issue body."
   # What a product owner may ask for, and what has to become a maintainer-owned technical
@@ -102,7 +102,7 @@ jobs:
   # `reserve` thirteen minutes later and refined a closed issue to completion. Read now, once,
   # and gate both the reservation and the agent on it.
   still_open:
-    runs-on: agents-arc
+    runs-on: RunnerLandingZone
     timeout-minutes: 5
     permissions:
       contents: read
@@ -123,7 +123,7 @@ jobs:
   reserve:
     needs: [still_open]
     if: needs.still_open.outputs.open == 'true'
-    runs-on: agents-arc
+    runs-on: RunnerLandingZone
     timeout-minutes: 5
     permissions:
       contents: read
@@ -170,7 +170,7 @@ jobs:
       always() &&
       needs.agent.result == 'success' &&
       needs.safe_outputs.result == 'success'
-    runs-on: agents-arc
+    runs-on: RunnerLandingZone
     permissions:
       contents: read
     outputs:
@@ -198,7 +198,7 @@ jobs:
       needs.agent.result == 'success' &&
       needs.safe_outputs.result == 'success' &&
       needs.validate_output.outputs.valid == 'true'
-    runs-on: agents-arc
+    runs-on: RunnerLandingZone
     permissions:
       contents: read
       issues: write
@@ -310,7 +310,7 @@ jobs:
         needs.safe_outputs.result != 'success' ||
         needs.validate_output.outputs.valid != 'true'
       )
-    runs-on: agents-arc
+    runs-on: RunnerLandingZone
     permissions:
       contents: read
       issues: write
