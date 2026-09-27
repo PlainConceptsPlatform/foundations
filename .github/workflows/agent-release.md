@@ -29,7 +29,7 @@ on:
         type: string
         default: "auto"
 
-runs-on: RunnerLandingZone
+runs-on: agents-arc
 runs-on-slim: RunnerLandingZone
 
 secrets:
@@ -98,7 +98,7 @@ jobs:
       always() &&
       needs.agent.result == 'success' &&
       needs.safe_outputs.result == 'success'
-    runs-on: RunnerLandingZone
+    runs-on: agents-arc
     permissions:
       contents: write
     steps:
@@ -205,7 +205,7 @@ jobs:
     if: >
       always() &&
       (needs.agent.result != 'success' || needs.safe_outputs.result != 'success')
-    runs-on: RunnerLandingZone
+    runs-on: agents-arc
     permissions:
       contents: read
     steps:
