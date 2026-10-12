@@ -35,6 +35,15 @@
     }
   },
   "files": {
-    "ignore": ["**/.next/**", "**/out/**", "**/dist/**", "**/.source/**", "**/*.generated.ts"]
+    "ignore": [
+      "**/.next/**",
+      "**/out/**",
+      "**/dist/**",
+      "**/.source/**",
+      "**/*.generated.ts",
+      ".github/actions/**",
+      "scripts/compile-agent-workflows.mjs",
+      "scripts/merge-changelog.mjs"
+    ]
   }
 }
