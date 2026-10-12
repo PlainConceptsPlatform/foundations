@@ -6,7 +6,7 @@ Project-Health renders this standard as the **Engineering scorecard**: one row p
 
 ## Practices
 
-Ten practices, in two phases. The standard mode is what "green" requires.
+Eleven practices, in two phases. The standard mode is what "green" requires.
 
 | # | Practice | Phase | Standard mode | Usual tools | What it guarantees |
 |---|---|---|---|---|---|
@@ -20,6 +20,7 @@ Ten practices, in two phases. The standard mode is what "green" requires.
 | 8 | Complexity | Every build | Blocking | the complexity gate (coverlet complexity, ESLint `complexity`) | No new method above CC 15 or CRAP 30; the existing backlog may not grow. |
 | 9 | DAST | After deploying to a test environment | Threshold | OWASP ZAP baseline (passive) | The deployed instance is scanned for what static tools cannot see: headers, cookies, CSP, endpoints answering without auth. |
 | 10 | Performance | After deploying to a test environment | Threshold | k6, JMeter, Lighthouse CI | Response times or Lighthouse budgets hold. Only when the project requires it. |
+| 11 | Code hygiene (AI slop) | Every build | Threshold | jscpd, Semgrep hygiene rules, IDE0051/IDE0052 | No new copy-pasted block, no exception swallowed without a stated reason, no dead private code. The cheap proxies for the slop AI-assisted change tends to leave behind. |
 
 Modes: **Blocking** fails the pipeline. **Threshold** holds a measured value above a committed floor and fails when it drops below. **Policy** produces an artefact that a policy is checked against.
 
@@ -52,7 +53,7 @@ Levels are cumulative, and only **green** practices count towards them. A practi
 | N2 | N1, plus Tests & coverage, Spec and SBOM green. |
 | N3 | N2, plus Mutation, DAST and Complexity green. |
 
-Anything below N1 is **N0**. The **score** is `(green + 0.5 × yellow) / applicable × 100`, the number behind the six-month trend. **Gates** is the count of build-phase practices present (green or yellow) over those that apply.
+Anything below N1 is **N0**. The **score** is `(green + 0.5 × yellow) / applicable × 100`, the number behind the six-month trend. **Gates** is the count of practices present (green or yellow) over those that apply, in every phase, so a red DAST or Performance shows in the count. Performance and Code hygiene count towards the score and the gates but not towards a level.
 
 A practice is **green** when it is present in its standard mode and its last result on the default branch passed (or its threshold is met). It is **yellow** when it is present but weaker than the standard (report-only where blocking is expected, a test run without coverage), when a threshold is not met, or when there is no recent result (older than 14 days). It is **red** when it applies but is absent, or when a blocking practice fails on the default branch.
 
@@ -65,6 +66,10 @@ Floors are set from a **measured baseline**, just below it, and only ever move u
 - **Coverage:** a line-coverage floor per module (per assembly in .NET, per package in TS), measured on the merged report of every suite that runs in CI.
 - **Mutation:** the floor applies to the **covered-code** score, `(killed + timeout) / (killed + timeout + survived)`. Mutants with no coverage are a coverage problem, already measured, and are reported separately as a backlog. Mutation runs weekly and on dispatch, never on every PR; a PR-diff run is a useful report-only addition.
 - **Complexity:** every method must satisfy **CC ≤ 15** (McCabe's 10, extended to the 15 NIST SP 500-235 allows) and **CRAP ≤ 30**, where `CRAP = CC² × (1 − coverage)³ + CC`. Complexity is allowed only when it is tested in proportion: CC 15 needs about 60% coverage, CC 20 about 71%, and CC 30 or more never passes. The existing backlog lives in a committed baseline file; a baselined method may stay but may not get worse, and the baseline only shrinks. A comment `complexity-justified: <reason> (#<issue>)` within five lines above a method exempts it, and the gate lists every exemption in the run summary. Generated code (`obj/`, `*.g.cs`, `*.designer.cs`) is excluded.
+- **Code hygiene:** green when the duplication gate has no violations, no exception is swallowed without a justification, and dead code fails the build or is absent; a hygiene facet without a duplication gate is report-only (yellow).
+  - *Duplication:* jscpd over production sources (tests, generated code and migrations excluded), clones of at least 10 lines and 70 tokens. Per file, the lines inside a clone may not exceed a committed baseline, and a file outside it may have none; the baseline only shrinks (`--prune`). A clone that has to stay is fenced with `// jscpd:ignore-start` / `// jscpd:ignore-end`.
+  - *Swallowed exceptions:* Semgrep rules, run by the blocking SAST job, flag every empty `catch` body; a comment inside the braces is not handling. Where swallowing is correct, justify it on the `try` line with `// nosemgrep: <rule-id> — <reason>`. The facet counts justified swallows, so the backlog stays visible.
+  - *Dead code:* in .NET, IDE0051 and IDE0052 (unused private members) are errors, which needs `EnforceCodeStyleInBuild=true`; a compiler guarantee rather than a grep.
 - **DAST:** passive baseline only, never an active scan against an environment holding real or append-only data. Start report-only, triage the first baseline, then make it blocking.
 
 Gates must be **required status checks** on the default branch (a repository ruleset: pull request required, the blocking checks required, no force-push or deletion, repository admins as the only bypass). A gate that is not required only reports.
@@ -88,6 +93,7 @@ Each line is a yes or no. A repository has adopted the standard when every appli
 - [ ] Secrets, Vulnerabilities and SAST run blocking on every PR; suppressions name a tracking issue.
 - [ ] An SBOM is produced on every build of the default branch.
 - [ ] The complexity gate runs on every PR against a committed baseline seeded from CI.
+- [ ] Code hygiene: the duplication gate runs on every PR against a committed baseline, empty catch blocks fail SAST unless justified, dead code fails the build, and the `hygiene` facet is published.
 - [ ] DAST runs against a deployed test environment where one exists.
 - [ ] The facets are produced by workflows that run on push to the default branch.
 - [ ] The blocking checks are required by a ruleset on the default branch.
