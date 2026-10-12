@@ -24,6 +24,13 @@ const DOCS = [
     description: "Design principles and UI rules for the theme.",
   },
   {
+    src: "ai/ENGINEERING.md",
+    slug: "engineering",
+    title: "Engineering excellence",
+    description:
+      "The engineering gates every Platform repository runs, and how the scorecard judges them.",
+  },
+  {
     src: "ai/AGENTS.md",
     slug: "agents",
     title: "AI agents",
@@ -37,6 +44,7 @@ const LINK_MAP = {
   "STACK.md": "/docs/reference/architecture",
   "DESIGN.md": "/docs/reference/design",
   "AGENTS.md": "/docs/reference/agents",
+  "ENGINEERING.md": "/docs/reference/engineering",
   "PLAN.md": "/docs/reference/plan",
 };
 

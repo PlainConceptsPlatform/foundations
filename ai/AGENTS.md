@@ -8,6 +8,7 @@ Hub for AI coding agents working in this repo and in PlainConcepts **Platform** 
 ai/
 ├── ARCHITECTURE.md     # stack, repo layout, FSD, DI, backend architecture
 ├── DESIGN.md           # design tokens, visual intent, working rules
+├── ENGINEERING.md      # engineering gates, levels, facets, known CI pitfalls
 ├── AGENTS.md           # this file: index/hub
 skills/
 └── platform-onboard/   # brownfield Platform migration skill
@@ -22,6 +23,7 @@ skills/
 - Architecture & structure: [`ARCHITECTURE.md`](ARCHITECTURE.md)
 - Design tokens & UI rules: [`DESIGN.md`](DESIGN.md)
 - Backend (.NET): [`ARCHITECTURE.md`](ARCHITECTURE.md) (Backend architecture section)
+- Engineering gates and the Project-Health scorecard: [`ENGINEERING.md`](ENGINEERING.md)
 - Theme installation in a consuming app: [`/README.md`](../README.md)
 
 ## Rules
