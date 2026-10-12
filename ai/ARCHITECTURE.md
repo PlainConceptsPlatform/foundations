@@ -302,10 +302,10 @@ Do not add modules, layers, or a mediator preemptively.
 
 ### Backend testing
 
-Follow the pyramid: many **unit** tests (xUnit), fewer **integration/functional** tests (a real host via `WebApplicationFactory`, a real database via Testcontainers), and a few **E2E** tests. Keep unit, integration, and end-to-end tests in separate projects.
+Follow the pyramid: many **unit** tests (xUnit), fewer **integration/functional** tests (a real host via `WebApplicationFactory`, a real database via Testcontainers), and a few **E2E** tests. Keep unit, integration, and end-to-end tests in separate projects. Coverage floors, mutation testing and the complexity gate that hold these tests to a bar are in [`ENGINEERING.md`](ENGINEERING.md).
 
 ### Everything as code, security, observability
 
-Infrastructure, pipelines, and configuration live in the repo (IaC, CI/CD, GitOps). Security checks (dependency and secret scanning, SAST) run in CI. Observability uses structured logging and OpenTelemetry.
+Infrastructure, pipelines, and configuration live in the repo (IaC, CI/CD, GitOps). Security checks (dependency and secret scanning, SAST, SBOM, and DAST against a test environment) run in CI as required checks; the full set of gates, their modes, and how Project-Health scores them are in [`ENGINEERING.md`](ENGINEERING.md). Observability uses structured logging and OpenTelemetry.
 
 <!-- Last updated: 2026-07-23 -->
