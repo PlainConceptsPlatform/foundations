@@ -2,7 +2,7 @@
 
 The engineering gates every Platform repository runs, how they are judged, and how they reach the Project-Health dashboard. The bar is the same for every project; what changes by project type is which practices apply.
 
-Project-Health renders this standard as the **Engineering scorecard**: one row per project, a level from N0 to N3, a score, the gates in place, the share of AI-assisted commits, and alerts. The scorecard is computed from two sources, in this order of trust: the **Engineering Excellence facets** a repository publishes from its own CI, and, when a repository publishes none, **detection** from its workflow files (marked "Detected from workflows — no facets published"). Publishing facets is what makes a project's row a measurement rather than an inference.
+Project-Health renders this standard as the **Engineering scorecard**: one row per project, a level from L0 to L3, a score, the gates in place, the share of AI-assisted commits, and alerts. The scorecard is computed from two sources, in this order of trust: the **Engineering Excellence facets** a repository publishes from its own CI, and, when a repository publishes none, **detection** from its workflow files (marked "inferred" in the overview). Publishing facets is what makes a project's row a measurement rather than an inference.
 
 ## Practices
 
@@ -49,15 +49,15 @@ Levels are cumulative, and only **green** practices count towards them. A practi
 
 | Level | Requires |
 |---|---|
-| N1 | Secrets, Vulnerabilities and SAST green, and tests present (green or yellow). |
-| N2 | N1, plus Tests & coverage, Spec and SBOM green. |
-| N3 | N2, plus Mutation, DAST and Complexity green. |
+| L1 | Secrets, Vulnerabilities and SAST green, and tests present (green or yellow). |
+| L2 | L1, plus Tests & coverage, Spec and SBOM green. |
+| L3 | L2, plus Mutation, DAST and Complexity green. |
 
-Anything below N1 is **N0**. The **score** is `(green + 0.5 × yellow) / applicable × 100`, the number behind the six-month trend. **Gates** is the count of practices present (green or yellow) over those that apply, in every phase, so a red DAST or Performance shows in the count. Performance and Code hygiene count towards the score and the gates but not towards a level.
+Anything below L1 is **L0**. The **score** is `(green + 0.5 × yellow) / applicable × 100`, the number behind the six-month trend. **Gates** is the count of practices present (green or yellow) over those that apply, in every phase, so a red DAST or Performance shows in the count. Performance and Code hygiene count towards the score and the gates but not towards a level.
 
 A practice is **green** when it is present in its standard mode and its last result on the default branch passed (or its threshold is met). It is **yellow** when it is present but weaker than the standard (report-only where blocking is expected, a test run without coverage), when a threshold is not met, or when there is no recent result (older than 14 days). It is **red** when it applies but is absent, or when a blocking practice fails on the default branch.
 
-**Alerts.** "High AI usage, low engineering" fires when AI usage is 4/5 or more and the level is N1 or below: AI-assisted change is landing without the gates that would catch its mistakes. AI usage is the share of the month's default-branch commits that are AI-assisted (co-author trailers from Claude, Copilot, Codex, Cursor, Devin, Gemini, Windsurf, and agent or bot authors other than Dependabot, Renovate and `github-actions[bot]`), bucketed at 10, 25, 50 and 75%. "Engineering declining" fires when the score drops 10 points or more over three months.
+**Alerts.** "High AI usage, low engineering" fires when AI usage is 4/5 or more and the level is L1 or below: AI-assisted change is landing without the gates that would catch its mistakes. AI usage is the share of the month's default-branch commits that are AI-assisted (co-author trailers from Claude, Copilot, Codex, Cursor, Devin, Gemini, Windsurf, and agent or bot authors other than Dependabot, Renovate and `github-actions[bot]`), bucketed at 10, 25, 50 and 75%. "Engineering declining" fires when the score drops 10 points or more over three months.
 
 ## Thresholds and ratchets
 
