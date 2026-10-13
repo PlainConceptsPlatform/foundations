@@ -1,6 +1,6 @@
 ---
 title: Analytics with DORA
-description: "Three DORA metrics we take from GitHub, two we refuse to fake, and the agent metrics classic DORA has no slot for."
+description: "Three DORA metrics we take from GitHub, two we refuse to fake, the agent metrics classic DORA has no slot for, the engineering scorecard, and a roadmap of who had each issue."
 ---
 
 Once agents implement most of the changes, throughput stops telling you much. A project can open
@@ -120,6 +120,72 @@ because asking GitHub for several at once requires an issue to carry all of them
   to trust the page.
 </Callout>
 
+## The engineering scorecard
+
+Delivery numbers say how fast and how safely work ships. They say nothing about the code that
+shipped, and with agents writing most of it that is the question worth asking. So Health also shows
+an **Engineering scorecard**: per project, which of the eleven practices of the
+[engineering standard](/docs/reference/engineering) guard the default branch, in which mode, and
+whether they last passed.
+
+- **A level from L0 to L3**, cumulative and counting only green practices: L1 is secrets,
+  vulnerabilities and SAST blocking with tests present; L2 adds coverage, spec and SBOM; L3 adds
+  mutation, DAST and complexity.
+- **A score from 0 to 100**, green plus half of yellow over what applies, with a daily history so
+  the overview can show the change over 30 days.
+- **Gates**, the practices present over those that apply, so a red DAST still shows.
+- **AI usage from 1 to 5**, the share of the month's commits on the default branch made with an
+  assistant or by an agent, beside the level, because the two only mean something together.
+
+Two sources decide each cell, and the page says which. A repository that publishes its
+**engineering excellence facets** from CI is measured with its own gates' verdicts: coverage per
+module, mutation score, complexity and CRAP hotspots, Trivy and Semgrep, the SBOM, code hygiene.
+Otherwise the collector **detects** the tools in the workflow files and reads the latest run, and
+the overview marks the row "inferred". Publishing facets is what turns a row from an inference into
+a measurement.
+
+The project type decides which practices apply, so a static site is not marked down for having no
+mutation testing. And two alerts read both axes at once: *high AI usage, low engineering*, when AI
+usage is 4 or more at L1 or below, and *engineering declining*, when the score drops 10 points
+against the best of the two previous months.
+
+## A roadmap of who had each issue
+
+Platform projects have no epics and no milestones. An issue is opened, refined by an agent,
+implemented by an agent, merged, often all on the same day, and the labels say who had it at each
+moment. So the **Roadmap** tab does not plan anything. It reads every issue's timeline and splits
+its open time into five states:
+
+| State | Read from |
+|---|---|
+| Agent working | `bot-working` present |
+| Waiting on a person | `review`, `stalled` or `owner-review` present |
+| PR waiting to merge | `pr-pending` present |
+| Queued | open with none of the above |
+| By hand | the issue never carried an agent label |
+
+That draws as a Gantt, one row per issue on the day and hour it was opened, zoomable from the
+month down to two hours. Each stall and each agent attempt that ended early is marked on the bar,
+and the outcome comes from the pull request that closed the issue: merged by the merge gate,
+merged by a person, written by hand, or closed without one. The `sp-N` estimate sits beside the
+time it really took, and agent runs and tokens are joined from the agent metrics.
+
+The first real month answered a question nobody had asked. Across one project's issues, an agent
+was working **17%** of the time they were open. The rest was waiting: for a person to answer a
+question, for a merge the next morning, or for nobody at all. That is where the time goes, and the
+tab exists to show it.
+
+Two more things come from the same reading:
+
+- **Evidence.** When a merged pull request carries a verification plan, the evidence workflow
+  replays it and keeps one screenshot per waypoint beside the plan, in an `evidence/` folder next to
+  the archived `verification-plan.md`. Health shows them with the issue they prove.
+- **A label nobody picked up.** A label set with a workflow's own `GITHUB_TOKEN` starts no other
+  workflow, so an issue labelled `refine` that way waits until a person sets the label again. Health
+  names every issue that sat for over an hour like that, because nothing on GitHub does.
+
+A project opts in with `"roadmap": { "enabled": true }`, and the token needs to read pull requests.
+
 ## Refusing to report
 
 The part that keeps the rest credible.
@@ -152,4 +218,5 @@ zero, and a planned project is listed but never collected.
   <Card title="Project Health" href="https://github.com/PlainConceptsPlatform/project-health" description="The collector, the config, and the published site." />
   <Card title="3. Maintenance mode" href="/docs/how-we-work/maintenance" description="The phase these numbers are measuring." />
   <Card title="AI x SDLC" href="/docs/ai#agentic-workflows" description="The router and worker shape the agent metrics are read from." />
+  <Card title="Engineering excellence" href="/docs/reference/engineering" description="The standard the scorecard judges every repository against." />
 </Cards>
