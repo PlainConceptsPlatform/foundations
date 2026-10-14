@@ -108,6 +108,9 @@ Skip if no `.csproj` or `.slnx` files. Otherwise:
 | ServiceDefaults | An `*.ServiceDefaults` project exists and the API references it | Telemetry and health defaults shared |
 | AppHost dev script | Root `package.json` `dev` script runs the AppHost | One command starts the whole system |
 | No docker-compose | No `docker-compose.yml` at repo root | The AppHost is the only composition |
+| Noindex header | A middleware registered first sets `X-Robots-Tag` | `X-Robots-Tag: noindex, nofollow` on every response, including static files and errors |
+| robots.txt switch | `/robots.txt` served behind `Robots:DisallowAll` | `Disallow: /` when on; switched on only after the noindex header is live (new hostnames: from day one) |
+| No anonymous content at the root | Request `/` without a session | Redirects to the Entra ID sign-in (or a sign-in screen with no branding while it redirects) |
 
 ## Execution
 
@@ -166,6 +169,8 @@ If the repository is not on GitHub, [loop-task](https://github.com/PlainConcepts
 ### Domain 6: Backend guardrails
 
 Only for .NET projects. Read the `plain-dotnet-guardrails` skill for what to check. The key artifacts are `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig`, and an architecture test project.
+
+The three search-engine checks (noindex header, robots.txt switch, no anonymous content at the root) are mandatory for every Platform app; see "Keeping Platform apps out of search engines" in `ai/ARCHITECTURE.md`. Add the header first and ship it before switching robots.txt on.
 
 For a repo still orchestrating locally with docker-compose, migrate it to the Platform Aspire pattern (it is one OpenSpec change, not part of the guardrails pass):
 
