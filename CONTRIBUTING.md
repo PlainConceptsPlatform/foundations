@@ -18,6 +18,7 @@ pnpm lint         # Biome (check + format)
 pnpm lint:fix     # Biome, writing fixes
 pnpm typecheck    # tsc across every workspace
 pnpm build        # every workspace, including the docs site
+pnpm verify       # lint + typecheck + build in one go (what CI and the agent gates run)
 ```
 
 ## The bar for shared code
