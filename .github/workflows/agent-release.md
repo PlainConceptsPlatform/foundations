@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/workflows/agent-release.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.3.1. Source: loops/workflows/agent-release.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   GIT_AUTHOR_NAME: "github-actions[bot]"
   GIT_AUTHOR_EMAIL: "github-actions[bot]@users.noreply.github.com"

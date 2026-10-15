@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/actions/classify-route/classify-route.sh. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.3.1. Source: loops/actions/classify-route/classify-route.sh. Update with `workflows update --force`; consumer edits may be overwritten.
 # Classify one GitHub event into exactly one route. Pure: no network, no gh calls, so
 # verify-route-matrix.sh can source this file and exercise the same code the router runs.
 #
@@ -135,7 +135,13 @@ classify_route() {
       ;;
 
     pull_request_review_comment | pull_request_review)
-      route="apply-review"
+      # An approval is a decision, not feedback: the router merges the pull request when the
+      # gate had handed it to a person (merge-approved checks the rest).
+      if [ "${EVENT:-}" = "pull_request_review" ] && [ "${REVIEW_STATE:-}" = "approved" ]; then
+        route="merge-approved"
+      else
+        route="apply-review"
+      fi
       pr_number="${EVENT_PR_NUMBER:-}"
       ;;
 

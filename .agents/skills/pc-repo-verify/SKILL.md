@@ -8,21 +8,21 @@ license: MIT
 
 Write the verification plan for the current branch's change. The checks gate lives in `pc-plan-apply` step 10 (lint, typecheck, test, build). This skill produces the reproduction plan instead: a journey through the new functionality with one screenshot per waypoint.
 
-The plan is executed by a machine, not read by one. When the pull request merges, the evidence workflow (`evidence.yml` from `@plainconceptsplatform/workflows`) checks out the pull request head, starts the app, replays every step below in headless Chromium with no model in the loop, and archives one screenshot per waypoint on the pull request. A step it cannot follow is a screenshot of the wrong screen. Write every step so it can be followed literally from a freshly started app.
+The plan is executed by a machine, not read by one. When the pull request merges, the evidence workflow (`evidence.yml` from `@plainconceptsplatform/workflows`) checks out the pull request head, starts the app, replays every step below in headless Chromium with no model in the loop, and archives one screenshot per waypoint in an `evidence/` folder beside this plan on the default branch, shown in one comment on the pull request. A step it cannot follow is a screenshot of the wrong screen. Write every step so it can be followed literally from a freshly started app.
 
 This skill never launches a browser, never takes a screenshot, never starts a server. It only reads the change and writes a plan file.
 
-Work only on the current branch: do not switch branches, push, create pull requests, or contact external platforms. Write the plan into the change directory; it is carried into the archive by `pc-plan-archive`.
+Work only on the current branch: do not switch branches, push, create pull requests, or contact external platforms. Write the plan into the change directory; it is carried into the archive by `pc-plan-archive`. Never create or edit an `evidence/` folder: the workflow writes it beside the archived plan after the merge.
 
 ## Project environment
 
 How this project's app starts, where it answers, how a person signs in locally, and what data a fresh start already has. Read it before writing a journey; it is the project's, and an update keeps it.
 
 <!-- PC-PROJECT-ENVIRONMENT-START -->
-- Start: `pnpm run dev` at the repository root (after `pnpm install`). Its `predev` builds `@plainconceptsplatform/ui-components` (the docs site imports its `dist/`), then the docs package's own `predev` syncs `ai/*.md` into the reference pages and regenerates the token tables, and `next dev` serves the docs site and component showcase. Ready in about 90 seconds on a cold start, and the first request to each page compiles it (another minute or so for the first page), so wait for text rather than a fixed time.
-- URL: `http://localhost:3000`. The home page is `/`; the docs pages live under `/docs/<page>` (for example `/docs/tokens`, `/docs/components/button`, `/docs/reference/design`). The bare `/docs` has no index page and returns 500 in dev, so never open it. Light and dark mode switch with the `{ role: button, name: Toggle Theme }` button in the docs sidebar; capture visible changes in both.
-- Sign-in: none. The site is static and public; there is no authentication, so no waypoint signs in.
-- Seeded data: none. All content comes from the repository (`apps/docs/content/docs`, the component previews in `apps/docs/components/previews`, and the tokens in `packages/theme/src/theme.css`).
+- Start: `pnpm run dev` at the repository root brings up the whole stack with mock authentication.
+- URL: `http://localhost:3000`.
+- Sign-in: none recorded yet. Find the local sign-in (a mock account picker, a dev login button) in the source and write its steps into the first waypoint.
+- Seeded data: none recorded yet. Create what the journey needs through the UI.
 <!-- PC-PROJECT-ENVIRONMENT-END -->
 
 ## Step 1: Read the change

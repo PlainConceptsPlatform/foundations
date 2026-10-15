@@ -1,4 +1,4 @@
-// Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/actions/verify-app-errors/verify-app-errors.mjs. Update with workflows update --force; consumer edits may be overwritten.
+// Managed by @plainconceptsplatform/workflows@1.3.1. Source: loops/actions/verify-app-errors/verify-app-errors.mjs. Update with workflows update --force; consumer edits may be overwritten.
 //
 // Executes the real grouping and redaction against rows shaped the way Application Insights
 // actually returns them.
