@@ -1,4 +1,4 @@
-// Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/actions/capture-evidence/capture.mjs. Update with `workflows update --force`; consumer edits may be overwritten.
+// Managed by @plainconceptsplatform/workflows@1.3.1. Source: loops/actions/capture-evidence/capture.mjs. Update with `workflows update --force`; consumer edits may be overwritten.
 //
 // Replays a change's verification plan against the running app and saves one screenshot per
 // waypoint. No model runs here: the plan was written by the agent that implemented the change

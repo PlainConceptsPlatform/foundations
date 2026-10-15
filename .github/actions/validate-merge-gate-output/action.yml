@@ -1,4 +1,4 @@
-# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/actions/validate-merge-gate-output/action.yml. Update with workflows update --force; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.3.1. Source: loops/actions/validate-merge-gate-output/action.yml. Update with workflows update --force; consumer edits may be overwritten.
 name: Validate merge-gate output
 description: Compute the merge-gate disposition from measured facts and the agent's structured report, before any state changes.
 inputs:
@@ -27,6 +27,10 @@ inputs:
     description: Agent confidence below which the pull request goes to a human.
     required: false
     default: '0.8'
+  code-rules:
+    description: "check-diff result on the pull request: pass, fail or absent. Empty means it did not report."
+    required: false
+    default: absent
 outputs:
   valid:
     description: Whether the output produced a usable disposition.
@@ -48,12 +52,13 @@ runs:
         PROTECTED_HIT: ${{ inputs.protected-hit }}
         OWNER_HIT: ${{ inputs.owner-hit }}
         CONFIDENCE_THRESHOLD: ${{ inputs.confidence-threshold }}
+        CODE_RULES: ${{ inputs.code-rules }}
       run: |
         set -euo pipefail
 
         outcome="$(bash "${{ github.action_path }}/validate-merge-gate-output.sh" \
           "$OUTPUT_FILE" "$ISSUE_NUMBER" "$CI_CONCLUSION" \
-          "$BLAST_LEVEL" "$PROTECTED_HIT" "$OWNER_HIT" "$CONFIDENCE_THRESHOLD")"
+          "$BLAST_LEVEL" "$PROTECTED_HIT" "$OWNER_HIT" "$CONFIDENCE_THRESHOLD" "$CODE_RULES")"
         echo "outcome=$outcome" >> "$GITHUB_OUTPUT"
         echo "valid=$([ "$outcome" != 'invalid' ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 

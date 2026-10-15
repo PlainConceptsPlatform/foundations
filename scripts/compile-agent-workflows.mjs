@@ -1,4 +1,4 @@
-// Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/scripts/compile-agent-workflows.mjs. Update with `workflows update --force`; consumer edits may be overwritten.
+// Managed by @plainconceptsplatform/workflows@1.3.1. Source: loops/scripts/compile-agent-workflows.mjs. Update with `workflows update --force`; consumer edits may be overwritten.
 
 const OPENCODE_VERSION = '2.0.22'
 const OPENCODE_PACKAGE = '@opencode/cli'
