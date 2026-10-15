@@ -8,6 +8,7 @@
     "node": ">=20"
   },
   "scripts": {
+    "predev": "pnpm --filter @plainconceptsplatform/ui-components build",
     "dev": "pnpm --filter @plainconceptsplatform/docs dev",
     "build": "pnpm -r build",
     "lint": "pnpm lint:code && pnpm lint:md",
@@ -18,6 +19,7 @@
     "lint:md:fix": "markdownlint-cli2 --fix \"**/*.md\"",
     "format": "biome format --write .",
     "typecheck": "pnpm -r typecheck",
+    "verify": "pnpm lint && pnpm typecheck && pnpm build",
     "release:theme": "pnpm typecheck && cd packages/theme && npm publish --access public",
     "release:components": "pnpm typecheck && pnpm --filter @plainconceptsplatform/ui-components build && cd packages/ui-components && npm publish --access public",
     "prepare": "husky"
@@ -28,7 +30,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@plainconceptsplatform/workflows": "0.28.12",
+    "@plainconceptsplatform/workflows": "1.2.3",
     "husky": "^9.1.7",
     "lint-staged": "^17.2.0",
     "markdownlint-cli2": "0.23.2",

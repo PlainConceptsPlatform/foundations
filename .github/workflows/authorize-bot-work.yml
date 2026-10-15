@@ -1,4 +1,4 @@
-# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/workflows/authorize-bot-work.yml. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/workflows/authorize-bot-work.yml. Update with `workflows update --force`; consumer edits may be overwritten.
 # Human adds implement/refine/direct/feature label → validates permission → bot adds bot-working
 # This ensures the bot is the actor for all agentic workflows.
 #
@@ -34,7 +34,7 @@ jobs:
        github.event.label.name == 'refine') &&
       !contains(github.event.issue.labels.*.name, 'bot-working') &&
       !endsWith(github.actor, '[bot]')
-    runs-on: ubuntu-latest
+    runs-on: [agents-aw, "affinity-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}"]
     timeout-minutes: 5
     concurrency:
       group: authorize-${{ github.event.issue.number }}

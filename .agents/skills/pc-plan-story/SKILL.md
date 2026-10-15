@@ -13,6 +13,7 @@ A feature description, need, or rough idea, possibly with exploration findings a
 The caller may pass exploration findings from a prior `/plan-explore` session. Treat them as the primary source for the codebase inventory; read files only to fill gaps the findings do not cover.
 
 <!-- PC-OPTIMIZATION-MEMORY-START -->
+Agentmemory carries context across sessions and agents: before exploring an unfamiliar area, call `memory_smart_search` with the key concepts of the task (components, error text) and reuse what it returns; when the work completes, call `memory_save` for durable non-obvious learnings (architecture constraints, root causes and fixes, decisions and why). Never store secrets.
 <!-- PC-OPTIMIZATION-MEMORY-END -->
 
 ## Rules

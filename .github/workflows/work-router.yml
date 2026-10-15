@@ -1,4 +1,4 @@
-# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/workflows/work-router.yml. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/workflows/work-router.yml. Update with `workflows update --force`; consumer edits may be overwritten.
 name: "# Main Work Router"
 
 # Owns every repository automation trigger. Classifies each event into exactly one route,
@@ -10,38 +10,38 @@ name: "# Main Work Router"
 run-name: >-
   ${{ github.event_name == 'issues'
   && github.event.action == 'opened'
-  && format('Event: Issue opened — #{0} {1} by {2}', github.event.issue.number, github.event.issue.title, github.actor)
+  && format('Event: Issue opened - #{0} {1} by {2}', github.event.issue.number, github.event.issue.title, github.actor)
   || github.event_name == 'issues'
   && github.event.label.name == 'bot-working'
   && contains(github.event.issue.labels.*.name, 'implement')
-  && format('Agent: Implement — #{0} {1}', github.event.issue.number, github.event.issue.title)
+  && format('Agent: Implement - #{0} {1}', github.event.issue.number, github.event.issue.title)
   || github.event_name == 'issues'
   && github.event.label.name == 'bot-working'
   && contains(github.event.issue.labels.*.name, 'refine')
-  && format('Agent: Refine — #{0} {1}', github.event.issue.number, github.event.issue.title)
+  && format('Agent: Refine - #{0} {1}', github.event.issue.number, github.event.issue.title)
   || github.event_name == 'issues'
   && github.event.label.name == 'bot-working'
   && contains(github.event.issue.labels.*.name, 'direct')
-  && format('Working: Direct — #{0} {1}', github.event.issue.number, github.event.issue.title)
+  && format('Working: Direct - #{0} {1}', github.event.issue.number, github.event.issue.title)
   || github.event_name == 'issues'
   && github.event.label.name == 'bot-working'
   && contains(github.event.issue.labels.*.name, 'triage')
-  && format('Agent: Triage — #{0} {1}', github.event.issue.number, github.event.issue.title)
+  && format('Agent: Triage - #{0} {1}', github.event.issue.number, github.event.issue.title)
   || github.event_name == 'issues'
   && github.event.label.name == 'bot-working'
   && format('Working: #{0} {1}', github.event.issue.number, github.event.issue.title)
   || github.event_name == 'issues'
   && github.event.label.name == 'implement'
   && endsWith(github.actor, '[bot]')
-  && format('Agent: Implement — #{0} {1}', github.event.issue.number, github.event.issue.title)
+  && format('Agent: Implement - #{0} {1}', github.event.issue.number, github.event.issue.title)
   || github.event_name == 'issues'
   && github.event.label.name == 'refine'
   && endsWith(github.actor, '[bot]')
-  && format('Agent: Refine — #{0} {1}', github.event.issue.number, github.event.issue.title)
+  && format('Agent: Refine - #{0} {1}', github.event.issue.number, github.event.issue.title)
   || github.event_name == 'issues'
   && github.event.label.name == 'direct'
   && endsWith(github.actor, '[bot]')
-  && format('Working: Direct — #{0} {1}', github.event.issue.number, github.event.issue.title)
+  && format('Working: Direct - #{0} {1}', github.event.issue.number, github.event.issue.title)
   || github.event_name == 'issues'
   && format('Event: {0} on #{1} by {2}', github.event.label.name, github.event.issue.number, github.actor)
   || github.event_name == 'issue_comment'
@@ -56,45 +56,45 @@ run-name: >-
   && format('Event: CI {0} on {1}', github.event.workflow_run.conclusion, github.event.workflow_run.head_branch)
   || github.event_name == 'workflow_dispatch'
   && inputs.operation == 'triage'
-  && format('Agent: Triage — #{0}', inputs.issue-number)
+  && format('Agent: Triage - #{0}', inputs.issue-number)
   || github.event_name == 'workflow_dispatch'
   && inputs.operation == 'refine'
-  && format('Agent: Refine — #{0}', inputs.issue-number)
+  && format('Agent: Refine - #{0}', inputs.issue-number)
   || github.event_name == 'workflow_dispatch'
   && inputs.operation == 'implement'
-  && format('Agent: Implement — #{0}', inputs.issue-number)
+  && format('Agent: Implement - #{0}', inputs.issue-number)
   || github.event_name == 'workflow_dispatch'
   && inputs.operation == 'merge-gate'
-  && format('Agent: Merge Gate — PR #{0}', inputs.pr-number)
+  && format('Agent: Merge Gate - PR #{0}', inputs.pr-number)
   || github.event_name == 'workflow_dispatch'
-  && inputs.operation == 'visual-verify'
-  && format('Agent: Visual Verify — PR #{0}', inputs.pr-number)
+  && inputs.operation == 'evidence'
+  && format('Agentics: Evidence - PR #{0}', inputs.pr-number)
   || github.event_name == 'workflow_dispatch'
   && inputs.operation == 'batch'
-  && format('Working: Batch — #{0}', inputs.issue-number)
+  && format('Working: Batch - #{0}', inputs.issue-number)
   || github.event_name == 'workflow_dispatch'
   && inputs.operation == 'audit'
-  && format('Agent: Audit — manual{0}', '')
+  && format('Agent: Audit - manual{0}', '')
   || github.event_name == 'workflow_dispatch'
   && inputs.operation == 'release'
   && format('Agent: Release{0}', '')
   || github.event_name == 'workflow_dispatch'
   && format('dispatch: {0}', inputs.operation)
   || github.event_name == 'schedule'
-  && github.event.schedule == '17 1 * * 1'
-  && format('Agent: Audit — weekly{0}', '')
+  && github.event.schedule == '47 5 * * 1'
+  && format('Agent: Audit - weekly{0}', '')
   || github.event_name == 'schedule'
   && github.event.schedule == '43 3 * * *'
-  && format('Agentics: Audit Close — daily{0}', '')
+  && format('Agentics: Audit Close - daily{0}', '')
   || github.event_name == 'schedule'
   && github.event.schedule == '0 6 * * *'
-  && format('Agentics: Cleanup — daily{0}', '')
+  && format('Agentics: Cleanup - daily{0}', '')
   || github.event_name == 'schedule'
   && github.event.schedule == '17 * * * *'
-  && format('Agentics: Reconcile — hourly{0}', '')
+  && format('Agentics: Reconcile - hourly{0}', '')
   || github.event_name == 'schedule'
   && github.event.schedule == '23 */6 * * *'
-  && format('Agentics: Maintenance — 6h{0}', '')
+  && format('Agentics: Maintenance - 6h{0}', '')
   || github.event_name == 'schedule'
   && format('schedule {0}', github.event.schedule)
   || github.event_name }}
@@ -112,12 +112,12 @@ env:
   # The CI workflow the merge belt reads its verdict from. A repository whose CI has another
   # name gets no gate at all: the belt logs "no completed CI run" and the pull request waits
   # forever, which is a silent failure rather than a red run.
-  CI_WORKFLOW_NAME: "App: CI"
+  CI_WORKFLOW_NAME: "CI"
   # Slot 0. Every consumer installs this same router, and the agent fleet is one shared,
   # two-VM scale set, so a second repository left on slot 0 audits at the same minute as the
   # first and the two of them consume the whole fleet. Pick a free slot per repository: see
   # "Scheduling across repositories" in the package README.
-  AUDIT_CRON: "17 1 * * 1"
+  AUDIT_CRON: "47 5 * * 1"
   # The bot identities whose label changes and pull requests this router trusts. Space
   # separated, and every login the same account can present: GitHub reports an App as
   # `name[bot]` on some endpoints and `app/name` on others, so both spellings belong here.
@@ -144,6 +144,11 @@ env:
   # merge-gate worker carried its own MAX_ATTEMPTS; the route matrix now asserts the two
   # agree, because a belt that gives up later than the worker says burns whole runs.
   MAX_GATE_ATTEMPTS: "6"
+  # Whether a merged pull request's verification plan is replayed and its screenshots archived on
+  # the pull request (evidence.yml). It needs nothing configured: the app starts with the root
+  # `pnpm run dev`, and a pull request with no plan costs one API call. Set it to "false" for a
+  # repository whose app cannot start on a runner; operation=evidence still works by hand.
+  EVIDENCE_ENABLED: "true"
 
 on:
   issues:
@@ -158,7 +163,8 @@ on:
   pull_request_target:
     # opened / reopened / synchronize feed conflict detection (detect-pr-conflicts) and
     # bot-approve. closed feeds detect-pr-conflicts: when a PR merges, the target branch
-    # moved and previously-mergeable sibling bot PRs may now conflict.
+    # moved and previously-mergeable sibling bot PRs may now conflict. A merge also routes to
+    # evidence, which replays the pull request's verification plan.
     types: [opened, synchronize, reopened, labeled, closed]
 
   # CI completion on a pull request. The classifier admits only conclusion == failure with an
@@ -176,12 +182,12 @@ on:
   # bot-authored, so a fork PR's failing CI cannot start privileged work.
   workflow_run:
     # Mirrored from env.CI_WORKFLOW_NAME by the installer. A trigger evaluates no expression.
-    workflows: ["App: CI"]
+    workflows: ["CI"]
     types: [completed]
 
   # Cron to route mapping lives in .github/actions/classify-route/classify-route.sh.
   schedule:
-    - cron: "17 1 * * 1" # audit slot, mirrored from env.AUDIT_CRON by the installer
+    - cron: "47 5 * * 1" # audit slot, mirrored from env.AUDIT_CRON by the installer
     - cron: "43 3 * * *"
     - cron: "0 6 * * *"
     - cron: "17 * * * *"
@@ -199,7 +205,7 @@ on:
           - triage
           - apply-review
           - merge-gate
-          - visual-verify
+          - evidence
           - audit
           - audit-close
           - cleanup-artifacts
@@ -212,7 +218,7 @@ on:
         required: false
         type: string
       pr-number:
-        description: "Pull request number (required for apply-review / merge-gate)"
+        description: "Pull request number (required for apply-review / merge-gate / evidence)"
         required: false
         type: string
       mode:
@@ -267,7 +273,7 @@ permissions:
 jobs:
   # Public repositories must check repository permission before an event can start a model.
   authorize:
-    runs-on: RunnerLandingZone
+    runs-on: [agents-aw, "affinity-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}"]
     timeout-minutes: 5
     permissions:
       contents: read
@@ -281,11 +287,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           ACTOR: ${{ github.actor }}
           EVENT: ${{ github.event_name }}
-          # Who GitHub says this person is relative to the repository, straight from the
-          # payload. OWNER and MEMBER are the organisation's own; COLLABORATOR is repository
-          # access without organisation membership, which is what triage is for. Read from
-          # here because a repository-scoped GITHUB_TOKEN cannot query org membership.
-          AUTHOR_ASSOCIATION: ${{ github.event.issue.author_association || github.event.comment.author_association || github.event.pull_request.author_association }}
         run: |
           set -euo pipefail
 
@@ -314,48 +315,14 @@ jobs:
           permission=$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$ACTOR/permission" \
             --jq '.permission' 2>/dev/null || echo "none")
 
-          # Is this person one of the organisation's own, or somebody with repository access
-          # from outside it? Triage exists for the second kind.
-          #
-          # The payload answers it. The org API cannot: `orgs/{org}/members/{user}` needs an
-          # org-scoped token and GITHUB_TOKEN is scoped to this repository, so that call failed
-          # for everybody and every admin who opened an issue was declared an outside
-          # collaborator and triaged. It is kept only as a fallback for events that carry no
-          # association, and it can no longer decide "outside" on its own.
-          org=$(echo "$GITHUB_REPOSITORY" | cut -d/ -f1)
-          case "${AUTHOR_ASSOCIATION:-}" in
-            OWNER | MEMBER)
-              is_member=true
-              ;;
-            COLLABORATOR)
-              is_member=false
-              ;;
-            *)
-              # No association in this payload. Ask the org, and believe a yes rather than a
-              # no: a failed call here is indistinguishable from a real non-member.
-              if gh api "orgs/$org/members/$ACTOR" >/dev/null 2>&1; then
-                is_member=true
-              else
-                is_member=unknown
-              fi
-              ;;
-          esac
-
           case "$permission" in
             admin | maintain | write)
-              # "unknown" counts as inside. Somebody with write or better whose membership
-              # cannot be established is far more likely to be a colleague than an outside
-              # collaborator, and treating them as outside starts a triage agent nobody asked
-              # for — which, with a four-hour timeout, holds a runner for the afternoon.
-              if [ "$is_member" != "false" ]; then
-                echo "trusted=true" >> "$GITHUB_OUTPUT"
-                echo "is_outside_collaborator=false" >> "$GITHUB_OUTPUT"
-                echo "::notice::$ACTOR has $permission permission and is an org member."
-              else
-                echo "trusted=true" >> "$GITHUB_OUTPUT"
-                echo "is_outside_collaborator=true" >> "$GITHUB_OUTPUT"
-                echo "::notice::$ACTOR has $permission permission but is NOT an org member (outside collaborator). Triage route eligible."
-              fi
+              # Write or better is a colleague, org member or not: an outside collaborator who
+              # was given write is somebody the team chose to work with, and triaging what they
+              # open starts an agent nobody asked for. Only read access is the outside door.
+              echo "trusted=true" >> "$GITHUB_OUTPUT"
+              echo "is_outside_collaborator=false" >> "$GITHUB_OUTPUT"
+              echo "::notice::$ACTOR has $permission permission."
               ;;
             read)
               echo "trusted=false" >> "$GITHUB_OUTPUT"
@@ -370,7 +337,7 @@ jobs:
           esac
 
   classify:
-    runs-on: RunnerLandingZone
+    runs-on: [agents-aw, "affinity-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}"]
     timeout-minutes: 5
     permissions:
       contents: read
@@ -423,12 +390,12 @@ jobs:
       AGENTMEMORY_SECRET: ${{ secrets.AGENTMEMORY_SECRET }}
 
   # Checks whether an open bot PR already exists for the issue. If it does, implement is
-  # skipped — the merge-gate will handle fixing the existing PR. This prevents duplicate
+  # skipped - the merge-gate will handle fixing the existing PR. This prevents duplicate
   # PRs when retries are triggered after a merge-gate failure.
   check-implement-pr:
     needs: [classify, authorize]
     if: needs.classify.outputs.route == 'implement' && needs.authorize.outputs.trusted == 'true'
-    runs-on: RunnerLandingZone
+    runs-on: [agents-aw, "affinity-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}"]
     timeout-minutes: 3
     permissions:
       contents: read
@@ -519,7 +486,7 @@ jobs:
   dispatch-triage:
     needs: [classify, authorize]
     if: needs.classify.outputs.route == 'triage' && needs.authorize.outputs.is_outside_collaborator == 'true'
-    runs-on: RunnerLandingZone
+    runs-on: [agents-aw, "affinity-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}"]
     timeout-minutes: 5
     permissions:
       actions: write
@@ -547,8 +514,8 @@ jobs:
 
   call-triage:
     needs: [classify, authorize]
-    # Triage on issue open is for outside collaborators only (handled by dispatch-triage).
-    # A trusted actor who opens an issue should not start triage — they can add refine/implement/direct
+    # Triage on issue open is for read-only outside collaborators only (handled by dispatch-triage).
+    # A trusted actor who opens an issue should not start triage - they can add refine/implement/direct
     # labels or manually dispatch triage. All other triage routes (labeled, comment, dispatch) are trusted.
     if: needs.classify.outputs.route == 'triage' && needs.authorize.outputs.trusted == 'true' && !(github.event_name == 'issues' && github.event.action == 'opened')
     uses: ./.github/workflows/agent-triage.lock.yml
@@ -623,18 +590,24 @@ jobs:
       BOT_PRIVATE_KEY: ${{ secrets.BOT_PRIVATE_KEY }}
       AGENTMEMORY_SECRET: ${{ secrets.AGENTMEMORY_SECRET }}
 
-  call-visual-verify:
+  # Screenshots of a merged pull request, replayed from the verification plan its implementation
+  # wrote and archived beside that plan. Plain YAML with no model, so no secret is passed and the
+  # grant is exactly what the publish job writes: one commit of evidence/ folders and one comment. Its capture
+  # job runs the pull request's code with read-only access; only publish holds these writes, and it
+  # runs no repository code.
+  call-evidence:
     needs: classify
-    if: needs.classify.outputs.route == 'visual-verify'
-    uses: ./.github/workflows/agent-visual-verify.lock.yml
-    permissions: write-all
+    if: needs.classify.outputs.route == 'evidence'
+    uses: ./.github/workflows/evidence.yml
+    concurrency:
+      group: evidence-${{ needs.classify.outputs.pr-number }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
     with:
       pr-number: ${{ needs.classify.outputs.pr-number }}
-      linked-issue: ${{ needs.classify.outputs.linked-issue }}
-    secrets:
-      OPENAI_API_KEY: ${{ secrets.FORGE_API_KEY }}
-      CODEX_API_KEY: ${{ secrets.FORGE_API_KEY }}
-      COPILOT_GITHUB_TOKEN: ${{ secrets.FORGE_API_KEY }}
 
   call-audit:
     needs: classify
@@ -663,13 +636,16 @@ jobs:
       version-bump: ${{ github.event.inputs.version-bump || 'auto' }}
     secrets:
       OPENAI_API_KEY: ${{ secrets.FORGE_API_KEY }}
+      # The release PR is pushed and opened with the App token so its CI runs; see conclude.
+      BOT_APP_ID: ${{ secrets.BOT_APP_ID }}
+      BOT_PRIVATE_KEY: ${{ secrets.BOT_PRIVATE_KEY }}
 
   bot-approve:
     needs: classify
     if: >
       needs.classify.outputs.route == 'bot-approve' &&
         (github.actor == 'app/github-actions' || github.actor == 'platform-devbox[bot]')
-    runs-on: RunnerLandingZone
+    runs-on: [agents-aw, "affinity-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}"]
     timeout-minutes: 5
     permissions:
       actions: write
@@ -700,8 +676,8 @@ jobs:
   # Conflict watcher for bot pull requests. Merge-conflict state is only available from the
   # mergeability API, which the pure classifier cannot read, so this is an event-gated
   # deterministic dispatcher rather than a classify route (it runs alongside bot-approve on
-  # the same pull_request_target event). It NEVER checks out or runs pull request code — it
-  # reads mergeability through the API and dispatches the Merge Gate — so it is safe on
+  # the same pull_request_target event). It NEVER checks out or runs pull request code - it
+  # reads mergeability through the API and dispatches the Merge Gate - so it is safe on
   # pull_request_target. Two entry points:
   #   opened / reopened / synchronize → check the pull request that changed. Gated to this
   #     repository's own branches so a fork PR never starts this App-token job.
@@ -726,7 +702,7 @@ jobs:
           github.event.pull_request.head.repo.full_name == github.repository
         )
       )
-    runs-on: RunnerLandingZone
+    runs-on: [agents-aw, "affinity-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}"]
     timeout-minutes: 10
     permissions:
       contents: read
@@ -754,7 +730,7 @@ jobs:
           set -euo pipefail
 
           # Dispatch the Merge Gate for one pull request when it is a red-CI open, non-draft
-          # pull request on this repository whose CI has concluded — the
+          # pull request on this repository whose CI has concluded - the
           # conflict case is one arm of that, because a conflicting PR never gets a fresh
           # CI run of its own; a merge conflict with red or concluded CI is the same
           # "needs the gate" signal. A green non-conflicting PR is left for the merge belt
@@ -918,7 +894,7 @@ jobs:
   reconcile-bot-pr-runs:
     needs: classify
     if: needs.classify.outputs.route == 'reconcile-bot-pr-runs'
-    runs-on: RunnerLandingZone
+    runs-on: [agents-aw, "affinity-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}"]
     timeout-minutes: 5
     permissions:
       contents: read
@@ -1145,7 +1121,7 @@ jobs:
   audit-close:
     needs: classify
     if: needs.classify.outputs.route == 'audit-close'
-    runs-on: RunnerLandingZone
+    runs-on: [agents-aw, "affinity-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}"]
     timeout-minutes: 15
     concurrency:
       group: audit-close
@@ -1170,7 +1146,7 @@ jobs:
   cleanup-artifacts:
     needs: classify
     if: needs.classify.outputs.route == 'cleanup-artifacts' && !github.event.repository.fork
-    runs-on: RunnerLandingZone
+    runs-on: [agents-aw, "affinity-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}"]
     timeout-minutes: 15
     concurrency:
       group: cleanup-artifacts
@@ -1194,7 +1170,7 @@ jobs:
   housekeeping:
     needs: classify
     if: needs.classify.outputs.route == 'housekeeping' && !github.event.repository.fork
-    runs-on: RunnerLandingZone
+    runs-on: [agents-aw, "affinity-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}"]
     timeout-minutes: 15
     concurrency:
       group: housekeeping
@@ -1235,7 +1211,7 @@ jobs:
   validate:
     needs: classify
     if: needs.classify.outputs.route == 'validate'
-    runs-on: RunnerLandingZone
+    runs-on: [agents-aw, "affinity-${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}"]
     timeout-minutes: 10
     permissions:
       contents: read

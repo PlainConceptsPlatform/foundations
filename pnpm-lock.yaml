@@ -12,8 +12,8 @@ importers:
         specifier: ^1.9.4
         version: 1.9.4
       '@plainconceptsplatform/workflows':
-        specifier: 0.28.12
-        version: 0.28.12
+        specifier: 1.2.3
+        version: 1.2.3
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -653,8 +653,8 @@ packages:
     resolution: {integrity: sha512-a61ljmRVVyG5MC/698C8/FfFDw5a8LOIvyOLW5fztgUXqUpc1jOfQzOitSCbge657OgXXThmY3Tk8fpiDb4UcA==}
     engines: {node: '>= 20.0.0'}
 
-  '@plainconceptsplatform/workflows@0.28.12':
-    resolution: {integrity: sha512-jB6wi+ieZn4G1k7MsFsOeAq27sTrqtLKF1qHmLw8xURThRHUrKM7Vn8qZ8DmcU08N6gnwLgLn396Aut0yfCz3g==}
+  '@plainconceptsplatform/workflows@1.2.3':
+    resolution: {integrity: sha512-gyfIM6oQWrmycgUCqQhiwf0N+2g7VT9B5JqrhDLXo1XiiaAnpXYBEs2hRV+ofb9+PwsAHHHJZ2jpmaXS4AVMKg==}
     engines: {node: '>=20.19'}
     hasBin: true
 
@@ -3499,7 +3499,7 @@ snapshots:
 
   '@orama/orama@3.1.18': {}
 
-  '@plainconceptsplatform/workflows@0.28.12':
+  '@plainconceptsplatform/workflows@1.2.3':
     dependencies:
       yaml: 2.9.0
 

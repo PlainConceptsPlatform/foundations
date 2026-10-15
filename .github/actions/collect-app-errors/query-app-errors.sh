@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/actions/collect-app-errors/query-app-errors.sh. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/actions/collect-app-errors/query-app-errors.sh. Update with `workflows update --force`; consumer edits may be overwritten.
 #
 # Ask the Log Analytics workspace what the application threw, and write the rows to a file.
 #
@@ -48,7 +48,7 @@ let thrown =
     AppExceptions
     | where TimeGenerated > window
     | extend Problem = ProblemId, Kind = ExceptionType, Stack = Details,
-             Msg = outerMessage, Category = "";
+             Msg = OuterMessage, Category = "";
 let logged =
     AppTraces
     | where TimeGenerated > window

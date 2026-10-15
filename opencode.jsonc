@@ -1,0 +1,90 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "compaction": {
+    "auto": true,
+    "buffer": 10000
+  },
+  "default_agent": "plan",
+  "model": "plainconcepts/quasar-438b",
+  "skills": [
+    ".agents/skills"
+  ],
+  "mcp": {
+    "servers": {
+      "codegraph": {
+        "type": "local",
+        "command": [
+          "npx",
+          "@colbymchenry/codegraph",
+          "serve",
+          "--mcp"
+        ],
+        "timeout": {
+          "catalog": 120000,
+          "execution": 120000
+        },
+        "disabled": false
+      },
+      "agentmemory": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@agentmemory/mcp"
+        ],
+        "timeout": {
+          "catalog": 120000,
+          "execution": 120000
+        },
+        "disabled": false
+      },
+      "agent-browser": {
+        "type": "local",
+        "command": [
+          "agent-browser",
+          "mcp",
+          "--tools",
+          "core"
+        ],
+        "disabled": false
+      }
+    },
+    "timeout": {
+      "catalog": 120000,
+      "execution": 120000
+    }
+  },
+  "permissions": [
+    {
+      "action": "skill",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "question",
+      "resource": "*",
+      "effect": "allow"
+    }
+  ],
+  "agents": {
+    "build": {
+      "mode": "primary"
+    },
+    "plan": {
+      "mode": "primary",
+      "permissions": [
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "subagent",
+          "resource": "*",
+          "effect": "deny"
+        }
+      ]
+    }
+  },
+  "plugins": []
+}

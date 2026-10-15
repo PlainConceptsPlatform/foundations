@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "generatedAt": "2026-10-15T04:10:02.085Z",
+  "onboardVersion": "1.6.7",
+  "opencodeVersion": "2.0.22",
+  "platform": {
+    "backlog": "github",
+    "repo": "github"
+  },
+  "models": {
+    "plan": "plainconcepts/glm-5-3",
+    "build": "plainconcepts/quasar-438b",
+    "fast": "plainconcepts/carina-60b"
+  },
+  "agents": {
+    "maxConcurrent": 4
+  },
+  "source": {
+    "mode": "current",
+    "roots": [
+      "."
+    ]
+  },
+  "tools": {
+    "rtk": true,
+    "quota": true,
+    "codegraph": true,
+    "memory": true,
+    "simpleEnglish": true,
+    "humanizer": true
+  },
+  "preexisting": {
+    "design": true,
+    "architecture": true,
+    "openspec": false
+  },
+  "harnessVersion": "3.1.0"
+}

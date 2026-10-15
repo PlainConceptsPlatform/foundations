@@ -18,6 +18,11 @@
     // (PlainConceptsPlatform/agentic-workflows); a reflow here would be lost on the next
     // `workflows update`. Biome ignores the package's scripts and actions for the same reason.
     ".github/workflows/**/*.md",
-    "docs/diagrams.md"
+    "docs/diagrams.md",
+    // Installed by @plainconceptsplatform/agent-harness (`agent-harness update` rewrites them) and
+    // by its third-party skills (humanizer, user-story, simple-english, agentmemory). Fix their
+    // prose upstream; a reflow here would be lost on the next update.
+    ".agents/**",
+    ".opencode/**"
   ]
 }

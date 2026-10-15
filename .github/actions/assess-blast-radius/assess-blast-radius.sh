@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/actions/assess-blast-radius/assess-blast-radius.sh. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/actions/assess-blast-radius/assess-blast-radius.sh. Update with `workflows update --force`; consumer edits may be overwritten.
 # Classify a pull request's blast radius from its changed paths and diff shape.
 #
 # Reads the changed paths on stdin, one per line. Prints GITHUB_OUTPUT lines on stdout.
