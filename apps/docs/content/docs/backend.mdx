@@ -112,6 +112,14 @@ Wire both values from the environment config (`infra/pro.env`) through the infra
 
 Structured logging with `ILogger<T>` and OpenTelemetry for traces and metrics. Never log secrets or personal data. Run dependency and secret scanning in CI. The `plain-engineering-conventions` references cover observability and security in depth.
 
+### Keeping apps out of search engines
+
+Platform apps are internal, on `*.plainconcepts.com` subdomains, and must not show up next to the company's public site:
+
+- Send `X-Robots-Tag: noindex, nofollow` on **every** response, HTML or not, from a middleware registered first.
+- Serve `/robots.txt` with `Disallow: /` behind the `Robots:DisallowAll` setting, and switch it on only after the `noindex` header has been live: if crawling is blocked first, the crawler never sees the `noindex` and an indexed URL can stay indexed. New hostnames can switch it on from day one.
+- The root goes straight to the Entra ID sign-in for an anonymous visitor and shows none of the app's own content.
+
 ## Skills for agents
 
 `plain-engineering-conventions`, `plain-dotnet-guardrails`, `clean-ddd-hexagonal`, `dotnet-backend-patterns`, `modern-csharp-coding-standards`, `optimizing-ef-core-queries`, `csharp-xunit`. See [AI and agents](/docs/ai) for how to install them.

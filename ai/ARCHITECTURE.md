@@ -308,4 +308,12 @@ Follow the pyramid: many **unit** tests (xUnit), fewer **integration/functional*
 
 Infrastructure, pipelines, and configuration live in the repo (IaC, CI/CD, GitOps). Security checks (dependency and secret scanning, SAST, SBOM, and DAST against a test environment) run in CI as required checks; the full set of gates, their modes, and how Project-Health scores them are in [`ENGINEERING.md`](ENGINEERING.md). Observability uses structured logging and OpenTelemetry.
 
+### Keeping Platform apps out of search engines
+
+Every Platform app is internal and lives on a `*.plainconcepts.com` subdomain, so nothing it serves may compete with or leak into the company's public site in search results. Three rules, all mandatory:
+
+1. **`X-Robots-Tag: noindex, nofollow` on every response** (HTML, JSON, static files, errors and redirects), set in code by a middleware registered first so it survives the exception handler. The edge (Application Gateway / Front Door) may add it as a second layer, never instead of the code.
+2. **`/robots.txt` with `User-agent: *` / `Disallow: /`**, behind a setting (`Robots:DisallowAll`) that is switched on only after the `noindex` header has been live long enough for crawlers to see it. Blocking crawling first means a crawler never fetches the page, never reads the `noindex`, and an already-indexed URL can stay indexed. A brand-new hostname with no history can switch it on from day one.
+3. **The root never shows the app's own content to an anonymous visitor**: without a session it goes straight to the Entra ID sign-in (server-side redirect when the routing allows it; otherwise a sign-in screen with no branding or copy while it redirects). Public routes an app deliberately exposes (share links, escalation tokens) are the only exceptions and must also carry the header.
+
 <!-- Last updated: 2026-07-23 -->
