@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/docs/diagrams.md. Update with workflows update --force; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/docs/diagrams.md. Update with workflows update --force; consumer edits may be overwritten.
 ---
 # Diagrams
 
@@ -37,9 +37,9 @@ without touching the others.
 flowchart TD
     ev{"One GitHub event"} --> classify
     classify["classify (rung 1)<br/>pure shell, no network<br/>one event in, one route out"] --> authorize
-    authorize{"authorize (rung 1)<br/>Write permission, and is the<br/>actor one of the org's own?"}
+    authorize{"authorize (rung 1)<br/>Write permission, or<br/>read only?"}
     authorize -->|"human, trusted"| work
-    authorize -->|"outside collaborator"| triageOnly
+    authorize -->|"read only"| triageOnly
     authorize -.->|"no permission"| idle
     work{"route"} -->|refine| wRefine
     work -->|implement| wImpl
@@ -79,7 +79,7 @@ fewer events, not adding more guards.
 ```mermaid
 flowchart LR
     open("Issue opened") --> triage
-    triage{"triage<br/>outside collaborator"} -->|pass| refine
+    triage{"triage<br/>read-only opener"} -->|pass| refine
     triage -.->|block| closed(("Closed"))
     triage -.->|needs-info| author("Author replies") --> triage
     write("Write+ user<br/>self-labels") --> refine
@@ -114,9 +114,9 @@ instead of one pull request that has to fix them all.
 
 ## agent-triage.md
 
-The front door for issues opened from outside the organisation. The gate is membership, not permission
-level: an org member with write skips triage and self-labels into the pipeline, while an outside
-collaborator goes through it even when they hold write.
+The front door for issues opened by people with read-only access. The gate is permission level, not
+membership: anybody with write skips triage and self-labels into the pipeline, org member or not, while
+a read-only outside collaborator goes through it.
 
 Four outcomes, and only one of them closes anything. `needs-maintainer` is the one worth knowing: the
 request is legitimate but addressed to the wrong intake, so the issue stays open with `review` and a
@@ -125,7 +125,7 @@ maintainer takes it on by adding `refine`.
 ```mermaid
 flowchart TD
     triStart("Work Router<br/>triage route") --> triPick
-    triPick{"Opened by an<br/>outside collaborator?"} -->|yes| triReserve
+    triPick{"Opened by a read-only<br/>outside collaborator?"} -->|yes| triReserve
     triPick -.->|"no, write+ user"| triIdle
     triReserve("Reserve (rung 4)<br/>bot-working + triage") --> triFacts
     triFacts("Facts (rung 3)<br/>Issue, comments and every open<br/>issue written to disk") --> triRound
@@ -412,7 +412,8 @@ reads them next time.
 
 ## agent-release.md
 
-Manual dispatch only. The agent writes prose; a deterministic job does everything irreversible.
+Manual dispatch only. The agent writes prose; deterministic jobs do everything irreversible, and
+nothing reaches `main` except through a pull request.
 
 ```mermaid
 flowchart TD
@@ -420,26 +421,34 @@ flowchart TD
     relFacts("Facts (rung 3)<br/>Commit log since the last tag<br/>and the current version, to disk") --> relAgent
     relAgent("Agent (rung 5)<br/>Categorise by conventional-commit<br/>prefix, write release-notes.md.<br/>The only judgement in this route") --> relNoop
     relNoop("noop<br/>the agent writes a file,<br/>not a GitHub object") --> relConclude
-    relConclude["conclude (rung 6)<br/>Bump: BREAKING is major,<br/>feat is minor, else patch"] --> relPush
-    relPush("Commit, tag, push,<br/>create the GitHub Release") --> relDone
+    relConclude["conclude (rung 6)<br/>Bump: BREAKING is major,<br/>feat is minor, else patch"] --> relPr
+    relPr("App token: push release/vX.Y.Z,<br/>open chore(release) PR,<br/>enable squash auto-merge") --> relMerge
+    relMerge{"CI green and<br/>auto-merge allowed?"}
+    relMerge -->|yes| relTag
+    relMerge -.->|auto-merge disabled| relOpen
+    relTag("release-tag.yml on push to main<br/>GITHUB_TOKEN: tag vX.Y.Z,<br/>Release with the PR body as notes") --> relDone
     relConclude -.->|fails| relFail
-    relDone(("Released<br/>tag and Release published"))
-    relFail(("Failed<br/>no tag created, nothing partial"))
+    relOpen(("PR left open<br/>warning names the fix"))
+    relDone(("Released<br/>tag and Release published,<br/>no tag-triggered workflow fired"))
+    relFail(("Failed<br/>no branch, nothing partial"))
 
     classDef start fill:#ffffff,stroke:#172033,stroke-width:2px,color:#172033
     classDef action fill:#eef0ff,stroke:#554cff,stroke-width:2px,color:#172033
     classDef decision fill:#fff8e8,stroke:#c75b00,stroke-width:2px,color:#172033
+    classDef idle fill:#202c40,stroke:#738198,stroke-width:2px,color:#ffffff
     classDef failure fill:#fff0f0,stroke:#ef2929,stroke-width:2px,color:#8b1a1a
     classDef success fill:#e8f8ec,stroke:#18883c,stroke-width:2px,color:#145a32
     class relStart start
-    class relFacts,relAgent,relNoop,relPush action
-    class relConclude decision
+    class relFacts,relAgent,relNoop,relPr,relTag action
+    class relConclude,relMerge decision
     class relFail failure
+    class relOpen idle
     class relDone success
 ```
 
 The version bump, the tag and the Release are deterministic on purpose. The agent's only output is
-a file on disk, so a confused model cannot publish a release.
+a file on disk, so a confused model cannot publish a release. The tag and the Release use
+`GITHUB_TOKEN` so that a consumer deploying on `v*` tags does not deploy because a release was cut.
 
 
 ---
@@ -449,7 +458,7 @@ a file on disk, so a confused model cannot publish a release.
 Not a worker: a deterministic job in the router, on its own six-hourly cron, with no model. It is
 the answer to a specific measured problem. Across the four consumers, 58 of 237 issues closed since
 1 August were closed by the bot; autonomy ran between 6% and 50%. The gap was not bad decisions, it
-was silence — work that stopped and told nobody, and state that nothing ever cleaned up.
+was silence work that stopped and told nobody, and state that nothing ever cleaned up.
 
 The one rule that shapes it: **retry a failure, report a decision.** A crash, a timeout or an empty
 output is a machine failure, and the worker marks it `stalled`; those are worth running again. A
@@ -490,7 +499,7 @@ Three things make it safe to leave running unattended. It uses the App token, be
 no workflow run from an event raised with `GITHUB_TOKEN`, so with the default token every retry
 would be a green no-op. Every write goes through one `act()` wrapper, which is the only place
 `dry-run` is read, so there is no second path that forgets to check it. And it closes exactly two
-kinds of issue — a split parent whose children are all done, and its own digest — which the route
+kinds of issue a split parent whose children are all done, and its own digest which the route
 matrix asserts by counting.
 
 ---
@@ -571,7 +580,7 @@ the repository it runs in. Every consumer is private, so that is the whole desig
 What crosses the boundary is a fixed, enumerable set of facts about workflows **this package ships**:
 their file names, their job and step names, a conclusion, a runner label, a count, and the id of a
 matched entry from a catalogue of sixteen known failure shapes. What never crosses it is free text
-of any kind — no log line, no branch name, no issue title, no path, no URL, no number that could be
+of any kind no log line, no branch name, no issue title, no path, no URL, no number that could be
 looked up. Hence no model: a model asked to summarise a failure paraphrases whatever the log held.
 
 ```mermaid
@@ -613,49 +622,44 @@ earlier versions of them passed against a deliberately broken guard and were rew
 
 ---
 
-## agent-visual-verify.md
+## evidence.yml
 
-Runs after merge-gate decides to auto-merge, before the actual merge, and produces **evidence, not
-code changes**: it writes a verification plan, drives a real browser through the app, and attaches
-screenshots to the linked issue. It is called directly by merge-gate's `conclude` job, so it is not
-a router route. Failures never block the merge — a browser that will not start or an app that never
-comes up emits a warning comment and the merge proceeds.
+Archives what a merged pull request looks like. Not an agent: the plan was written by the agent that
+implemented the change (`pc-repo-verify`), and this replays it. The router calls it when a pull
+request merges, and `operation=evidence` runs it by hand. Nothing waits on it. The screenshots are
+committed beside each plan, in an `evidence/` folder on the default branch, so the record stays with
+the change it proves; the comment embeds a manifest that Project Health reads. A pull request that
+is not merged has no plan on the default branch, so its screenshots stay in the run's artifact.
+The capture job runs the pull request's code with a read-only token; only the publish job writes,
+and it runs no repository code.
 
 ```mermaid
 flowchart TD
-    vvStart("merge-gate conclude<br/>calls agent-visual-verify") --> vvSubject
-    vvSubject["subject (rung 4)<br/>PR open? linked issue found?"] --> vvConfig
-    vvConfig{"config (rung 4)<br/>VISUAL_VERIFY_ENABLED and<br/>START_COMMAND set?"}
-    vvConfig -.->|"no"| vvIdle
-    vvConfig -->|"yes"| vvFacts
-    vvFacts["Facts (rung 3)<br/>PR branch checked out,<br/>issue context loaded"] --> vvPlan
-    vvPlan{"/repo-verify (rung 5)<br/>reachable UI surface?"}
-    vvPlan -.->|"not-applicable"| vvNoUi
-    vvPlan -->|"yes"| vvStartCmd
-    vvStartCmd{"start command set?<br/>VISUAL_VERIFY_START_COMMAND"}
-    vvStartCmd -.->|"empty"| vvNoStart
-    vvStartCmd -->|"yes"| vvAgent
-    vvAgent["Agent (rung 5)<br/>parse waypoints into plan.json,<br/>one add_comment on the issue"] --> vvCapture
-    vvCapture["post-agent (rung 6)<br/>build + start the app,<br/>agent-browser captures per waypoint"] --> vvAttach
-    vvAttach["attach-screenshots (rung 6)<br/>always(), subject found + enabled"] --> vvShutdown
-    vvShutdown["shut down the app"] --> vvDone
-    vvCapture -.->|"app never started,<br/>no plan, or all waypoints failed"| vvPartial
-    vvDone(("Verified<br/>screenshots attached,<br/>merge proceeds"))
-    vvPartial(("Attach what exists<br/>no-capture explanation,<br/>run stays green"))
-    vvNoUi(("No UI surface<br/>summary comment, stop"))
-    vvNoStart(("Not configured<br/>warning comment, stop"))
-    vvIdle(("Idle<br/>unconfigured or PR not open"))
+    evStart("router: pull request merged<br/>or operation=evidence") --> evPlans
+    evPlans{"verification-plan.md<br/>in the pull request?"}
+    evPlans -.->|"no"| evIdle
+    evPlans -->|"yes"| evInspect
+    evInspect{"capture-evidence inspect<br/>a replayable journey?"}
+    evInspect -.->|"not-applicable or prose"| evIdle
+    evInspect -->|"yes"| evApp
+    evApp["capture (read-only)<br/>check out the head,<br/>install, start the app"] --> evUp
+    evUp{"app answers at<br/>the plan's url?"}
+    evUp -->|"yes"| evReplay
+    evUp -.->|"no, after the timeout"| evUnreached
+    evReplay["replay each waypoint<br/>in headless Chromium,<br/>one JPEG per waypoint"] --> evPublish
+    evUnreached["record why nothing<br/>was captured"] --> evPublish
+    evPublish["publish (GITHUB_TOKEN)<br/>commit beside each plan,<br/>evidence/ on the default branch,<br/>upsert one comment"] --> evDone
+    evDone(("Archived<br/>beside the plan"))
+    evIdle(("Nothing to capture"))
 
     classDef start fill:#ffffff,stroke:#172033,stroke-width:2px,color:#172033
     classDef action fill:#eef0ff,stroke:#554cff,stroke-width:2px,color:#172033
     classDef decision fill:#fff8e8,stroke:#c75b00,stroke-width:2px,color:#172033
-    classDef idle fill:#202c40,stroke:#738198,stroke-width:2px,color:#ffffff
-    classDef failure fill:#fff0f0,stroke:#ef2929,stroke-width:2px,color:#8b1a1a
+    classDef idle fill:#f4f4f6,stroke:#5b5b66,stroke-width:2px,color:#2b2b33
     classDef success fill:#e8f8ec,stroke:#18883c,stroke-width:2px,color:#145a32
-    class vvStart start
-    class vvSubject,vvFacts,vvCapture,vvAttach,vvShutdown action
-    class vvConfig,vvPlan,vvStartCmd decision
-    class vvIdle idle
-    class vvNoUi,vvNoStart,vvPartial failure
-    class vvDone success
+    class evStart start
+    class evApp,evReplay,evUnreached,evPublish action
+    class evPlans,evInspect,evUp decision
+    class evIdle idle
+    class evDone success
 ```

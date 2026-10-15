@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/actions/validate-triage-output/validate-triage-output.sh. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/actions/validate-triage-output/validate-triage-output.sh. Update with `workflows update --force`; consumer edits may be overwritten.
 # Print the deterministic triage outcome: pass, needs-info, needs-maintainer, block, or invalid.
 #
 # needs-maintainer and block are both refusals of product-owner intake, and they part company on what
@@ -18,7 +18,7 @@ fi
 
 # The agent emits exactly one add_comment on the source issue. The comment body
 # must contain a verdict line matching **Verdict:** pass|needs-info|needs-maintainer|block.
-# capture() returns an object — use a named group (?<v>...) to extract the value.
+# capture() returns an object use a named group (?<v>...) to extract the value.
 # test() before capture() avoids jq errors on non-matching bodies.
 jq -r --arg issue "$issue_number" '
   def extract_verdict:

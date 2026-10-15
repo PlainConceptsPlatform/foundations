@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/actions/classify-route/classify-route.sh. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/actions/classify-route/classify-route.sh. Update with `workflows update --force`; consumer edits may be overwritten.
 # Classify one GitHub event into exactly one route. Pure: no network, no gh calls, so
 # verify-route-matrix.sh can source this file and exercise the same code the router runs.
 #
@@ -43,8 +43,8 @@ classify_route() {
         if has_label refine || has_label implement; then
           error="issue opened with a work label; triage skipped"
         else
-          # Issue opened by an outside collaborator → triage. The authorize job
-          # gates the caller on is_outside_collaborator; this routes unconditionally
+          # Issue opened by a read-only outside collaborator → triage. The authorize
+          # job gates the caller on is_outside_collaborator; this routes unconditionally
           # so write+ openers classify to triage but the caller job skips them.
           route="triage"
           triage_mode="first"
@@ -148,6 +148,17 @@ classify_route() {
         # CI status will be fetched by the merge-gate workflow
         ci_conclusion=""
         ci_run_id=""
+      elif [ "${ACTION:-}" = "closed" ] && [ "${PR_MERGED:-false}" = "true" ]; then
+        # A merge is when the change's verification plan describes what the default branch now
+        # does, so the evidence run replays it then. detect-pr-conflicts reacts to this same
+        # event as its own event-gated job, not as a route, so taking the route here costs it
+        # nothing.
+        if [ "${EVIDENCE_ENABLED:-true}" = "true" ]; then
+          route="evidence"
+          pr_number="${EVENT_PR_NUMBER:-}"
+        else
+          error="evidence is turned off for this repository (EVIDENCE_ENABLED)"
+        fi
       else
         route="bot-approve"
       fi
@@ -230,12 +241,13 @@ classify_route() {
             error="operation 'merge-gate' needs a positive pr-number, got '${INPUT_PR_NUMBER:-}'"
           fi
           ;;
-        visual-verify)
+        evidence)
+          # By hand it runs whatever EVIDENCE_ENABLED says: asking for it is the opt-in.
           if is_issue_number "${INPUT_PR_NUMBER:-}"; then
-            route="visual-verify"
+            route="evidence"
             pr_number="${INPUT_PR_NUMBER}"
           else
-            error="operation 'visual-verify' needs a positive pr-number, got '${INPUT_PR_NUMBER:-}'"
+            error="operation 'evidence' needs a positive pr-number, got '${INPUT_PR_NUMBER:-}'"
           fi
           ;;
         audit)

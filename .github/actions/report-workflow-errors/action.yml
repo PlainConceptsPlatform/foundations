@@ -1,4 +1,4 @@
-# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/actions/report-workflow-errors/action.yml. Update with workflows update --force; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/actions/report-workflow-errors/action.yml. Update with workflows update --force; consumer edits may be overwritten.
 name: Report workflow errors upstream
 description: >-
   Summarise the last day of failures in the workflows this package ships and file the summary
@@ -83,6 +83,7 @@ runs:
           const OWNED = new Set([
             'work-router.yml',
             'authorize-bot-work.yml',
+            'release-tag.yml',
             'agentics-checks.yml',
             'agentics-maintenance.yml',
             ...['refine', 'implement', 'triage', 'apply-review', 'merge-gate', 'audit', 'release']

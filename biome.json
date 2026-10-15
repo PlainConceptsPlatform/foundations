@@ -43,7 +43,12 @@
       "**/*.generated.ts",
       ".github/actions/**",
       "scripts/compile-agent-workflows.mjs",
-      "scripts/merge-changelog.mjs"
+      "scripts/merge-changelog.mjs",
+      "opencode.ci.json",
+      "opencode.jsonc",
+      "skills-lock.json",
+      ".opencode/**",
+      ".agents/**"
     ]
   }
 }

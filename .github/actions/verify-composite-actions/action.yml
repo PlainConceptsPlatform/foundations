@@ -1,4 +1,4 @@
-# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/actions/verify-composite-actions/action.yml. Update with workflows update --force; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/actions/verify-composite-actions/action.yml. Update with workflows update --force; consumer edits may be overwritten.
 name: Verify composite actions
 description: Check every local composite action manifest parses and uses only contexts a composite action actually has.
 runs:

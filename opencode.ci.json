@@ -1,7 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "forge/glm-5-3",
-  "plugins": [],
+  "model": "forge/glm-5-2",
   "default_agent": "ci-workflow-agent",
   "agents": {
     "ci-workflow-agent": {
@@ -45,18 +44,17 @@
         "apiKey": "{env:OPENAI_API_KEY}"
       },
       "models": {
-        "glm-5-3": {
-          "name": "GLM 5.3",
-          "capabilities": {}
-        },
         "glm-5-2": {
           "name": "GLM 5.3",
-          "tool_call": true,
-          "reasoning": true,
-          "attachment": true,
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
+          "capabilities": {
+            "tools": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
           },
           "limit": {
             "context": 1048576,
@@ -66,7 +64,21 @@
         },
         "quasar-438b": {
           "name": "GLM 5.2",
-          "capabilities": {}
+          "capabilities": {
+            "tools": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 1048576,
+            "input": 1048576,
+            "output": 131072
+          }
         }
       }
     }

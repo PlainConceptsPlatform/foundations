@@ -1,4 +1,4 @@
-# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/actions/classify-route/action.yml. Update with workflows update --force; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/actions/classify-route/action.yml. Update with workflows update --force; consumer edits may be overwritten.
 name: Classify route
 description: Classify the triggering event into exactly one route, and resolve the issue a gated pull request closes.
 inputs:
@@ -53,6 +53,7 @@ runs:
         ISSUE_STATE: ${{ github.event.issue.state }}
         EVENT_ISSUE_NUMBER: ${{ github.event.issue.number }}
         EVENT_PR_NUMBER: ${{ github.event.pull_request.number }}
+        PR_MERGED: ${{ github.event.pull_request.merged }}
         COMMENT_ON_PR: ${{ github.event.issue.pull_request != '' }}
         COMMENT_SENDER_TYPE: ${{ github.event.comment.user.type }}
         ACTOR: ${{ github.actor }}

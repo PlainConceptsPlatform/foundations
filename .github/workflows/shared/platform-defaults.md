@@ -1,11 +1,15 @@
 ---
-# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/workflows/shared/platform-defaults.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/workflows/shared/platform-defaults.md. Update with `workflows update --force`; consumer edits may be overwritten.
 description: Shared network and safe-output defaults for catalog agent workflows, plus the verification rules every worker that builds or pushes has to follow. The body below is runtime-imported into each worker's prompt ahead of its own steps.
 
 network:
   allowed:
     - defaults
     - forge.plainconcepts.com
+    # opencode fetches its model registry from models.opencode.ai at startup; without
+    # this host on the allowlist the fetch blocks bootstrap and the run stalls after
+    # "init" until the runner kills it. The apex "opencode.ai" is not enough.
+    - models.opencode.ai
     - node
     - github
     - dotnet

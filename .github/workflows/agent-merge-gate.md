@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows@0.28.15. Source: loops/workflows/agent-merge-gate.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.2.3. Source: loops/workflows/agent-merge-gate.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   VERIFY_COMMANDS: "pnpm verify"
   REPO_RULES: "Review the selected bot pull request for defects and report what you verified. Do not decide the outcome: the workflow computes it from your report and from facts it measured before you ran."
@@ -18,7 +18,7 @@ env:
   # repository built on anything else, which is the failure worth knowing about: an unmatched
   # list protects nothing and reports nothing. A match holds the merge for a human; it does not
   # stop the agent repairing failed CI on the same files.
-  PROTECTED_PATHS: '^(\.|AGENTS\.md$|ARCHITECTURE\.md$|opencode\.jsonc$|package\.json$|pnpm-lock\.yaml$|Directory\.Packages\.props$|global\.json$)'
+  PROTECTED_PATHS: '^(\.|AGENTS\.md$|ARCHITECTURE\.md$|DESIGN\.md$|ai/|opencode\.jsonc$|opencode\.ci\.json$|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|(apps|packages)/[^/]+/package\.json$|packages/theme/src/)'
   # Paths whose change needs the person who owns them. A match forces OWNER REVIEW REQUIRED and
   # sets blast radius high on its own, whatever the diff's size. CODEOWNERS names who is asked
   # when the repository has that file; it is never a prerequisite, because a repository without
@@ -55,7 +55,7 @@ env:
   # than chose not to. The belt does not retry a blocked pull request.
   OWNER_REVIEW_LABEL: owner-review
   BLOCKED_LABEL: blocked
-  # Marks a park the machine caused — a crash, a timeout, an empty output — as opposed to one it
+  # Marks a park the machine caused a crash, a timeout, an empty output as opposed to one it
   # decided on. The janitor retries these after a while and never touches a decision park, because
   # re-running a decision produces the same decision. Created idempotently where it is applied.
   STALLED_LABEL: stalled
@@ -72,14 +72,6 @@ env:
   # one unusable report can keep every other bot pull request in the repository waiting.
   PARK_AT_UNUSABLE_OUTPUT: "2"
   ISSUE_CONTEXT_PATH: /tmp/gh-aw/agent/issue-context.json
-  # Visual verification runs after auto-merge is decided and before the merge itself. The worker
-  # runs /repo-verify, drives a browser via agent-browser, and attaches screenshots to the linked
-  # issue. Failures never block the merge. Consumers opt out by setting this to "false".
-  VISUAL_VERIFY_ENABLED: "true"
-  VISUAL_VERIFY_BUILD_COMMAND: ""
-  VISUAL_VERIFY_START_COMMAND: ""
-  VISUAL_VERIFY_PORT: "3000"
-  VISUAL_VERIFY_WAIT_SECONDS: "30"
   GH_AW_ALLOWED_BOTS: "platform-devbox[bot],github-actions[bot]"
   GIT_AUTHOR_NAME: "github-actions[bot]"
   GIT_AUTHOR_EMAIL: "github-actions[bot]@users.noreply.github.com"
@@ -382,17 +374,6 @@ jobs:
           protected-hit: ${{ needs.protected_changes.outputs.requires_review }}
           owner-hit: ${{ needs.protected_changes.outputs.owner_hit }}
           confidence-threshold: ${{ env.CONFIDENCE_THRESHOLD }}
-  # The pre-merge screenshot pass is dispatched rather than nested. A nested
-  # workflow_call job cannot live downstream of this worker's agent: the compiler hoists
-  # prompt-referenced jobs into the agent's needs, and any call job depending on
-  # validate_output closes a cycle through agent (measured: the graph refuses to compile).
-  # The first version of this wiring was a step doing `uses:` on the worker's lock file,
-  # which is not a call at all -- the runner resolved it as a local action and died with
-  # "Can't find action.yml" under continue-on-error, so every auto-merge since the feature
-  # shipped merged with zero screenshots and nothing red. This dispatches the router's
-  # existing visual-verify operation (the dispatch-triage pattern) before the merge below.
-  # The merge pins the head SHA with --match-head-commit, and visual-verify re-reads the
-  # pull request itself, so the called worker owns its own subject validation.
   conclude:
     needs: [activation, subject, protected_changes, agent, safe_outputs, validate_output]
     # `protected_changes.result == 'success'` is stated rather than relied on. GitHub skips a job
@@ -411,8 +392,6 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
-      # dispatching the visual-verify pass through the router's workflow_dispatch
-      actions: write
     steps:
       - name: Create bot token
         id: app-token
@@ -474,30 +453,6 @@ jobs:
             ```
 
             Findings and verification on the linked issue: #${{ needs.subject.outputs.issue }}. [View this workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-      # Screenshots before the merge. The visual-verify pass is dispatched through the
-      # router (see the visual_verify note above conclude) and cannot be awaited from here;
-      # the merge below pins the head SHA with --match-head-commit, so a screenshot run on
-      # the same head describes exactly what is being merged. GITHUB_TOKEN: a dispatch
-      # raises one workflow_run-free event, and the called worker re-owns its subject.
-      - name: Dispatch visual verification
-        if: needs.validate_output.outputs.outcome == 'auto-merge' && env.VISUAL_VERIFY_ENABLED == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          REF: ${{ github.event.repository.default_branch }}
-          PR: ${{ needs.subject.outputs.pr }}
-          ISSUE: ${{ needs.subject.outputs.issue }}
-        run: |
-          set -euo pipefail
-          if gh workflow run work-router.yml --repo "$REPO" --ref "$REF" \
-            -f operation=visual-verify -f pr-number="$PR" -f issue-number="$ISSUE"; then
-            echo "Visual verification dispatched for PR #$PR."
-          else
-            echo "::warning::could not dispatch visual verification for PR #$PR; merging without screenshots."
-          fi
-      # The visual verification pass is the visual_verify dispatch above. It runs as its own
-      # worker because a step cannot call a reusable workflow, and the merge below may land
-      # while the capture is still running -- the head SHA pin keeps the two honest.
       - name: Merge approved pull request
         if: needs.validate_output.outputs.outcome == 'auto-merge'
         env:
@@ -877,7 +832,7 @@ timeout-minutes: 120
    `/tmp/gh-aw/agent/pr.json` for the shape of the change. If CI failed, also read
    `/tmp/gh-aw/agent/failed-jobs.json` and `/tmp/gh-aw/agent/failed-logs.txt`.
 
-    These files are the factual basis for everything below. Do not guess — cite what you read.
+    These files are the factual basis for everything below. Do not guess cite what you read.
 
 4b. **Merge conflict when CI is green.** If the conclusion is `success` and
     `has_conflicts` is `true` (current value: `${{ needs.reserve.outputs.has_conflicts }}`),
@@ -899,7 +854,7 @@ timeout-minutes: 120
     Push the merged branch using `push_to_pull_request_branch` (pr_number: ${{ needs.subject.outputs.pr }},
     branch: the current PR branch), then emit the `add_comment` with
     **Verdict:** remediated. CI will re-run on the updated branch and the merge gate
-    will be triggered again — the next cycle will see a clean, conflict-free PR and can
+    will be triggered again the next cycle will see a clean, conflict-free PR and can
     reach a real disposition.
 
     If the merge cannot be completed or the conflicts are genuinely ambiguous, do not push.
@@ -959,7 +914,7 @@ timeout-minutes: 120
    per gap, with `category: correctness`, the file and line, and a `suggestedFix`.
 
    **Correctness remediation.** When `acceptanceCriteriaMet` is `false`, you may fix the
-   gap and push the fix the same way you fix a failed CI run — this is the same
+   gap and push the fix the same way you fix a failed CI run this is the same
    `remediated` verdict the merge-conflict and CI-failure paths use, and it re-runs CI and
    the gate on the new head. To do it:
 
@@ -973,8 +928,8 @@ timeout-minutes: 120
      cycle validates the fix.
    - Do not rebase, reset, amend or otherwise rewrite history: the push is fast-forward only.
 
-   If you cannot fix a criterion in one pass — it needs a decision, a question, or a code path
-   you cannot trace — do not push. Report `assessed` with `acceptanceCriteriaMet: false` and no
+   If you cannot fix a criterion in one pass it needs a decision, a question, or a code path
+   you cannot trace do not push. Report `assessed` with `acceptanceCriteriaMet: false` and no
    push. The workflow sends the pull request to a human, which is the correct action when the
    gap is beyond a focused repair.
 
@@ -999,13 +954,13 @@ timeout-minutes: 120
    the pull request for a person, so it is the one judgement of yours that can hold up a merge on
    its own, and the same rule applies to it as to a finding: unevidenced, it does not count. A
    `low` with an empty `recoverabilitySignals` is read as `medium`. This is not an invitation to
-   pad the list — it is the difference between "this rewrites the plan rows in place" and a
+   pad the list it is the difference between "this rewrites the plan rows in place" and a
    reflex.
 
    **5e. Raise the blast radius if the paths missed something.** The measured level came from
-   file paths and diff shape. If the change introduces something those rules cannot see — a new
+   file paths and diff shape. If the change introduces something those rules cannot see a new
    authorization decision point, a new trust boundary, a write to shared state from a path that
-   never wrote before — set `blastRadiusRaise` with the level and the reason. You can only raise
+   never wrote before set `blastRadiusRaise` with the level and the reason. You can only raise
    it. A lower value is ignored.
 
    **5f. State your confidence.** A number between 0 and 1, for the whole assessment, not for
@@ -1067,10 +1022,10 @@ timeout-minutes: 120
 
 7. Say which of two things you did, and nothing more.
 
-   - **`remediated`** — something was wrong (CI failed, the branch conflicted, or the diff did
+   - **`remediated`** something was wrong (CI failed, the branch conflicted, or the diff did
      not satisfy the acceptance criteria), you fixed it, you verified the fix, and you are
      pushing it. Exactly one `push_to_pull_request_branch` goes with this word.
-   - **`assessed`** — you reviewed the change and are reporting what you found. No push.
+   - **`assessed`** you reviewed the change and are reporting what you found. No push.
 
    These are the only two words the workflow accepts. You do not write `merge`, `review`,
    `auto-merge`, `blocked`, or any other outcome: the workflow computes the disposition from
@@ -1120,7 +1075,7 @@ timeout-minutes: 120
 
    When `acceptanceCriteriaMet` is `false` and you are pushing a fix, the verdict must be
    `remediated`, not `assessed`: the validator refuses an `assessed` verdict that carries a
-   push. Set `acceptanceCriteriaMet` to `false` in the report you push with the fix — it
+   push. Set `acceptanceCriteriaMet` to `false` in the report you push with the fix it
    describes the code you reviewed, not the fix you just produced. The next gate cycle
    re-evaluates the updated diff and sets it to `true` (or finds another gap).
 
