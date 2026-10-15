@@ -87,7 +87,7 @@ Docs-site `*.mdx` is not linted yet; the reason is in `.markdownlint-cli2.jsonc`
 - Keep it small and reversible. Explain the rationale, not just the diff.
 - Screenshots for anything visible, in **both** light and dark.
 - Conventional commit subjects (`feat:`, `fix:`, `docs:`, `chore:`, `build:`). Squash-merge subjects need to stay parseable.
-- Required checks: lint, typecheck, build on Node 20 and 22.
+- Required checks: lint, typecheck, build on Node 20 and 22. Run `pnpm verify` to run the same checks locally.
 - If you change a convention other teams follow, update the docs in the same PR.
 
 ## Reporting problems
