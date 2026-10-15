@@ -54,3 +54,51 @@ jobs:
           pnpm --filter @plainconceptsplatform/docs gen
           git diff --exit-code -- apps/docs/content/docs/components apps/docs/lib/tokens.generated.ts \
             || { echo "::error::Generated files are stale. Run 'pnpm --filter @plainconceptsplatform/docs gen' and commit the result."; exit 1; }
+
+  # Hands a bot pull request to the merge gate as soon as CI settles. GitHub does not deliver
+  # workflow_run for CI runs a bot started, so without this the router never hears that CI
+  # finished and the gate only sees the pull request on the housekeeping belt, hours later.
+  # ubuntu-latest on purpose: this job sleeps and makes one API call, so it must not occupy a
+  # slot on the agent fleet the workers themselves queue for.
+  dispatch-merge-gate:
+    name: Dispatch merge gate
+    needs: [check]
+    if: >
+      always() &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.draft == false &&
+      (github.event.pull_request.user.login == 'app/github-actions' || endsWith(github.event.pull_request.user.login, '[bot]'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      # GITHUB_TOKEN on purpose: workflow_dispatch is one of the two events it may raise, so no
+      # App token is needed.
+      - name: Dispatch merge gate after CI settles
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULTS: ${{ needs.check.result }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          REF: ${{ github.event.repository.default_branch }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          sleep 60
+          conclusion=success
+          for result in $RESULTS; do
+            case "$result" in
+              failure|timed_out) conclusion=failure; break ;;
+              # A superseded run (a newer push cancelled it): the newer run dispatches instead.
+              # The router's ci-conclusion input has no "cancelled" choice.
+              cancelled) echo "CI was cancelled; the newer run dispatches the gate."; exit 0 ;;
+            esac
+          done
+          gh workflow run work-router.yml --repo "$REPO" --ref "$REF" \
+            -f operation=merge-gate \
+            -f pr-number="$PR_NUMBER" \
+            -f ci-conclusion="$conclusion" \
+            -f ci-run-id="$RUN_ID"
