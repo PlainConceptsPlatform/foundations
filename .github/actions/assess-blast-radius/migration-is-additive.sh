@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Managed by @plainconceptsplatform/workflows@1.3.1. Source: loops/actions/assess-blast-radius/migration-is-additive.sh. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.5.0. Source: loops/actions/assess-blast-radius/migration-is-additive.sh. Update with `workflows update --force`; consumer edits may be overwritten.
 # Decide whether a newly added EF Core migration only adds schema. Reads the file's diff patch on
 # stdin; exits 0 and prints "additive" when it does, exits 1 and prints the reason when it does not.
 #

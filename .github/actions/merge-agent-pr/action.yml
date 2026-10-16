@@ -1,4 +1,4 @@
-# Managed by @plainconceptsplatform/workflows@1.3.1. Source: loops/actions/merge-agent-pr/action.yml. Update with workflows update --force; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.5.0. Source: loops/actions/merge-agent-pr/action.yml. Update with workflows update --force; consumer edits may be overwritten.
 name: Merge agent pull request
 description: Read merge_pull_request from agent_output.json and merge the PR via gh.
 inputs:

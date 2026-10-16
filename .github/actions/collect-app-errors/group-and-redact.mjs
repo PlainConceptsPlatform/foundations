@@ -1,4 +1,4 @@
-// Managed by @plainconceptsplatform/workflows@1.3.1. Source: loops/actions/collect-app-errors/group-and-redact.mjs. Update with workflows update --force; consumer edits may be overwritten.
+// Managed by @plainconceptsplatform/workflows@1.5.0. Source: loops/actions/collect-app-errors/group-and-redact.mjs. Update with workflows update --force; consumer edits may be overwritten.
 //
 // Turn rows from an Application Insights query into findings that are safe to write into an
 // issue, or refuse.

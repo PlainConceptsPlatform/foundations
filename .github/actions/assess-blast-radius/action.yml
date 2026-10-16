@@ -1,4 +1,4 @@
-# Managed by @plainconceptsplatform/workflows@1.3.1. Source: loops/actions/assess-blast-radius/action.yml. Update with workflows update --force; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.5.0. Source: loops/actions/assess-blast-radius/action.yml. Update with workflows update --force; consumer edits may be overwritten.
 name: Assess blast radius
 description: Classify a pull request's potential impact from its changed paths and diff shape, before any model reads it.
 inputs:
