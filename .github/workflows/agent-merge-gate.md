@@ -1,5 +1,5 @@
 ---
-# Managed by @plainconceptsplatform/workflows@1.3.1. Source: loops/workflows/agent-merge-gate.md. Update with `workflows update --force`; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.5.0. Source: loops/workflows/agent-merge-gate.md. Update with `workflows update --force`; consumer edits may be overwritten.
 env:
   VERIFY_COMMANDS: "pnpm verify"
   REPO_RULES: "Review the selected bot pull request for defects and report what you verified. Do not decide the outcome: the workflow computes it from your report and from facts it measured before you ran."
@@ -89,7 +89,9 @@ description: |
   risk assessment is clean, hand to a human when it is not, fix CI when it failed. Called by
   the Work Router; does not trigger on public events.
 
-  The router supplies the CI conclusion and run ID as facts, so there is no polling and no
+  In a stack, a child pull request (its base is the feature branch) merges into that feature
+  branch and its child issue closes with it; the root pull request is held for a person. The
+  router supplies the CI conclusion and run ID as facts, so there is no polling and no
   timeout branch. The conclusion is read from the inputs instead of filtered at the trigger.
 
 name: "Agent: Merge Gate"
@@ -155,6 +157,8 @@ jobs:
       conclusion: ${{ steps.subject.outputs.conclusion }}
       run-id: ${{ steps.subject.outputs.run-id }}
       review_blocked: ${{ steps.review.outputs.review_blocked }}
+      pr_base: ${{ steps.stack.outputs.pr_base }}
+      stack_root: ${{ steps.stack.outputs.stack_root }}
     steps:
       - name: Checkout workflow actions
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -189,6 +193,37 @@ jobs:
             sleep 5
           done
           echo "review_blocked=$([ "$decision" = 'CHANGES_REQUESTED' ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      # A child PR in a stack has its base on the feature branch, not main. The rest of the
+      # gate needs both facts measured here, once: which branch this PR merges into, and
+      # whether this PR is the root of a stack (its linked feature issue carries this PR's
+      # number in the `<!-- stack-root-pr: N -->` marker refine stamped when it created the
+      # root PR). The base is always known; the marker only exists in stack repos, so
+      # repos without stacks see no change at all in either output ('' and 'false').
+      - name: Detect the pull request's base and its role in a stack
+        id: stack
+        # Only for a resolved subject. Without one, PR is empty and `gh pr view ""` falls back to
+        # the checked-out branch and fails, so every gate dispatched for a pull request that is
+        # not a subject -- a held stack root whose CI went green, for one -- ended red (Lyceum
+        # #106, run 38750643587: "no pull requests found for branch main"). Skipped, both outputs
+        # are empty, which everything downstream already reads as "not a root".
+        if: steps.subject.outputs.found == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ steps.subject.outputs.pr }}
+          ISSUE: ${{ steps.subject.outputs.issue }}
+        run: |
+          set -euo pipefail
+          pr_base=$(gh pr view "$PR" --repo "$REPO" --json baseRefName --jq '.baseRefName // ""')
+          stack_root=false
+          if [ -n "$ISSUE" ]; then
+            body=$(gh issue view "$ISSUE" --repo "$REPO" --json body --jq '.body // ""' 2>/dev/null || echo "")
+            if echo "$body" | grep -q "<!-- stack-root-pr: $PR -->"; then
+              stack_root=true
+            fi
+          fi
+          echo "pr_base=$pr_base" >> "$GITHUB_OUTPUT"
+          echo "stack_root=$stack_root" >> "$GITHUB_OUTPUT"
 
   # Rung 4b. Everything the merge decision needs that a shell can establish, measured once,
   # before any model reads the diff. The job kept its name and its `requires_review` and
@@ -420,6 +455,7 @@ jobs:
     outputs:
       valid: ${{ steps.validate.outputs.valid }}
       outcome: ${{ steps.validate.outputs.outcome }}
+      pushed: ${{ steps.validate.outputs.pushed }}
     steps:
       - name: Checkout workflow actions
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -525,7 +561,7 @@ jobs:
             Findings and verification on the linked issue: #${{ needs.subject.outputs.issue }}. [View this workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
             ${{ env.EVIDENCE_BEFORE_REVIEW == 'true' && contains(fromJson('["human-review","owner-review"]'), needs.validate_output.outputs.outcome) && 'Screenshots of this head follow in their own comment if it carries a verification plan. Approving the pull request merges it.' || '' }}
       - name: Merge approved pull request
-        if: needs.validate_output.outputs.outcome == 'auto-merge'
+        if: needs.validate_output.outputs.outcome == 'auto-merge' && needs.subject.outputs.stack_root != 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           REPO: ${{ github.repository }}
@@ -534,6 +570,20 @@ jobs:
           set -euo pipefail
           head_sha=$(gh pr view "$PR" --repo "$REPO" --json headRefOid --jq '.headRefOid')
           gh pr merge "$PR" --repo "$REPO" --squash --match-head-commit "$head_sha"
+      # The root's own gate run stops here: children may still be landing on the feature
+      # branch, and the merge decision for main belongs to a person. The comment says only
+      # what a reader needs: the gate held the root, children merge into the feature branch,
+      # and a human merges the root when the stack completes.
+      - name: Hold a stack root for a human merge
+        if: needs.validate_output.outputs.outcome == 'auto-merge' && needs.subject.outputs.stack_root == 'true'
+        uses: ./.github/actions/create-issue-comment
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          issue-number: ${{ needs.subject.outputs.issue }}
+          body: |
+            **Stack root held.** This pull request is the root of a stack: its children merge
+            into the feature branch, and it merges into ${{ github.event.repository.default_branch }} only when a person
+            does it, after all children have landed and the feature branch validates.
       - name: Release remediated issue
         if: needs.validate_output.outputs.outcome == 'remediated'
         uses: ./.github/actions/remove-issue-labels
@@ -583,6 +633,22 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           issue-number: ${{ needs.subject.outputs.issue }}
           labels: ${{ env.WORKING_LABEL }}
+      # GitHub's closing keywords never fire when a PR merges into a branch other than the
+      # default, so a child PR landing on the feature branch leaves its issue open — and
+      # "zero open children" would never be reachable. This step closes the child issue
+      # deterministically, exactly the issue this PR implements, with the App token: the
+      # close raises routed events only for issue lifecycle the router already understands,
+      # and `gh issue close` on an already-closed issue is a harmless no-op, making the
+      # step safe to re-run.
+      - name: Close the child issue when the pull request landed on a feature branch
+        if: needs.validate_output.outputs.outcome == 'auto-merge' && needs.subject.outputs.pr_base != '' && needs.subject.outputs.pr_base != github.event.repository.default_branch
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPO: ${{ github.repository }}
+          ISSUE: ${{ needs.subject.outputs.issue }}
+        run: |
+          set -euo pipefail
+          gh issue close "$ISSUE" --repo "$REPO" --reason completed || true
       # A person decides this one, so the screenshots come before the decision, in a router run of
       # their own outside the belt. Never on auto-merge: that dispatch would race the merge.
       - name: Replay the verification plan for the reviewer
@@ -718,6 +784,26 @@ jobs:
 
             **Verdict:** human-review
             [View this workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+      # The issue is where the belt reads verdicts, but the pull request is where people look. A
+      # parked pull request with nothing on it reads as abandoned, and a repair the agent pushed
+      # that the gate refused to apply sits in the run artifact where nobody finds it.
+      - name: Tell the pull request it needs a person
+        if: steps.budget.outputs.park == 'true'
+        uses: ./.github/actions/create-issue-comment
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          issue-number: ${{ needs.subject.outputs.pr }}
+          body: |
+            The merge gate stopped on this pull request and handed it to a person (#${{ needs.subject.outputs.issue }}).
+            ${{ needs.validate_output.outputs.pushed == 'true' && 'The agent pushed a repair that was not applied because its report could not be read. The patch and bundle are in the `agent` artifact of the run below.' || '' }}
+            [View this workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+      - name: Label the pull request for review
+        if: steps.budget.outputs.park == 'true'
+        uses: ./.github/actions/add-issue-labels
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          issue-number: ${{ needs.subject.outputs.pr }}
+          labels: ${{ env.REVIEW_LABEL }}
       # `stalled` means a park the machine caused, and the janitor retries those. An unusable
       # report is a park the machine caused and retrying reproduces it, so it gets `review`
       # alone: the janitor's own rule is retry a failure, report a decision.
@@ -914,6 +1000,13 @@ timeout-minutes: 120
    until it exits 0, then verify, push and report `remediated` as in step 6. An `assessed`
    verdict while it fails blocks the pull request.
 
+   When CI failed as well, repair CI first and `check-diff` second, and verify again after the
+   `check-diff` repair. The two pull in opposite directions: a complexity or coverage gate wants
+   more code and tests, `check-diff` wants fewer lines. Trimming to fit `check-diff` is how a
+   pull request that once passed broke the formatter, Semgrep and the complexity gate on its
+   last commit (Pliny-Bot #633). Never delete a test that covers a branch the change added; if
+   both cannot hold, keep CI green and say so in `reason`.
+
    - **success** → step 4, then step 5 (review the change).
    - **failure** → step 4, then step 6 (CI remediation).
    - **action_required, cancelled, timed_out, or anything else** → CI did not produce a usable
@@ -934,8 +1027,10 @@ timeout-minutes: 120
 4b. **Merge conflict when CI is green.** If the conclusion is `success` and
     `has_conflicts` is `true` (current value: `${{ needs.reserve.outputs.has_conflicts }}`),
     resolve the conflict before assessing risk. You are already on the PR branch.
-    Merge `origin/${{ github.event.repository.default_branch }}` into it
-    (`git merge origin/${{ github.event.repository.default_branch }}`), resolve every
+    Merge `origin/${{ needs.subject.outputs.pr_base }}` into it
+    (`git merge origin/${{ needs.subject.outputs.pr_base }}`; that is the branch this pull
+    request merges into — the default branch for a flat pull request, the feature branch
+    for a stack child), resolve every
     conflict deliberately, commit the merge, and run the verification commands below. Do not
     use `--ours`, `--theirs`, or a blanket conflict-marker deletion without reviewing the
     intended behavior from both sides, and never rebase: the push is fast-forward only.
@@ -1098,8 +1193,9 @@ timeout-minutes: 120
    must not auto-merge the PR.
 
    **If `has_conflicts` is `true` (current value: `${{ needs.reserve.outputs.has_conflicts }}`):** You are already on the PR branch. Resolve the conflict;
-   it is not a reason to hand the PR to a human. Merge `origin/${{ github.event.repository.default_branch }}`
-   into the current branch, resolve every conflict deliberately, stage the resolutions, and
+   it is not a reason to hand the PR to a human. Merge `origin/${{ needs.subject.outputs.pr_base }}`
+   (the branch this pull request merges into) into the current branch, resolve every conflict
+   deliberately, stage the resolutions, and
    commit the merge. Then run verification and push the resulting branch update. Do not use
    `--ours`, `--theirs`, or a blanket conflict-marker deletion without reviewing the intended
    behavior from both sides.

@@ -1,4 +1,4 @@
-// Managed by @plainconceptsplatform/workflows@1.3.1. Source: loops/scripts/merge-changelog.mjs. Update with `workflows update --force`; consumer edits may be overwritten.
+// Managed by @plainconceptsplatform/workflows@1.5.0. Source: loops/scripts/merge-changelog.mjs. Update with `workflows update --force`; consumer edits may be overwritten.
 //
 // A git merge driver for a newest-first changelog array.
 //

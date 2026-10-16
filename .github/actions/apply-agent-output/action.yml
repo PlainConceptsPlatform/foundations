@@ -1,4 +1,4 @@
-# Managed by @plainconceptsplatform/workflows@1.3.1. Source: loops/actions/apply-agent-output/action.yml. Update with workflows update --force; consumer edits may be overwritten.
+# Managed by @plainconceptsplatform/workflows@1.5.0. Source: loops/actions/apply-agent-output/action.yml. Update with workflows update --force; consumer edits may be overwritten.
 name: Apply agent output
 description: Download the agent artifact and apply its safe outputs in one fixed order, so every worker concludes the same way.
 inputs:
@@ -37,6 +37,10 @@ inputs:
     default: 'true'
   fallback-issue-number:
     description: Issue an update_issue item targets when it names none.
+    required: false
+    default: ''
+  parent-issue:
+    description: The split parent; see create-agent-issues. Empty for anything but a split.
     required: false
     default: ''
 outputs:
@@ -92,6 +96,7 @@ runs:
       with:
         output-file: ${{ steps.output.outputs.output-file }}
         token: ${{ inputs.token }}
+        parent-issue: ${{ inputs.parent-issue }}
 
     - name: Post agent comments
       if: steps.output.outputs.item-count != '0'
