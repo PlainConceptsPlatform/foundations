@@ -1,9 +1,9 @@
 ---
 title: The three phases
-description: "How the Platform department at Plain Concepts builds and runs apps: three phases, four public repositories, and the guardrails that make agent autonomy safe."
+description: "How the Platform department at Plain Concepts builds and runs apps: three phases, four repositories, the guardrails that make agent autonomy safe, and how Health measures whether it all holds."
 ---
 
-Platform is a department at Plain Concepts, and this section is how it builds and runs software, written down. We publish it because the repositories the whole method rests on are public anyway, and because "agents merge to production with no engineer in the loop" is the kind of claim that should be checkable rather than taken on faith. If you are here to set up a project rather than to read about one, go straight to [Adopt in your project](/docs/adopt).
+Platform is a department at Plain Concepts, and this section is how it builds and runs software, written down. We write it down because "agents merge to production with no engineer in the loop" is the kind of claim that should be checkable rather than taken on faith, and because every Platform project is measured against it. If you are here to set up a project rather than to read about one, go straight to [Adopt in your project](/docs/adopt).
 
 Most Platform apps pass through three phases. They are not a project schedule. What separates them is **who is allowed to start a change**, and each phase hands that right to a wider group.
 
@@ -24,16 +24,29 @@ Most Platform apps pass through three phases. They are not a project schedule. W
 
 ## The four pillars
 
-Four repositories carry all of this. They are all public, so the source is the real reference when a page here is not specific enough.
+Four repositories carry all of this. Foundations, agent-harness and project-health are private repositories and agentic-workflows is internal, visible to everyone in the organisation; the npm packages they publish are public. When a page here is not specific enough and you have access, the source is the real reference.
 
 <Cards>
   <Card title="Foundations" href="https://github.com/PlainConceptsPlatform/Foundations" description="The theme, the conventions, the reference architecture, and this site. Used in all three phases." />
-  <Card title="agent-harness" href="https://github.com/PlainConceptsPlatform/agent-harness" description="Installs the Platform Harness into a repository: skills, commands, an agent team, and an OpenSpec workspace. Phase 2." />
-  <Card title="agentic-workflows" href="https://github.com/PlainConceptsPlatform/agentic-workflows" description="The router and worker catalog that runs the pipeline, plus the CLI that installs and updates it. Phases 2 and 3." />
-  <Card title="project-health" href="https://github.com/PlainConceptsPlatform/project-health" description="Delivery and agent metrics collected from GitHub, published as a static site. Phase 3." />
+  <Card title="agent-harness" href="https://github.com/PlainConceptsPlatform/agent-harness" description="Installs the Platform Harness into a repository: skills, commands, an agent team, an OpenSpec workspace, and the comments and tests gate. Phases 2 and 3." />
+  <Card title="agentic-workflows" href="https://github.com/PlainConceptsPlatform/agentic-workflows" description="The router and worker catalog that runs the pipeline, the merge gate and merge train, plus the CLI that installs and updates it. Phases 2 and 3." />
+  <Card title="project-health" href="https://github.com/PlainConceptsPlatform/project-health" description="Measures the other three in every project: engineering gates, delivery, agentic adoption, and the roadmap. All three phases." />
 </Cards>
 
-Taken in order they form a chain, which is the clearest way to see why there are four and not one: **Foundations** sets the conventions, **agent-harness** puts them into a repository as something agents can act on, **agentic-workflows** runs the agents against it, and **project-health** reports on what came out. Drop any one and the phase it carries stops working.
+Taken in order they form a chain, which is the clearest way to see why there are four and not one: **Foundations** sets the conventions, **agent-harness** puts them into a repository as something agents can act on, **agentic-workflows** runs the agents against it, and **project-health** measures all three. It checks that the guardrails Foundations defines guard each default branch, that the harness and the workflows are installed and current, and how much of what the agents produce merges without a person. Drop any of the first three and the phase it carries stops working. Drop the fourth and nobody can tell whether it did.
+
+## What Health measures
+
+[Health](/docs/health) is not a phase 3 report. Each of its four areas judges a different link in the chain above, and the phase that link belongs to.
+
+| Area | The question it answers | What it judges | Where the data comes from |
+|---|---|---|---|
+| **Engineering** | Do the gates that make autonomy safe guard the default branch, and do they pass? Is the code free of padding comments and runaway tests? | Phase 2, against the [engineering standard](/docs/reference/engineering) in Foundations | The repository's own CI facets, or detection from its workflow files; a daily scan of the default branch's source |
+| **Delivery** | How often does it ship, how long does a change take to reach production, and how much is rework? | Phase 3 throughput and stability, in DORA terms | GitHub deployments, releases, commits, and the labels on issues and pull requests |
+| **Agentic** | Are agent-harness and agentic-workflows installed and current, and how much agent work merges without a person? | Adoption of the second and third pillars | Files on the default branch, versions on npm, merged bot pull requests and the merge gate's verdicts, agent run artifacts |
+| **Roadmap** | Who had each issue at each moment, and what is waiting on a person? | The phase 3 pipeline, issue by issue | Issue timelines, the labels the workflows write, and the pull requests that close them |
+
+One rule runs through all four: **a missing metric is a fact about the data, not a gap to fill with a plausible number.** Two DORA metrics are refused rather than estimated, a practice Health could only detect is marked as inferred, and a partial total says how much of it was measured.
 
 ## Phase 2 exists to make phase 3 safe
 
@@ -57,7 +70,7 @@ Phase 3 works because that line is written down and enforced by the intake itsel
 
 Anyone can ask for a change to an **outcome**: how a screen behaves, what a workflow does, what the wording says, what a business rule or a formula should compute. Requests about **means** stay with engineering: architecture, infrastructure, deployment, authentication, data models, APIs.
 
-The line is drawn by category rather than by size. A small, clear, well-tested request to change how the app authenticates is still an engineering decision, and it is refused on those grounds.
+The line is drawn by category rather than by size. A small, clear, well-tested request to change how the app authenticates is still an engineering decision, so triage hands it to a maintainer instead of letting an agent build it.
 
 ## The phases overlap
 
@@ -76,6 +89,6 @@ What does not vary is the sequence for any one capability. A capability reaches 
   <Card title="1. Discovery" href="/docs/how-we-work/discovery" description="Deciding what to build, and which constraints the build will have to encode." />
   <Card title="2. Foundations" href="/docs/how-we-work/foundations" description="Guardrails as the deliverable, interactive and unattended agents, and the determinism ladder." />
   <Card title="3. Maintenance mode" href="/docs/how-we-work/maintenance" description="Two intake doors, the eligibility boundary, and measuring it without flattering the numbers." />
-  <Card title="Analytics with DORA" href="/docs/analytics" description="What classic DORA still measures once agents ship the changes, and what has to be added." />
-  <Card title="Adopt in your project" href="/docs/adopt" description="The day-one sequence: theme, harness, workflows, and metrics, with the reason for each." />
+  <Card title="Measuring with Health" href="/docs/health" description="The four areas Health measures, how fresh the data is, and what it refuses to guess." />
+  <Card title="Adopt in your project" href="/docs/adopt" description="The day-one sequence: theme, harness, workflows, and registering in Health, with the reason for each." />
 </Cards>

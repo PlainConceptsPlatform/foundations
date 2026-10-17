@@ -46,13 +46,13 @@ const DESTINATIONS: Destination[] = [
     },
   },
   {
-    slug: ["analytics"],
-    href: "/docs/analytics",
+    slug: ["health"],
+    href: "/docs/health",
     icon: Activity,
     fallback: {
-      title: "Analytics with DORA",
+      title: "Measuring with Health",
       description:
-        "What DORA still measures once agents ship the changes, and what has to be added.",
+        "Engineering gates, delivery, agentic adoption and the roadmap, measured for every project.",
     },
   },
   {
@@ -105,9 +105,10 @@ const DESTINATIONS: Destination[] = [
 
 /**
  * The four repositories the whole way of working rests on. Listed here rather than
- * only in the docs because they are the most important artifacts we have, all four
- * are public, and the front door should say so. Copy is written here because these
- * point at GitHub rather than at a page with frontmatter to read.
+ * only in the docs because they are the most important artifacts we have, and the
+ * front door should say so. The repositories are private or internal to the
+ * organisation; the packages they ship are public on npm. Copy is written here
+ * because these point at GitHub rather than at a page with frontmatter to read.
  */
 type Pillar = {
   name: string;
@@ -131,7 +132,7 @@ const PILLARS: Pillar[] = [
     href: "https://github.com/PlainConceptsPlatform/agent-harness",
     icon: Wrench,
     description:
-      "Installs the Platform Harness into a repository: skills, commands, an agent team, and an OpenSpec workspace.",
+      "Installs the Platform Harness into a repository: skills, commands, an agent team, an OpenSpec workspace, and the comments and tests gate.",
   },
   {
     name: "agentic-workflows",
@@ -139,14 +140,15 @@ const PILLARS: Pillar[] = [
     href: "https://github.com/PlainConceptsPlatform/agentic-workflows",
     icon: GitBranch,
     description:
-      "The router and worker catalog that runs the pipeline, plus the CLI that installs and updates it.",
+      "The router and worker catalog that runs the pipeline, the merge gate and merge train, plus the CLI that installs and updates it.",
   },
   {
     name: "project-health",
     repo: "PlainConceptsPlatform/project-health",
     href: "https://github.com/PlainConceptsPlatform/project-health",
     icon: Gauge,
-    description: "Delivery and agent metrics, collected from GitHub and published as a site.",
+    description:
+      "Measures the other three in every project: engineering gates, delivery, agentic adoption and the roadmap.",
   },
 ];
 
@@ -222,7 +224,8 @@ export default function HomePage() {
             </Link>
             . Foundations sets the conventions, agent-harness puts them into a repository as
             something agents can act on, agentic-workflows runs the agents against it, and
-            project-health reports on what came out.
+            project-health measures all three: whether the guardrails are in place, whether the
+            agents run the Platform way, and how much of their work merges without a person.
           </p>
 
           <ul className="mt-6 grid gap-4 sm:grid-cols-2">

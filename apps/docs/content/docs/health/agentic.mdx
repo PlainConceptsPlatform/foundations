@@ -1,0 +1,58 @@
+---
+title: Agentic
+description: "The Agentic area measures how far each repository runs agents the Platform way: harness and workflow versions against npm, which workers are installed, and how much of the agents' work the merge gate merges without a person. Plus what the agents cost, in tokens and time."
+---
+
+The point of the harness and the workflows is autonomy that is safe: a change goes from an issue to production with no engineer reading the diff, because the [merge gate](/docs/ai#the-merge-gate-and-the-merge-train) only stops what is genuinely dangerous to merge unseen. The Agentic area answers two questions about that goal per project. Is the machinery installed and current? And how much of what it produces actually merges on its own?
+
+It is read from the default branch on every collection, with no opt-in and no extra permission.
+
+## Is the machinery installed
+
+The **Agent tooling** panel, and the Agentic tab of the overview:
+
+| Row | Read from |
+|---|---|
+| Agent harness | `harnessVersion` in `.opencode/harness.json`, compared with the newest `@plainconceptsplatform/agent-harness` on npm |
+| Agentic workflows | The `Managed by @plainconceptsplatform/workflows@x.y.z` header of the installed files, never the `package.json` pin, compared with npm |
+| Work router and workers | `work-router.yml`, and which of the seven `agent-*.md` workers exist. A retired worker still installed is named |
+| Evidence on merge | `evidence.yml`, which replays the verification plan in a browser when a pull request merges |
+| Verify plan knows how to start the app | Whether `pc-repo-verify` records how this project starts and signs in, rather than the defaults it ships with |
+
+From those, each project gets one of four verdicts. **Standard, up to date** means the router and the harness are installed on the current minor release. **Standard, behind** means an older release, or the workflows without the harness. **Own setup** means agent workflows outside the package. **No agents** is the rest.
+
+The version check matters more than it looks. The workflows and the harness ship fixes to the gate, the retries and the verification rules often, and a repository two minors behind is running a pipeline whose failure modes have already been fixed elsewhere.
+
+## How much merges on its own
+
+The implement worker opens every pull request with a `[bot]` title, so the merged bot pull requests of the month are easy to find, and each is classified by what happened to it:
+
+- **Merged by the gate**: the merge gate merged it, with nobody involved.
+- **Parked, then merged by a person**: the gate's last verdict sent it to a person (`human-review`, `owner-review` or `blocked`), and a person merged it.
+- **Merged by a person**: a person merged it without the gate parking it.
+
+**Merged by the gate** is shown as a share of the three. It is the closest single number to the autonomy maintenance mode promises, and it is the one the merge gate's design was tuned against. When the gate escalated by category, sending anything that touched authentication, a migration or a contract to a person, it auto-merged 31% of its verdicts on one consumer while finding no defects in the rest. The current gate parks on evidence instead, and this share is how a project sees whether that holds for its own code.
+
+The same pull requests are also read line by line: how much code, comment and test each added. That is the number to watch for whether agents still add the comments the harness asks them not to, before the [comments and tests scan](/docs/health/engineering#comments-and-tests) sees them on the default branch.
+
+The other side of the same goal lives on GitHub rather than in Health: the housekeeping job of the workflows keeps a **Needs a human** issue in every repository, and its digest carries the gate's own scoreboard, the share of its verdicts that were `auto-merge` over the last fortnight and how many auto-merged pull requests were later reverted. Health's share counts merged pull requests per month; the digest counts verdicts per fortnight. The reverted count is the one that has to stay flat while the other climbs. [Roadmap](/docs/health/roadmap#where-human-attention-goes) has more on the digest.
+
+## What the agents cost
+
+Classic DORA has no slot for the cost of the thing doing the work. The **Agents** panel collects two numbers per agent run: token usage, read from the run's usage artifact with its input, output and cache counts and the model name, and execution time, taken from the step that runs the agent rather than the whole workflow. It shows totals, a breakdown per kind of work (triage, refine, implement, merge gate and the rest), and the 50th and 90th percentile duration per kind.
+
+Getting those right turned out to be most of the work, and the traps are worth knowing because they all inflate or deflate quietly.
+
+- **Totals are a floor, and are labelled as one.** A run only reports usage if it reached the model and uploaded its artifact. In one month on one project, 14 of 23 agent runs did. The panel prints "measured N of M" beside the totals instead of presenting a partial sum as complete.
+- **Find runs by evidence, not by title.** Run titles leak: an issue-triggered run and a dispatched one are titled differently, so a per-kind title list missed triage and merge-gate entirely and half the implement runs as well. Correcting it took that month from 23 measured runs to 52, and agent time from 4h 20m to 7h 31m.
+- **A declared agent job is not an agent run.** Several workflow kinds declare a job that is conditionally skipped, which once counted 140 agent runs that never invoked an agent. The kind and the duration now come from the same evidence: the job that actually ran the agent.
+- **Two durations exist and they are not the same.** A run's own token table sums time spent inside model requests. The collector measures wall clock of the agent step, which is longer because it also covers tool calls, file work and git operations. Neither is wrong, so the panel labels which one it shows.
+- **Cost is reported in tokens, not money.** Rates change, differ per account, and go stale in a committed file, and a figure in euros invites comparison against a budget the repository knows nothing about.
+
+Agent collection is also the expensive part of a backfill, a few API calls per run, which is why backfilling more than a month or two wants the App's higher rate limit rather than a personal token. Daily collection reads already-measured runs back from the stored file, so it only pays for what happened since yesterday.
+
+<Cards>
+  <Card title="AI x SDLC" href="/docs/ai#the-merge-gate-and-the-merge-train" description="What the merge gate decides, and what still parks a pull request for a person." />
+  <Card title="Roadmap" href="/docs/health/roadmap" description="Where each issue's time went, and what is waiting on a person." />
+  <Card title="Measuring with Health" href="/docs/health" description="The four areas, refresh cadence, and adding a project." />
+</Cards>

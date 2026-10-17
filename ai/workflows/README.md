@@ -8,18 +8,23 @@ The copyable templates that used to live here (router, workers, shared imports, 
 
 ## Install workflows in a repository
 
-```bash
-# Direct route only (minimal setup)
-npx @plainconceptsplatform/workflows@latest add direct --force
+Install and configure [`agent-harness`](https://github.com/PlainConceptsPlatform/agent-harness) first: the workers call the skills and commands it provides.
 
-# Interactive TUI for route/template selection
+```bash
+# Interactive TUI for route and template selection (recommended)
 npx @plainconceptsplatform/workflows@latest
 
-# Full fleet
-npx @plainconceptsplatform/workflows@latest add refine implement direct apply-review merge-gate audit --force
+# Every route, non-interactively
+npx @plainconceptsplatform/workflows@latest add triage refine implement apply-review merge-gate audit release
+
+# Refresh exactly the installed routes, keeping each worker's env: values
+npx @plainconceptsplatform/workflows@latest update --dry-run
+npx @plainconceptsplatform/workflows@latest update
 ```
 
-The CLI installs into `.github/workflows/`, `.github/actions/`, and the repository root. It generates the router, classifier, route matrix, and OpenCode CI config for the selected routes only.
+There are seven routes: `triage`, `refine`, `implement`, `merge-gate`, `apply-review`, `audit` and `release`. The `direct` and `propose` routes and the `feature` label flow were retired.
+
+The CLI installs into `.github/workflows/`, `.github/actions/`, and the repository root, always including `opencode.ci.json` and `scripts/compile-agent-workflows.mjs`. It generates the router from the installed route set. Compile with `node scripts/compile-agent-workflows.mjs`, not with bare `gh aw compile`.
 
 ## If the repository is not on GitHub
 

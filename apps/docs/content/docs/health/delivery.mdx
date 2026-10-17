@@ -1,0 +1,49 @@
+---
+title: Delivery
+description: "Delivery in DORA terms: three metrics Health takes from GitHub, two it refuses to fake, and two lead times it keeps apart."
+---
+
+Delivery is the area most people expect a metrics site to start with, and in Health it comes second. Once agents implement most of the changes, throughput tells you less than it used to: a project can open forty pull requests in a week and mean nothing by it. The numbers are still worth having, as long as they are the real DORA ones and nothing is approximated to fill a gap.
+
+## What survives from classic DORA
+
+Modern DORA defines five metrics across two groups. Three can be derived from a repository, and two cannot.
+
+| Metric | Group | Status |
+|---|---|---|
+| Deployment frequency | Throughput | Collected |
+| Change lead time | Throughput | Collected |
+| Deployment rework rate | Instability | Collected once releases carry a rework marker |
+| Change fail rate | Instability | Not collected |
+| Failed deployment recovery time | Throughput | Not collected |
+
+The two that are missing both depend on knowing that a release caused a problem in production. DORA defines a failed deployment as one requiring immediate intervention afterwards, which is a fact about the running service and not about the repository. A red pipeline is a different thing and would be a misleading stand-in: across every production deployment collected so far, not one is recorded as failed, so a pipeline-based change fail rate would read zero forever.
+
+Rework rate survives because it is a property of a single release in isolation. It asks whether a release was planned or shipped in reaction to something, and whoever ships it can state that at the time with a label (`hotfix` by default, read from issues and pull requests). With no markers at all the panel shows the reason instead of a rate. A broad label such as `bug` can be configured as the marker, and the rate is then shown with the label that produced it named, but it is not read as instability: `bug` covers planned backlog fixes too, and a well-ticketed project should not look unstable because it files bugs. Only `reworkLabelPrecision: "incident"` says the marker means an unplanned response.
+
+## Two lead times, reported separately
+
+**Change lead time** follows the DORA definition: from when a commit was written to when it reached production, attributed to the first release that carried it, shown at the 50th, 75th and 90th percentile.
+
+**Issue to staging** measures from when an issue was labelled for work (`implement` by default) to when that work reached staging. It starts earlier and ends earlier, so it flatters the number. Both are shown, and they are never mixed.
+
+## Environments decide what counts
+
+Each project names which deployment environments count as production and staging, because the names genuinely differ across the organisation and one hardcoded pattern would mark healthy projects as irregular. A project with no production environment yet has its production metrics skipped rather than reported as zero, and a planned project is listed but not collected. Deployments are read with the App's Deployments permission, which is the one most often missing when a project shows no delivery data.
+
+## No team profiles
+
+The 2025 DORA report replaced the Elite to Low tiers with [seven team profiles](https://dora.dev/research/2025/ai-capabilities-model/) built on throughput, stability and team well-being. Health used to place each project on the axes it could see and list the profiles consistent with that. That panel was removed in October 2026: well-being needs a survey and always read unknown, and stability needs a release label no project uses, so the panel only restated throughput. The collector still computes the placement, with its minimum of five releases, so stored months keep their shape, but nothing shows it.
+
+<Callout type="warn" title="Do not infer well-being from commit timestamps">
+  Weekend and late-night activity is weak evidence, and measuring people that way costs more trust than the metric is worth.
+</Callout>
+
+## What the panel shows
+
+The Delivery tab of a project has the Delivery panel (deployment frequency with releases and the median gap between them, change lead time, rework rate), a production trend once there is more than one month collected, the people contributing, and the releases themselves. On the overview, the Delivery tab is the same set of numbers as a grid across every project.
+
+<Cards>
+  <Card title="Measuring with Health" href="/docs/health" description="The four areas, refresh cadence, what Health refuses to guess, and adding a project." />
+  <Card title="Agentic" href="/docs/health/agentic" description="What agent work costs, and how much of it merges without a person." />
+</Cards>

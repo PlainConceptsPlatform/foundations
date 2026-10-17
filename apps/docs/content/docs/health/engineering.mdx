@@ -1,0 +1,51 @@
+---
+title: Engineering
+description: "The Engineering area judges the guardrails phase 2 builds: which practices of the engineering standard guard each default branch, whether they pass, and whether the code is free of the comments and tests agents tend to add."
+---
+
+[Phase 2](/docs/how-we-work/foundations) exists to build guardrails that fail the build, so that phase 3 can merge changes nobody reads. The Engineering area is where you check that it happened. It scores every project against the [engineering standard](/docs/reference/engineering), which is the source of truth for the eleven practices, their modes, the levels and the facet contract. This page covers how Health reads and shows it, not the standard itself.
+
+## The scorecard
+
+Per project, and as the first tab of the overview:
+
+- **A level from L0 to L3.** Cumulative, and only green practices count towards it. L1 is the security floor with tests present, L3 adds mutation, DAST and complexity. The [levels table](/docs/reference/engineering#levels-and-score) has the exact requirements.
+- **A score from 0 to 100**: green plus half of yellow, over the practices that apply. A daily history lets the overview show the change over the last 30 days.
+- **Gates**: the practices present over those that apply, in every phase, so a red DAST still shows in the count.
+- **AI usage from 1 to 5**: the share of the month's default-branch commits made with an assistant or by an agent, bucketed at 10, 25, 50 and 75%. It sits beside the level because the two only mean something together.
+
+Two alerts read both axes at once. **High AI usage, low engineering** fires when AI usage is 4 or more and the level is L1 or below: AI-assisted change is landing without the gates that would catch its mistakes. **Engineering declining** fires when the score is 10 points or more below the best score of the two previous months, and shows on the project's scorecard. The overview's "Needs attention" cards use a looser signal for the same name, any drop over the last 30 days of daily scores, so they surface a slide before it becomes an alert.
+
+## Measured or inferred
+
+Two sources decide each cell, and the page says which one it used.
+
+A repository that publishes **engineering excellence facets** from its own CI is measured with its own gates' verdicts: coverage per module, mutation score, complexity and CRAP hotspots, scanner findings, the SBOM, and code hygiene. The project opts in with `"engineeringExcellence": { "enabled": true }` in `projects.json`, and the collector reads the facet artifacts from the default branch.
+
+Otherwise the collector **detects** the tools in the workflow files and reads the latest run, and the overview marks the row "inferred". The scorecard is collected either way. Publishing facets is what turns a row from an inference into a measurement.
+
+The project `type` decides which practices apply, so a static site is not marked down for having no mutation testing. A practice that does not apply is shown grey and left out of the score and the gate count. `scorecard.notApplicable` drops further practices for one project, and the standard asks for a reason a reviewer would accept.
+
+## Comments and tests
+
+The gates above say whether a repository can catch a bad change. They say nothing about a habit agents have even when every gate is green: code buried in comments that restate it, and test suites that grow faster than the code they test. So Health scans the default branch's source once a day, one zipball per project, with no opt-in and no CI change. It shows as the **Comments and tests** panel inside the Engineering tab, and as the **Code** tab on the overview.
+
+| Measure | How |
+|---|---|
+| Comments per code line | Comment-only lines over code lines. The ceiling is 10%, the one the harness sets |
+| Slop shapes | Banners, `#region`, a TODO with no issue, doc comments that only repeat the member name, filler returns, commented-out code, apologetic notes |
+| Stories and essays | Comment blocks that cite an issue in the past tense, and blocks of five lines or more below the file header. Counted, never judged |
+| Tests | Test lines per code line, cases per 1,000 lines, and Gherkin scenarios |
+| Suspicious tests | No assertion in the body, only checking that a mock was called, snapshots, skipped and focused tests |
+
+Production code and tests are told apart by path, and vendored or installed code (`components/ui`, `.github`, `.opencode`, migrations, files with a generated header) is left out. Only TypeScript, JavaScript and C# are scanned.
+
+These are the same shapes the harness's `check-diff` gate refuses on a pull request, read the same way: a TODO counts only inside a comment, for example, in Health and in the gate alike. The difference is scope. `check-diff` judges the lines one change adds and stops it merging; Health measures the whole default branch, so it shows whether the codebase is getting cleaner over time. How the gate fits into the pipeline is on [AI x SDLC](/docs/ai#the-merge-gate-and-the-merge-train).
+
+Only the current month is scanned. Past months keep the scan stored while they were current, and a daily file keeps the trend.
+
+<Cards>
+  <Card title="Engineering excellence" href="/docs/reference/engineering" description="The standard: practices, modes, levels, thresholds and the facet contract." />
+  <Card title="2. Foundations" href="/docs/how-we-work/foundations" description="Why these guardrails are the deliverable of phase 2." />
+  <Card title="Measuring with Health" href="/docs/health" description="The four areas, refresh cadence, and adding a project." />
+</Cards>

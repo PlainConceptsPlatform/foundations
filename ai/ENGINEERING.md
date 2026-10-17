@@ -57,7 +57,7 @@ Anything below L1 is **L0**. The **score** is `(green + 0.5 × yellow) / applica
 
 A practice is **green** when it is present in its standard mode and its last result on the default branch passed (or its threshold is met). It is **yellow** when it is present but weaker than the standard (report-only where blocking is expected, a test run without coverage), when a threshold is not met, or when there is no recent result (older than 14 days). It is **red** when it applies but is absent, or when a blocking practice fails on the default branch.
 
-**Alerts.** "High AI usage, low engineering" fires when AI usage is 4/5 or more and the level is L1 or below: AI-assisted change is landing without the gates that would catch its mistakes. AI usage is the share of the month's default-branch commits that are AI-assisted (co-author trailers from Claude, Copilot, Codex, Cursor, Devin, Gemini, Windsurf, and agent or bot authors other than Dependabot, Renovate and `github-actions[bot]`), bucketed at 10, 25, 50 and 75%. "Engineering declining" fires when the score drops 10 points or more over three months.
+**Alerts.** "High AI usage, low engineering" fires when AI usage is 4/5 or more and the level is L1 or below: AI-assisted change is landing without the gates that would catch its mistakes. AI usage is the share of the month's default-branch commits that are AI-assisted (co-author trailers from Claude, Copilot, Codex, Cursor, Devin, Gemini, Windsurf, and agent or bot authors other than Dependabot, Renovate and `github-actions[bot]`), bucketed at 10, 25, 50 and 75%. "Engineering declining" fires when the score is 10 points or more below the best score of the two previous months.
 
 ## Thresholds and ratchets
 
