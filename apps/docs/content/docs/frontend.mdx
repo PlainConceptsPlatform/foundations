@@ -116,7 +116,7 @@ Two consequences worth planning for. Text expands, often by 30% or more, so veri
 
 ## Testing
 
-Vitest with Testing Library covers unit and component tests, colocated as `*.test.tsx` next to the code. Test a slice through its public API, not its internals, so tests survive refactors. Playwright covers end-to-end flows. Anything with real logic ships tests; pure presentational wrappers do not need them.
+Follow the testing trophy, not the pyramid. Vitest with Testing Library covers component and unit tests, colocated as `*.test.tsx` next to the code, and component tests are the main layer: render the slice with its providers and assert what a user sees and can do, through its public API and not its internals, so tests survive refactors. Write plain unit tests only for pure logic with real branches. Do not assert constants, configured defaults or markup attributes. Playwright covers a few end-to-end flows. Anything with real logic ships tests; pure presentational wrappers do not need them.
 
 ## Linting and formatting (Biome)
 

@@ -249,7 +249,7 @@ From `plain-engineering-conventions`:
 | 7 | Everything as Code | IaC, CI/CD, GitOps; nothing manual |
 | 8 | Code Quality and Linting | Automated formatting and static analysis, enforced in CI |
 | 9 | Security by Default | Vulnerability scanning, dependency auditing, secret detection in CI |
-| 10 | Testing Strategy | A deliberate pyramid: unit, integration/functional, E2E |
+| 10 | Testing Strategy | A deliberate trophy: static analysis, a thin layer of unit tests for real logic, mostly integration/functional, a few E2E |
 
 ### .NET stack and guardrails
 
@@ -276,7 +276,7 @@ A Platform .NET API is organized into layered projects:
 | `Infrastructure` | EF Core, external integrations. Implements Application/Domain interfaces. |
 | `Api` | Minimal-API endpoints grouped by feature (`Endpoints/<Feature>/...`). Composition root. |
 | `Gateway`, `Seed` | Supporting services (edge/gateway, data seeding). |
-| `UnitTests`, `IntegrationTests`, `E2ETests` | The test pyramid. |
+| `UnitTests`, `IntegrationTests`, `E2ETests` | The test layers; most of the weight sits in `IntegrationTests`. |
 
 Dependency direction (inner layers know nothing about outer layers):
 
@@ -302,7 +302,7 @@ Do not add modules, layers, or a mediator preemptively.
 
 ### Backend testing
 
-Follow the pyramid: many **unit** tests (xUnit), fewer **integration/functional** tests (a real host via `WebApplicationFactory`, a real database via Testcontainers), and a few **E2E** tests. Keep unit, integration, and end-to-end tests in separate projects. Coverage floors, mutation testing and the complexity gate that hold these tests to a bar are in [`ENGINEERING.md`](ENGINEERING.md).
+Follow the testing trophy (Kent C. Dodds; Spotify's honeycomb for services with many collaborators), not the pyramid: most tests are **integration/functional** (a real host via `WebApplicationFactory`, a real database via Testcontainers, assertions through the HTTP surface), **unit** tests (xUnit) cover logic with real branching, and a few **E2E** tests cover the critical journeys. A bug fix gets one regression test, and tests of constants, configured defaults or mocks of your own code are not written. Keep unit, integration, and end-to-end tests in separate projects. Coverage floors, mutation testing and the complexity gate that hold these tests to a bar are in [`ENGINEERING.md`](ENGINEERING.md).
 
 ### Everything as code, security, observability
 
