@@ -1,17 +1,14 @@
 ---
 title: Adopt in your project
-description: "The day-one sequence for a new Platform project: theme, harness, workflows, and metrics, each with the reason it is there. Written for our engineers, usable by anyone."
+description: "The day-one sequence for a new Platform project: theme, harness, workflows, and registering in Health, each with the reason it is there. Written for our engineers."
 ---
 
-This page is the practical door into everything the rest of this section describes. It is written
-for a Plain Concepts engineer setting up a Platform project, and it works without a badge: every
-package is public on npm and every repository is public on GitHub, so an outside reader can follow
-along and end up with the same setup.
+This page is the practical door into everything the rest of this section describes. It is written for a Plain Concepts engineer setting up a Platform project. Every package it installs is public on npm, so the theme and the harness work anywhere; the workflows assume the Platform GitHub App, the Forge gateway and the runner fleet, and Health reads repositories in the PlainConceptsPlatform organisation.
 
 The order below is not alphabetical. Each step is a prerequisite for the one after it, and together
 they are [phase 2](/docs/how-we-work/foundations) in miniature: make the app look like a Platform
-app, give agents something to act on, put the agents on repository events, and then measure what
-comes out.
+app, give agents something to act on, put the agents on repository events, and measure all of it
+from the first day.
 
 ## A new app
 
@@ -89,29 +86,38 @@ the rules. Details and the full command set are on [AI x SDLC](/docs/ai).
 npx @plainconceptsplatform/workflows
 ```
 
-The CLI installs the router, the workers for the routes you pick, the compile script, and the
-OpenCode CI config. Add the secrets (`OPENAI_API_KEY` for Forge, `BOT_APP_ID` and
-`BOT_PRIVATE_KEY` for the Platform App), create the labels, compile, and watch one real event go
-through before you trust it.
+The CLI installs the router, the workers for the routes you pick, the compile script, and the OpenCode CI config. Then:
 
-**Why this shape.** From this point the repository maintains itself on events: a label added to an
-issue triggers refinement or implementation, changes arrive as pull requests, and a merge gate
-holds anything that needs a person. The full contract, including the label state machine and the
-determinism ladder, is on [Agentic workflows](/docs/ai#agentic-workflows).
+- Add the secrets: `FORGE_API_KEY` for the Forge gateway, and `BOT_APP_ID` and `BOT_PRIVATE_KEY` for the Platform App, which every write that has to start another workflow is made with.
+- Set `VERIFY_COMMANDS` in each worker's `env:` to the repository's own verification command. For a pnpm or full-stack repository that is `pnpm verify`, and it should run what CI blocks on.
+- Make the CI's last job hand its verdict to the merge train (`dispatch-merge-train`; the CI templates in the package include it), and set `CI_WORKFLOW_NAME` in the router if your CI is not called `App: CI`.
+- Pick a free day for the weekly audit in the router's `AUDIT_CRON`, so it does not run at the same minute as every other repository on the shared fleet.
+- Compile with `node scripts/compile-agent-workflows.mjs`, commit the generated locks, and watch one real event go through before you trust it.
+
+The labels are created the first time a workflow applies them. `workflows update` later refreshes every managed file and keeps your `env:` values.
+
+**Why this shape.** From this point the repository maintains itself on events: a label added to an issue triggers refinement or implementation, changes arrive as pull requests, a merge train takes them one at a time, and the merge gate merges what is safe and parks only what is dangerous to merge unseen. The full contract, including the label state machine and the merge gate, is on [Agentic workflows](/docs/ai#agentic-workflows).
 
 </Step>
 
 <Step>
 
-### Add the project to the metrics
+### Register in Health
 
-Register the repository in
-[project-health](https://github.com/PlainConceptsPlatform/project-health), which collects delivery
-and agent metrics from the GitHub API and publishes them as a static site.
+The list of measured repositories lives in `projects.json` in the private Project-Health-Platform repository. Ask the repository for its entry rather than writing it by hand:
 
-**Why bother on day one.** The numbers are only comparable if collection starts before the
-interesting period, not after. What the metrics mean, and which ones we refuse to fake, is on
-[Analytics with DORA](/docs/analytics).
+```bash
+gh workflow run discover.yml --repo PlainConceptsPlatform/Project-Health-Platform -f repo=PlainConceptsPlatform/<repo>
+```
+
+It reads the repository and prints a suggested entry, writing nothing. Paste it into `projects.json` in a pull request, and check what it cannot know:
+
+- **`type`**, such as `back-front`, `library` or `static-site`, which decides which engineering practices apply to the project.
+- **`status`** and **`environments`**: whether it is in production yet, and which deployment environments count as production and staging.
+- **The opt-ins**: `"engineeringExcellence": { "enabled": true }` once CI publishes its facets, and `"roadmap": { "enabled": true }` for the Roadmap tab.
+- **Permissions**: the Platform App needs read access to Metadata, Deployments, Contents, Issues and Actions on the repository, plus Pull requests for the roadmap. The collector names anything missing rather than writing empty metrics.
+
+**Why bother on day one.** Health is not only delivery numbers. From the first collection it shows whether the engineering gates are in place, whether the harness and workflows are installed and current, and where each issue's time goes, and the trends are only comparable if collection starts before the interesting period, not after. What each area measures, and what it refuses to fake, is in [Measuring with Health](/docs/health).
 
 </Step>
 
@@ -147,5 +153,6 @@ behaviour is pinned before anything moves.
 <Cards>
   <Card title="Frontend" href="/docs/frontend" description="Architecture, theming, dependency injection, i18n, and the everyday patterns." />
   <Card title="AI x SDLC" href="/docs/ai" description="The harness, the workflows, and the whole agent contract on one page." />
+  <Card title="Measuring with Health" href="/docs/health" description="What Health measures for every project, and how to read it." />
   <Card title="Principles" href="/docs/principles" description="What belongs in the foundation, and what deliberately does not." />
 </Cards>

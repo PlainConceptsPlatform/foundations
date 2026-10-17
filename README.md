@@ -34,7 +34,7 @@ Next.js (App Router) + React + TypeScript, shadcn/ui on Radix + Tailwind v4, the
 pnpm install
 pnpm dev          # run the docs/showcase site (Fumadocs)
 pnpm lint         # Biome + Markdown
-pnpm test         # Vitest
+pnpm verify       # lint + typecheck + build, what CI runs
 ```
 
 ## Using Platform packages in your app
@@ -69,12 +69,13 @@ Start with [`AGENTS.md`](AGENTS.md). It points to the [`ai/`](ai/) folder, which
 
 ### Agentic Workflow migration
 
-Reusable GitHub Agentic Workflow skills and copyable loops now live in [`PlainConceptsPlatform/agentic-workflows`](https://github.com/PlainConceptsPlatform/agentic workflows). Use its self-contained `workflow-author` and `workflow-consumer` skills when creating or adopting workflows. The router is named `# Main Work Router` for sidebar sort order; run-names follow the `Agent:` / `Agentics:` / `Event:` prefix convention documented in the `workflow-author` skill. Interactive diagrams of every workflow are at [plainconceptsplatform.github.io/agentic-workflows](https://plainconceptsplatform.github.io/agentic-workflows/).
+Reusable GitHub Agentic Workflow skills and copyable loops now live in [`PlainConceptsPlatform/agentic-workflows`](https://github.com/PlainConceptsPlatform/agentic-workflows). Install them in a repository with `npx @plainconceptsplatform/workflows`, and use its self-contained `workflow-author` and `workflow-consumer` skills when changing or adopting workflows. The router is named `# Main Work Router` for sidebar sort order; run-names follow the `Agent:` / `Agentics:` / `Event:` prefix convention documented in the `workflow-author` skill. Interactive diagrams of every workflow are at [plainconceptsplatform.github.io/agentic-workflows](https://plainconceptsplatform.github.io/agentic-workflows/).
 
 ## Documentation
 
 - [`ai/ARCHITECTURE.md`](ai/ARCHITECTURE.md): reference architecture + stack (frontend and backend/.NET)
 - [`ai/DESIGN.md`](ai/DESIGN.md): design tokens & UI rules
+- [`ai/ENGINEERING.md`](ai/ENGINEERING.md): the engineering gates every Platform repository runs, and how Project Health scores them
 - [`skills/platform-onboard/SKILL.md`](skills/platform-onboard/SKILL.md): brownfield migration to Platform practices
 - [`packages/theme/README.md`](packages/theme/README.md): theme package setup and conventions
 - [`packages/ui-components/README.md`](packages/ui-components/README.md): shared components (Plain logo)

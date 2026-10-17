@@ -23,7 +23,7 @@ The Foundations repo deliberately fails some of these checks, and that is correc
                            -> FSD + Steiger -> inversify-hooks
                            -> react-i18next -> Platform theme
 5. AGENT AUTOMATION       one work router owning every trigger, gh-aw markdown
-                           workers on ubuntu-latest with engine: opencode
+                           workers on agents-arc with engine: opencode
                            against Forge + GitHub labels
 6. BACKEND GUARDRAILS     (if .NET) plain-dotnet-guardrails, arch tests
 ```
@@ -77,11 +77,11 @@ Scan all six domains before touching anything. Each check is binary: the artifac
 
 ### Domain 5: Agent automation
 
-The Platform default is **GitHub Agentic Workflows on `ubuntu-latest`**, with `engine: opencode` pointed at an OpenAI-compatible gateway. This applies to public repositories too: the model comes from the configured gateway, so nothing needs to run on a machine holding credentials.
+The Platform default is **GitHub Agentic Workflows installed by `@plainconceptsplatform/workflows`**, with `engine: opencode` pointed at the Forge gateway, on the self-hosted `agents-arc` runner fleet. That fleet serves private and internal repositories only.
 
 | Check | How to detect | Pass condition |
 |---|---|---|
-| Work Router | `.github/workflows/` contains a conventional workflow owning the repository's triggers | One router present |
+| Work Router | `.github/workflows/work-router.yml` carries the `Managed by @plainconceptsplatform/workflows` header | One package-managed router present |
 | Workers | Each `agent-*.md` declares `workflow_call` and no public trigger | Router owns every entry point |
 | Caller grants | Each calling job sets `permissions: write-all` | Calls are not rejected at startup |
 | Runner wiring | Each `.md` sets both `runs-on` and `runs-on-slim` | Framework jobs land on the same runner |
@@ -90,7 +90,7 @@ The Platform default is **GitHub Agentic Workflows on `ubuntu-latest`**, with `e
 | Checks | A pull-request workflow runs actionlint, shellcheck, the route matrix, and the manifest lint | The gaps the compiler cannot see are covered |
 | GitHub labels | `gh label list` includes the workflow intent labels | Label set created |
 
-A self-hosted runner is optional, and only for private or internal repositories. Never attach one to a public repository: a pull request from a fork would execute arbitrary code on it, with whatever credentials it holds.
+Self-hosted runners, the `agents-arc` fleet included, are only for private or internal repositories. Never attach one to a public repository: a pull request from a fork would execute arbitrary code on it, with whatever credentials it holds.
 
 For a repository that is not on GitHub at all, [loop-task](https://github.com/PlainConceptsPlatform/loop-task) runs the same work on a schedule from any machine.
 
@@ -153,16 +153,14 @@ Each step is an OpenSpec change. Capture Playwright characterization tests befor
 
 ### Domain 5: Agent automation
 
-The Platform default is **Agentic Workflows on `ubuntu-latest`**, public repositories included.
+The Platform default is **Agentic Workflows from `@plainconceptsplatform/workflows`, on the `agents-arc` fleet**. Private and internal repositories only.
 
 1. Run `gh aw init --no-mcp --no-skill --no-agent`. The extra flags matter: the scaffolding they suppress is for authoring workflows with GitHub Copilot Chat, which Platform does not use, and it comes back every time you rerun `init` without them.
-2. Copy the templates from Foundations `ai/workflows`: the router, the two workers, the shared components, the composite actions, and `opencode.ci.json`. The shape is **one router that owns every trigger and workers that have none**, so do not give a worker its own trigger.
-3. Add the per-repository `FORGE_API_KEY` for the configured gateway, plus the organization `BOT_APP_ID` and `BOT_PRIVATE_KEY` secrets for the Platform App that lifecycle writes are attributed to. Configure the gateway URL in the worker environment.
-4. Author or adapt workflows with the self-contained `workflow-author` and `workflow-consumer` skills from [`PlainConceptsPlatform/agentic-workflows`](https://github.com/PlainConceptsPlatform/agentic-workflows).
-5. Create the GitHub labels the workflows read and write: `gh workflow run "Agentic Maintenance" -f operation=create_labels`.
-6. Compile, lint, and then **watch one real event end to end**. `gh aw compile --strict` and actionlint both pass on workflows that produce zero jobs at runtime.
-
-A self-hosted runner is supported for repositories that need one, but it is no longer the default: the model comes from Forge either way, so the runner was only ever providing a queue of one.
+2. Install the router, workers, composite actions, compile script and `opencode.ci.json` with `npx @plainconceptsplatform/workflows` (the TUI) or `npx @plainconceptsplatform/workflows@latest add <routes>`. The shape is **one router that owns every trigger and workers that have none**, so do not give a worker its own trigger. Do not copy files by hand: `workflows update` refreshes package-managed files and keeps each worker's `env:` block.
+3. Add the per-repository `FORGE_API_KEY` for the configured gateway, plus the organization `BOT_APP_ID` and `BOT_PRIVATE_KEY` secrets for the Platform App that lifecycle writes are attributed to.
+4. Set each worker's `env:` values: `VERIFY_COMMANDS` (the repository's own verification command, such as `pnpm verify`), `REPO_RULES` and the other repository-owned rules. In the router, set `CI_WORKFLOW_NAME` to the CI's name and pick a free `AUDIT_CRON` slot. Make the CI's last job dispatch the merge train (`dispatch-merge-train` in the package's CI templates). The self-contained `workflow-consumer` skill from [`PlainConceptsPlatform/agentic-workflows`](https://github.com/PlainConceptsPlatform/agentic-workflows) covers each value.
+5. Labels are created the first time a workflow applies them; nothing needs creating up front.
+6. Compile with `node scripts/compile-agent-workflows.mjs`, never bare `gh aw compile`, lint, and then **watch one real event end to end**. The compiler and actionlint both pass on workflows that produce zero jobs at runtime.
 
 If the repository is not on GitHub, [loop-task](https://github.com/PlainConceptsPlatform/loop-task) covers the same ground on a schedule. When migrating a repository that still has `.loops/recipes/`, keep the recipes until the workflows reproduce their behaviour; they are the record of what to reproduce.
 

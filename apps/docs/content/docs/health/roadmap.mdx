@@ -1,0 +1,45 @@
+---
+title: Roadmap
+description: "The Roadmap area reads every issue's labels over time to show who had it at each moment: an agent, a person, a pull request waiting to merge, or nobody. And where the human attention in an agent pipeline actually goes."
+---
+
+Platform projects have no epics and no milestones. An issue is opened, refined by an agent, implemented by an agent, merged, often all on the same day, and the labels the [workflows](/docs/ai#the-label-system) write say who had it at each moment. So the Roadmap tab does not plan anything. It reads every issue open during the month, its timeline and the pull requests that reference it, and splits its open time into five states:
+
+| State | Read from |
+|---|---|
+| Agent working | `bot-working` present |
+| Waiting on a person | `review`, `stalled` or `owner-review` present |
+| PR waiting to merge | `pr-pending` present |
+| Queued, nobody on it | Open with none of the above |
+| By hand | The issue never carried an agent label (`triage`, `refine`, `implement`, or the ones above) |
+
+Label names can be overridden per project where a repository uses others.
+
+That draws as a Gantt, one row per issue on the day and hour it was opened, zoomable from the month down to two hours. Each `stalled` and each agent attempt that ended early is marked on the bar, and the outcome comes from the pull request that closed the issue: auto-merged by the gate, merged by a person, written by hand, or closed without one. The `sp-N` estimate refine wrote sits beside the time it really took, and agent runs and tokens are joined from the agent metrics. Issues are tagged by where they came from: a person, an audit, an application error report, or other automation. The housekeeping digest is not work and is left out.
+
+The first real month answered a question nobody had asked. Across one project's issues, an agent was working **17%** of the time they were open. The rest was waiting: for a person to answer a question, for a merge the next morning, or for nobody at all. That is where the time goes, and the tab exists to show it. Times are wall clock, so a pull request merged the next morning spends its night waiting to merge.
+
+Two more things come from the same reading:
+
+- **Evidence.** When a merged pull request carries a verification plan, the evidence workflow replays it in a browser and keeps one screenshot per waypoint in an `evidence/` folder beside the archived plan, with a manifest in its pull request comment. Health shows the screenshots with the issue they prove. They are linked, not copied, so they load for anyone signed in to GitHub with access to the repository.
+- **A label nobody picked up.** A label set with a workflow's own `GITHUB_TOKEN` starts no other workflow, so an issue labelled `refine` that way waits until a person sets the label again. Health names every issue that sat for over an hour like that in the project's notes, because nothing on GitHub does.
+
+A project opts in with `"roadmap": { "enabled": true }` in `projects.json`, and the App needs the Pull requests read permission. Without it the roadmap reads unavailable with a warning naming the permission, and every other metric is collected as before.
+
+## Where human attention goes
+
+Once agents handle implementation, throughput stops being the interesting number. What matters is how much still needs a person, and that is answered in two places, at two speeds.
+
+**Health answers it over time.** "Waiting on a person" is a state in the Gantt, so the roadmap shows how long issues sat waiting for someone, how often an agent attempt ended early, and which issues were done by hand. It is collected daily, so it is a record of the month, not a live queue.
+
+**GitHub answers it now.** The housekeeping job that comes with the workflows runs every six hours in each repository and rewrites one issue, **Needs a human**, listing what genuinely needs a person: issues parked by a decision (a triage `needs-maintainer`, refine questions waiting on the author, a merge-gate verdict other than `auto-merge`), pull requests the gate parked or never ruled on, stalled work that has used up its retries, stacked features waiting on a person, and audit reports nobody actioned. Work that is still retrying by itself is listed separately, so nobody duplicates the retry. It also carries the merge gate's scoreboard: the share of `auto-merge` verdicts over the last fortnight and how many auto-merged pull requests were later reverted.
+
+The rule that shapes both is the same one the janitor follows: **retry a failure, report a decision.** `stalled` marks a park the machine caused, a crash, a timeout or an empty output, and housekeeping retries those after six hours, up to three times. A verdict an agent reached on purpose is reported and never retried, because re-running a decision only reproduces it. That is why `review` and `owner-review` count as waiting on a person, and why the digest lists them rather than clearing them.
+
+Bot authorship is counted separately throughout. Seven open pull requests that are all dependency bumps are not seven things needing a person, and reporting them as one number would make a quiet project look busy.
+
+<Cards>
+  <Card title="3. Maintenance mode" href="/docs/how-we-work/maintenance" description="The pipeline these states describe." />
+  <Card title="AI x SDLC" href="/docs/ai#the-label-system" description="The labels the workflows write, and what each one means." />
+  <Card title="Measuring with Health" href="/docs/health" description="The four areas, refresh cadence, and adding a project." />
+</Cards>

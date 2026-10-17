@@ -1,0 +1,67 @@
+---
+title: Measuring with Health
+description: "Project Health measures every Platform project in four areas: the engineering gates phase 2 builds, delivery in DORA terms, how far agents run the Platform way, and where each issue's time went. What it collects, how often, what it refuses to guess, and how to add a project."
+---
+
+Health is the fourth pillar, and it changes nothing in the repositories it reads. Foundations defines the conventions, agent-harness puts them into a repository, agentic-workflows runs agents against it, and Health reads the result back from GitHub to say whether each of those actually happened. It is not a phase 3 report: the engineering gates it scores are built in [phase 2](/docs/how-we-work/foundations), and the agent adoption it tracks starts the day the harness is installed.
+
+## Four areas, one question each
+
+A project page has four tabs. The overview across every project has four too, with one difference: the comments and tests scan, a panel inside Engineering on a project page, gets its own **Code** tab on the overview, and Roadmap has no overview tab.
+
+| Area | The question it answers | What it judges | Read more |
+|---|---|---|---|
+| **Engineering** | Are the gates that make autonomy safe in place, and do they pass? Is the code free of the comments and tests agents tend to add? | The guardrails of [phase 2](/docs/how-we-work/foundations), against the [engineering standard](/docs/reference/engineering) | [Engineering](/docs/health/engineering) |
+| **Delivery** | How often does it ship, how long does a change take to reach production, and how much is rework? | Throughput and stability, in DORA terms | [Delivery](/docs/health/delivery) |
+| **Agentic** | Does the repository run agents the Platform way, on current versions, and how much of their work merges without a person? | Adoption of agent-harness and agentic-workflows | [Agentic](/docs/health/agentic) |
+| **Roadmap** | Who had each issue at each moment, and what is waiting on a person? | The pipeline of [maintenance mode](/docs/how-we-work/maintenance), issue by issue | [Roadmap](/docs/health/roadmap) |
+
+The overview opens on the Engineering scorecard, not on delivery. Delivery numbers say how fast work ships, and with agents writing most of it the more useful first question is whether anything would stop a bad change.
+
+## Where it lives and how fresh it is
+
+Health is two repositories. [project-health](https://github.com/PlainConceptsPlatform/project-health) is the product: the collector, the web app and the schemas, kept as a template with example data. Project-Health-Platform is a private mirror that holds what is ours: `projects.json`, the list of repositories measured, the configuration, and every month of collected data. It is a mirror rather than a fork because a fork inherits its parent's visibility, and delivery metrics name real people. A weekly workflow copies the template's code into it as a pull request and never touches the project list or the data.
+
+- **Collection runs daily**, at 03:15 UTC, for the current and the previous month. A scheduled workflow reads the GitHub API, commits JSON, and rebuilds a static site. There is no database and no service to run, and nothing is refreshed hourly.
+- **The site is published privately on GitHub Pages.** It is visible to people with read access to the mirror, so repository access is the access list.
+- **The browser never calls GitHub.** Every number is collected server side and committed, so the page needs no token and can show nothing a reader could not already see in the repository. Rows link to the issue or pull request they come from instead of asking you to trust the page.
+- **OpenTelemetry export is optional.** When an OTLP endpoint is configured, each collection also emits the delivery, agent and engineering numbers as gauges, so they can land in Azure Monitor or any collector. An export failure never fails the collection.
+
+## What Health refuses to do
+
+The part that keeps the rest credible. The governing rule: **a missing metric is a fact about the data, not a gap to fill with a plausible number.**
+
+- **A missing metric is a value, not a crash.** Every metric is stored as a block that is either present with data or absent with a reason, and the site prints the reason where the number would go. One project failing never stops the others.
+- **Two DORA metrics are refused outright.** Change fail rate and failed deployment recovery time need to know that a release caused a problem in production, which a repository cannot answer. [Delivery](/docs/health/delivery) explains why a red pipeline is not a stand-in.
+- **Agent cost is in tokens, not money.** Rates change, differ per account, and go stale in a committed file.
+- **Totals that can be partial say so.** A run only reports token usage if it reached the model and uploaded its artifact, so the site prints "measured N of M" beside the totals.
+- **A missing value never sorts as zero**, and a partial month is divided by the days that have elapsed.
+- **A detected practice is marked as inferred.** When a repository does not publish its own gate results, the scorecard reads its workflow files instead and says so.
+- **A planned project is listed, not collected.** It reads "Planned project: not deployed yet" until there is something to measure.
+
+## Adding a project
+
+The list of measured repositories is an explicit allowlist in the mirror's `projects.json`, not a scan of the organisation. Ask the repository for its configuration rather than guessing it:
+
+```bash
+gh workflow run discover.yml --repo PlainConceptsPlatform/Project-Health-Platform -f repo=PlainConceptsPlatform/<repo>
+```
+
+`discover.yml` is read-only. It reports which environment counts as production, whether releases are tags or branches, which labels are in use, and whether the repository runs agents, and prints a suggested entry to paste into `projects.json`. Then check the fields it cannot know:
+
+- **`status`**: `production`, `pre-production` or `planned`.
+- **`environments`**: which deployment environments count as production and staging. The names genuinely differ across the organisation, and a project with no production environment yet has its production metrics skipped rather than reported as zero.
+- **`type`**: `back-front`, `mobile`, `data`, `ml`, `library`, `browser-extension`, `static-site` or `other`. The type decides which engineering practices apply, so a static site is not marked down for having no mutation testing. Without one every practice applies.
+- **`engineeringExcellence`**: `{ "enabled": true }` once the repository's CI publishes its engineering excellence facets. The scorecard itself is collected for every project; the opt-in only tells the collector to read the facet artifacts.
+- **`roadmap`**: `{ "enabled": true }` to get the Roadmap tab.
+
+The collector reads with the Platform GitHub App, which needs five read permissions on the repository: **Metadata**, **Deployments**, **Contents**, **Issues** and **Actions**. Deployments is the one people miss, and it carries every delivery metric. The roadmap needs a sixth, **Pull requests**. A token missing a permission gets a 404 rather than a 403, so the collector runs a preflight and names what is missing instead of writing empty metrics.
+
+A project appears on the dashboard as soon as it is in `projects.json`, with an empty state until the next collection.
+
+<Cards>
+  <Card title="Engineering" href="/docs/health/engineering" description="The scorecard, the facets, and the comments and tests scan." />
+  <Card title="Delivery" href="/docs/health/delivery" description="Three DORA metrics collected, two refused, and two lead times kept apart." />
+  <Card title="Agentic" href="/docs/health/agentic" description="Harness and workflow adoption, and the share of agent work that merges on its own." />
+  <Card title="Roadmap" href="/docs/health/roadmap" description="Who had each issue, and where the human attention goes." />
+</Cards>

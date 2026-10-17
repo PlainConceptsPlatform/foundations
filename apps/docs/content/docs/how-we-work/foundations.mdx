@@ -23,13 +23,25 @@ The set differs per app, but the recurring ones are:
 - **Specification discipline.** A CI check that fails any change to application code which does not
   also touch a specification, a change proposal, or a decision record. Trivial refactors opt out
   explicitly and say why.
-- **Test quality, not test count.** A test counts only if it pins observable behaviour. Changed tests
-  are graded, and coverage that executes code without asserting on it does not pass.
+- **Test quality, not test count.** A test counts only if it pins observable behaviour. Coverage
+  that executes code without asserting on it does not pass, and the harness's `check-diff` refuses a
+  change that adds assertion-less, mock-only, skipped or snapshot tests, more test code than the
+  change needs, or comments that only restate the code.
 - **An audit trail with no bypass.** Where the domain calls for it, every state change publishes an
   event that gets appended to a verifiable chain, and there is no code path that skips the appender.
-- **Human checkpoints on the things worth stopping for.** Authentication and authorisation, schema
-  migrations, new external integrations, CI configuration, and the design tokens. Green tests do not
-  buy a merge on those.
+- **Human checkpoints on the things worth stopping for, and only those.** The merge gate parks a
+  pull request for a person when it changes the automation itself (anything under `.github/`),
+  touches a secret (a secrets file, an `.env` file, a key or a certificate), or is too big to review
+  in one pass (more than 10,000 changed lines, not counting tests, docs, translations and generated
+  code). It also parks when the reviewing agent evidences a change that cannot be undone, verifies a
+  high-severity finding, or is not confident. Green tests do not buy a merge on those.
+
+  Authentication, migrations, infrastructure and contracts are **review hints**, not stops: the
+  agent looks there first, and they raise the risk, but a recoverable change still merges. They used
+  to stop every merge on category, and in a layered application nearly every feature touches one, so
+  the gate parked most of the work for a person who then merged it unread. A checkpoint that fires
+  on everything is not a checkpoint. The lists are per repository, so one with more to protect can
+  widen them; see [the merge gate](/docs/ai#the-merge-gate-and-the-merge-train).
 
 Written down alongside them is a definition of done that an agent can actually check itself against,
 which is what makes an unattended run able to tell whether it finished.
@@ -75,11 +87,7 @@ the reasons the unattended path is the default for repository work, are in
 An agent is not given a trust level. It is given a set of verbs, and the ones it does not need are
 absent rather than discouraged.
 
-In practice that means a workflow whose job is to propose work can create issues and nothing else, so
-it is structurally incapable of editing code or opening a pull request. A workflow that implements an
-issue opens the pull request and stops there, because merging is a different decision. A workflow that
-validates open pull requests can merge, but only when the checks are green, and after a bounded number
-of retries it labels the change for a human instead of trying again.
+In practice that means the audit workflow, whose job is to find work, can create an issue and nothing else, so it is structurally incapable of editing code or opening a pull request. The workflow that implements an issue opens the pull request and stops there, because merging is a different decision. The merge gate's agent can push a repair and comment, and that is all: it never names the outcome. It reports what it verified, a deterministic validator decides from that and from facts measured before the agent ran, and a deterministic job performs the merge. After a bounded number of failed attempts it leaves the change for a person instead of trying again. No agent in the fleet can write a label; labels are workflow state, written by deterministic jobs.
 
 This is stricter than the usual autonomy ladder, where a single setting moves an agent from suggesting
 to acting. Here the limit is a property of the workflow rather than a policy applied to it, so there is

@@ -3,10 +3,7 @@ title: 3. Maintenance mode
 description: "Where non-engineers file bugs and small feature requests, agents implement them, and delivery gets measured without flattering the numbers."
 ---
 
-In maintenance mode the people who use the app are the people who ask for changes to it. A department
-files a bug or a small feature request, an agent picks it up, implements it, verifies it, and opens a
-pull request that another agent merges once the checks pass. For requests inside the eligible scope,
-no engineer is involved.
+In maintenance mode the people who use the app are the people who ask for changes to it. A department files a bug or a small feature request, an agent refines it into a story, another implements it, verifies it, and opens a pull request, and the merge gate merges it once CI is green and nothing in it is dangerous to merge unseen. For requests inside the eligible scope, no engineer is involved.
 
 The rest of this page is about what keeps that from being reckless.
 
@@ -21,14 +18,16 @@ tooling can actually check.
     Triage{"Triage agent<br/>10 checks, up to 3 rounds"}
     Triage -->|"pass"| Pipeline["Refine, then implement,<br/>review and merge"]
     Triage -->|"needs-info"| Ask["Questions posted,<br/>author replies, re-triage"]
+    Triage -->|"needs-maintainer"| Maintainer["Stays open for a maintainer,<br/>who adds refine to take it on"]
     Triage -->|"block"| Closed(("Closed<br/>with a reason"))
     Ask -.-> Triage
+    Maintainer -.-> Pipeline
     classDef door fill:#eef0ff,stroke:#554cff,stroke-width:2px,color:#172033
     classDef gate fill:#fff8e8,stroke:#c75b00,stroke-width:2px,color:#172033
     classDef done fill:#e8f8ec,stroke:#18883c,stroke-width:2px,color:#145a32
     classDef stop fill:#fff0f0,stroke:#ef2929,stroke-width:2px,color:#8b1a1a
     class Writer,Outside door
-    class Triage,Ask gate
+    class Triage,Ask,Maintainer gate
     class Pipeline done
     class Closed stop`} />
 
@@ -40,26 +39,17 @@ whether it duplicates something open, whether it is clear enough to act on, whet
 reproduction steps, whether the acceptance criteria are testable, whether it has cross-cutting
 impact, and whether it is eligible at all.
 
-It reaches one of three verdicts. On **pass**, the issue enters the normal pipeline. On
-**needs-info** it posts exactly what is missing and waits for a reply, then runs again. On **block**
-it closes the issue with the reason. By the third round needs-info is no longer available, so the
-agent has to decide.
+It reaches one of four verdicts. On **pass**, the issue gets `refine` and enters the normal pipeline. On **needs-info** it posts exactly what is missing and waits for a reply, then runs again. On **needs-maintainer** the request is legitimate but outside what the business may ask for: the issue stays open with `review`, stops re-triggering triage, and a maintainer takes it on by adding `refine`. On **block** it closes the issue with the reason. Only block closes. By the third round needs-info is no longer available, so the agent has to decide.
+
+The fourth verdict exists because out-of-scope work used to be closed too, which lost it: a reproducible authorisation defect that passed nine of the ten checks was closed with every label stripped, indistinguishable from junk. The wrong door is not the same as a bad idea.
 
 ## The eligibility boundary
 
-This check is the load-bearing one, and it is quoted here in full because paraphrasing it tends to
-soften it:
+This check is the load-bearing one. The scope is business policy, so each repository owns it as `PRODUCT_SCOPE` in its triage worker. The default it ships with is quoted here in full because paraphrasing it tends to soften it:
 
-> Product-owner intake is limited to user experience and workflows, branding/content, business rules,
-> and business formulas. The issue must describe the desired product outcome, not prescribe technical
-> means. Block requests for architecture, infrastructure, developer tooling, deployment,
-> security/authentication/authorization, data storage/models/migrations, APIs, service composition,
-> framework adoption, solution/project structure, or other technical fundamentals. These require a
-> maintainer-owned technical proposal, even when clear, small, local-only, or testable.
+> In scope: user experience and workflows, branding and content, business rules, and business formulas. The issue must describe the desired product outcome rather than prescribe technical means. Out of scope, and blocked even when clear, small, local or testable: architecture, infrastructure, developer tooling, deployment, security, authentication, authorization, data storage, data models, migrations, APIs, service composition, framework adoption, and solution or project structure.
 
-The last clause is the one that keeps the boundary intact. A technical request does not become
-eligible by being small, obvious, or easy to test. It is refused on category, which means the rule
-cannot be eroded one reasonable-looking exception at a time.
+The clause "even when clear, small, local or testable" is the one that keeps the boundary intact. A technical request does not become eligible for the business door by being small, obvious, or easy to test. It goes to a maintainer on category, which means the rule cannot be eroded one reasonable-looking exception at a time.
 
 Note what this makes the intake templates responsible for. The bug report asks for severity,
 frequency and reproduction steps. The feature request asks for current behaviour, the problem, the
@@ -68,9 +58,7 @@ issue, which is to say back into [discovery](/docs/how-we-work/discovery).
 
 ## Turning a request into a story
 
-An eligible issue is rarely written the way an implementing agent needs it. A refinement pass rewrites
-it as a user story grounded in the actual codebase, with testable acceptance criteria, and appends
-clarifying questions when something is genuinely ambiguous.
+An eligible issue is rarely written the way an implementing agent needs it. A refinement pass rewrites it as a user story grounded in the actual codebase, in the repository's own issue template, with testable acceptance criteria and a Fibonacci estimate, and asks clarifying questions when something is genuinely ambiguous. A story estimated at 8 points or more is split into children of 3 to 5 points, each of which walks the same path on its own. When the story is complete, refinement hands it straight to implementation; a person who wants to hold it back adds `future`.
 
 That produces a conversation rather than a handoff. The agent asks, the product owner answers in a
 comment, and the issue is refined again with the answers. It can go round more than once before both
@@ -85,47 +73,23 @@ sides converge, and only then does implementation start.
 
 ## Measuring it honestly
 
-Maintenance mode generates a lot of activity, which makes it easy to mistake volume for progress.
-[Project Health](https://github.com/PlainConceptsPlatform/project-health) collects delivery and agent
-metrics per project and publishes them, and it is deliberately conservative about what it will claim.
-The short version is below, and the full treatment is in
-[Analytics with DORA](/docs/analytics).
+Maintenance mode generates a lot of activity, which makes it easy to mistake volume for progress. [Health](/docs/health) measures every project daily and is deliberately conservative about what it claims. For this phase, three of its areas matter most:
 
-- **Throughput and stability** follow the DORA definitions: deployment frequency, change lead time,
-  and rework rate. Two of the five modern DORA metrics depend on knowing that a release caused a
-  problem in production, which a repository cannot answer, so they are reported as not collected
-  rather than approximated from red pipelines.
-- **Profiles, not a single grade.** The 2025 DORA
-  [team profiles](https://dora.dev/research/2025/ai-capabilities-model/) are built from throughput,
-  stability and team well-being. Well-being needs a survey, so a project is placed on two axes and
-  reported as the set of profiles consistent with that. Guessing well-being from commit timestamps
-  costs more trust than the number is worth.
-- **Small samples are refused.** Below five releases in a period, the project is not placed on the
-  axes at all. A rate computed from ten events moves too much when the eleventh arrives.
-- **Agent cost is reported in tokens, not money.** Rates change, differ per account, and go stale in
-  a committed file. Tokens are what the agents actually spend.
-- **Totals are labelled as floors.** A run only reports usage if it reached the model and uploaded its
-  artifact, so the site prints "measured N of M" instead of presenting a partial sum as complete.
+- **[Delivery](/docs/health/delivery)** follows the DORA definitions: deployment frequency, change lead time and rework rate. The two metrics that need to know a release caused a problem in production are reported as not collected rather than approximated from red pipelines.
+- **[Agentic](/docs/health/agentic)** shows what share of the bot's merged pull requests the merge gate merged on its own, which is the autonomy this phase promises, and what the agents cost in tokens and time.
+- **[Roadmap](/docs/health/roadmap)** splits every issue's open time into agent working, waiting on a person, waiting to merge, and queued, which is where the time actually goes.
 
-The governing rule is worth stating on its own: a missing metric is a fact about the data, not a gap
-to fill with a plausible number.
+The governing rule is worth stating on its own: a missing metric is a fact about the data, not a gap to fill with a plausible number.
 
 ## Human attention is the thing that runs out
 
-Once agents handle implementation, throughput stops being the interesting number. What matters is how
-much still needs a person, so that gets its own view: the issues labelled as needing human attention
-and the open pull requests, per project, refreshed hourly.
+Once agents handle implementation, throughput stops being the interesting number. What matters is how much still needs a person. Inside each repository that is one issue, **Needs a human**, which the workflows' housekeeping job rewrites every six hours: decisions waiting on someone, pull requests the gate parked, stalled work that has used up its retries, and the merge gate's own auto-merge share. Over time, Health's roadmap shows how long issues waited on a person. [Roadmap](/docs/health/roadmap#where-human-attention-goes) covers both.
 
-Bot authorship is counted separately, and that separation is the whole point. Seven open pull requests
-that are all dependency bumps are not seven things needing a person, and reporting them as one number
-would make a quiet project look busy.
+The rule behind the digest is **retry a failure, report a decision.** A crash or a timeout is retried by itself; a verdict an agent reached on purpose is listed for a person and never re-run, because re-running a decision only reproduces it.
 
 ## Improving the system
 
-The last part of maintenance mode is the loop that maintains the maintainer. Read-only audits run on a
-schedule against the repository's own guardrails, and file their highest-severity findings as ordinary
-issues that re-enter the same pipeline. A companion pass closes the audit reports whose findings have
-all been resolved.
+The last part of maintenance mode is the loop that maintains the maintainer. A read-only audit runs weekly against the repository's own guardrails and files one issue of findings, labelled `refine`, so refinement sizes it and splits it into properly sized issues instead of one pull request that has to fix everything. A companion pass closes an audit report once every issue it references is closed, and marks one nobody actioned as stale after 14 days so it stops blocking the next audit.
 
 Nothing about that is special-cased. An audit finding is a bug report written by an agent, and it goes
 through refinement and implementation like any other. The system's own defects are worked the same way
@@ -134,5 +98,6 @@ as the product's.
 <Cards>
   <Card title="1. Discovery" href="/docs/how-we-work/discovery" description="Where blocked and oversized requests go instead." />
   <Card title="2. Foundations" href="/docs/how-we-work/foundations" description="The guardrails that make merging without a reviewer acceptable." />
-  <Card title="AI x SDLC" href="/docs/ai#agentic-workflows" description="The router, the workers, and the label state machine behind this pipeline." />
+  <Card title="AI x SDLC" href="/docs/ai#agentic-workflows" description="The router, the workers, the merge train, and the label state machine behind this pipeline." />
+  <Card title="Measuring with Health" href="/docs/health" description="How this phase is measured, and what Health refuses to guess." />
 </Cards>
