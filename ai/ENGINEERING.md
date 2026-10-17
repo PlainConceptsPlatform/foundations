@@ -11,7 +11,7 @@ Eleven practices, in two phases. The standard mode is what "green" requires.
 | # | Practice | Phase | Standard mode | Usual tools | What it guarantees |
 |---|---|---|---|---|---|
 | 1 | Spec | Every build | Blocking | Reqnroll (.NET), playwright-bdd or Cucumber (TS) | Acceptance behaviour is written as Gherkin scenarios bound to the repository's specs (OpenSpec) and executed on every build. |
-| 2 | Tests & coverage | Every build | Blocking | coverlet, `@vitest/coverage-v8`, JaCoCo, pytest-cov | Tests run on every build with a minimum line coverage per module. A plain test run without a coverage floor counts as present but weak (yellow). |
+| 2 | Tests & coverage | Every build | Blocking | coverlet, `@vitest/coverage-v8`, JaCoCo, pytest-cov | Tests run on every build with a minimum line coverage per module. A plain test run without a coverage floor counts as present but weak (yellow). The target shape is a trophy, not a pyramid: mostly integration tests, unit tests only for logic with real branching, few E2E. `check-diff` budgets how much test code a change may add, and mutation score checks that the tests catch mistakes. |
 | 3 | Mutation score | Every build | Threshold | Stryker.NET, StrykerJS | Injected faults are caught: the covered-code mutation score stays above a floor. |
 | 4 | Secrets | Every build | Blocking | TruffleHog (verified only) | Committed credentials fail the build. |
 | 5 | Vulnerabilities (deps & IaC) | Every build | Blocking | Trivy (`fs`, CRITICAL/HIGH, ignore-unfixed) | Dependencies and infrastructure as code are scanned; critical and high fixable findings block. |

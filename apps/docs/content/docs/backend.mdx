@@ -87,7 +87,7 @@ EF Core is the default. Keep queries in Infrastructure behind interfaces the App
 
 ## Testing
 
-Follow the pyramid. Many **unit** tests with xUnit over the domain and application handlers, where the value-as-errors style makes assertions clean. Fewer **integration** tests that run a real host through `WebApplicationFactory` against a real database through Testcontainers, so you catch wiring and query bugs. A few end-to-end tests over the critical paths. Skill: `csharp-xunit`.
+Follow the testing trophy, not the pyramid (Kent C. Dodds; Spotify's honeycomb is the same shape for services with many collaborators). Most of the weight goes to **integration** tests: run a real host through `WebApplicationFactory` against a real database through Testcontainers and assert behaviour through the HTTP surface, so you catch the wiring, mapping and query bugs that mocks hide. Add **unit** tests with xUnit only where there is logic with real branching, such as domain rules, calculations, parsers and state machines, where the value-as-errors style makes assertions clean. Keep **end-to-end** tests few, over the critical journeys. Static analysis (the compiler, analyzers and `check-diff`) is the base layer. A bug fix gets one regression test. Do not test constants, configured defaults, mocks of your own code or markup details: those tests fail when someone edits the code, not when behaviour breaks. Skill: `csharp-xunit`.
 
 ## Azure SQL backups in production
 
