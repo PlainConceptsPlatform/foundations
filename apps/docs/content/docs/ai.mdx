@@ -975,3 +975,5 @@ The gate's results are tracked in two places: the **Needs a human** digest in th
   [loop-task](https://github.com/PlainConceptsPlatform/loop-task) runs the same kind of agent work
   on a schedule from any machine.
 </Callout>
+
+When scheduled agent work is enough, `loop-task` is the lightweight option. When a repository needs an explicit, repository-agnostic delivery workflow, [Microsoft Conductor](https://github.com/microsoft/conductor) is an open-source alternative: YAML defines the permitted states, routes, inputs and outputs, combining agentic steps with deterministic scripts, APIs and MCP tools. Human gates can stop the flow wherever approval or accountability is required, while explicit limits and routing keep execution time and model spend observable and bounded.
