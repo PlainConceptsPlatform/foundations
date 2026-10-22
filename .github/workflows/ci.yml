@@ -18,7 +18,7 @@ concurrency:
 jobs:
   check:
     name: Lint, typecheck, build (node ${{ matrix.node }})
-    runs-on: agents-arc
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -58,8 +58,8 @@ jobs:
   # Hands a bot pull request to the merge gate as soon as CI settles. GitHub does not deliver
   # workflow_run for CI runs a bot started, so without this the router never hears that CI
   # finished and the gate only sees the pull request on the housekeeping belt, hours later.
-  # agents-arc, like every job here: GitHub-hosted minutes are not to be spent. This job sleeps
-  # a minute and makes one API call, so it holds a fleet slot only briefly.
+  # GitHub-hosted, like every job here: the repository is public, so its minutes are free and
+  # the agents-arc fleet does not serve it. This job sleeps a minute and makes one API call.
   dispatch-merge-gate:
     name: Dispatch merge gate
     needs: [check]
@@ -69,7 +69,7 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.draft == false &&
       (github.event.pull_request.user.login == 'app/github-actions' || endsWith(github.event.pull_request.user.login, '[bot]'))
-    runs-on: agents-arc
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       contents: read
