@@ -69,7 +69,7 @@ Start with [`AGENTS.md`](AGENTS.md). It points to the [`ai/`](ai/) folder, which
 
 ### Agentic Workflow migration
 
-Reusable GitHub Agentic Workflow skills and copyable loops now live in [`PlainConceptsPlatform/agentic-workflows`](https://github.com/PlainConceptsPlatform/agentic-workflows). Install them in a repository with `npx @plainconceptsplatform/workflows`, and use its self-contained `workflow-author` and `workflow-consumer` skills when changing or adopting workflows. The router is named `# Main Work Router` for sidebar sort order; run-names follow the `Agent:` / `Agentics:` / `Event:` prefix convention documented in the `workflow-author` skill. Interactive diagrams of every workflow are at [plainconceptsplatform.github.io/agentic-workflows](https://plainconceptsplatform.github.io/agentic-workflows/).
+Reusable GitHub Agentic Workflow skills and copyable loops now live in [`PlainConceptsPlatform/agentic-workflows`](https://github.com/PlainConceptsPlatform/agentic-workflows). Install them in a repository with `npx @plainconceptsplatform/workflows`, and use its self-contained `workflow-author` and `workflow-consumer` skills when changing or adopting workflows. The router is named `# Main Work Router` for sidebar sort order; run-names follow the `Agent:` / `Agentics:` / `Event:` prefix convention documented in the `workflow-author` skill. Interactive diagrams of every workflow are at [workflows.platform.plainconcepts.dev](https://workflows.platform.plainconcepts.dev).
 
 ## Documentation
 
@@ -80,4 +80,7 @@ Reusable GitHub Agentic Workflow skills and copyable loops now live in [`PlainCo
 - [`packages/theme/README.md`](packages/theme/README.md): theme package setup and conventions
 - [`packages/ui-components/README.md`](packages/ui-components/README.md): shared components (Plain logo)
 - [`apps/docs/README.md`](apps/docs/README.md): docs/showcase site structure
-- [Agentic Workflows diagrams](https://plainconceptsplatform.github.io/agentic-workflows/): interactive diagrams of every workflow loop
+- [platform.plainconcepts.com](https://platform.plainconcepts.com): this repository's docs site
+- [harness.platform.plainconcepts.dev](https://harness.platform.plainconcepts.dev): the Platform Harness site
+- [workflows.platform.plainconcepts.dev](https://workflows.platform.plainconcepts.dev): interactive diagrams of every workflow loop
+- [health.platform.plainconcepts.dev](https://health.platform.plainconcepts.dev): the Project-Health dashboard and Engineering scorecard

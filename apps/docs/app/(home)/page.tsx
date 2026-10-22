@@ -114,6 +114,7 @@ type Pillar = {
   name: string;
   repo: string;
   href: string;
+  site: string;
   icon: typeof Rocket;
   description: string;
 };
@@ -123,6 +124,7 @@ const PILLARS: Pillar[] = [
     name: "Foundations",
     repo: "PlainConceptsPlatform/Foundations",
     href: "https://github.com/PlainConceptsPlatform/Foundations",
+    site: "https://platform.plainconcepts.com",
     icon: Layers,
     description: "The theme, the conventions, the reference architecture, and this site.",
   },
@@ -130,6 +132,7 @@ const PILLARS: Pillar[] = [
     name: "agent-harness",
     repo: "PlainConceptsPlatform/agent-harness",
     href: "https://github.com/PlainConceptsPlatform/agent-harness",
+    site: "https://harness.platform.plainconcepts.dev",
     icon: Wrench,
     description:
       "Installs the Platform Harness into a repository: skills, commands, an agent team, an OpenSpec workspace, and the comments and tests gate.",
@@ -138,6 +141,7 @@ const PILLARS: Pillar[] = [
     name: "agentic-workflows",
     repo: "PlainConceptsPlatform/agentic-workflows",
     href: "https://github.com/PlainConceptsPlatform/agentic-workflows",
+    site: "https://workflows.platform.plainconcepts.dev",
     icon: GitBranch,
     description:
       "The router and worker catalog that runs the pipeline, the merge gate and merge train, plus the CLI that installs and updates it.",
@@ -146,6 +150,7 @@ const PILLARS: Pillar[] = [
     name: "project-health",
     repo: "PlainConceptsPlatform/project-health",
     href: "https://github.com/PlainConceptsPlatform/project-health",
+    site: "https://health.platform.plainconcepts.dev",
     icon: Gauge,
     description:
       "Measures the other three in every project: engineering gates, delivery, agentic adoption and the roadmap.",
@@ -233,20 +238,31 @@ export default function HomePage() {
               const Icon = pillar.icon;
 
               return (
-                <li key={pillar.href}>
-                  <a
-                    href={pillar.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex h-full flex-col rounded-lg border border-border bg-card p-5 transition-colors duration-150 hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <Icon aria-hidden className="size-5 text-primary" />
-                    <span className="mt-3 font-semibold text-card-foreground">{pillar.name}</span>
-                    <span className="mt-1 text-sm text-muted-foreground">{pillar.description}</span>
-                    <span className="mt-3 font-mono text-xs text-muted-foreground">
+                <li
+                  key={pillar.href}
+                  className="flex h-full flex-col rounded-lg border border-border bg-card p-5"
+                >
+                  <Icon aria-hidden className="size-5 text-primary" />
+                  <span className="mt-3 font-semibold text-card-foreground">{pillar.name}</span>
+                  <span className="mt-1 text-sm text-muted-foreground">{pillar.description}</span>
+                  <span className="mt-auto flex flex-wrap gap-x-4 gap-y-1 pt-3 font-mono text-xs">
+                    <a
+                      href={pillar.site}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      {new URL(pillar.site).host}
+                    </a>
+                    <a
+                      href={pillar.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-muted-foreground hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
                       {pillar.repo}
-                    </span>
-                  </a>
+                    </a>
+                  </span>
                 </li>
               );
             })}
