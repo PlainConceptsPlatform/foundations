@@ -15,7 +15,7 @@ pnpm --filter @plainconceptsplatform/docs dev
 pnpm --filter @plainconceptsplatform/docs build   # outputs apps/docs/out
 ```
 
-The deploy workflow (`.github/workflows/deploy.yml`) publishes the static export to GitHub Pages at `platform.plainconcepts.com` after CI passes on `main`. For local dev, the default config works without environment overrides.
+The deploy workflow (`.github/workflows/deploy.yml`) publishes the static export to GitHub Pages at `platform.plainconcepts.dev` after CI passes on `main`. For local dev, the default config works without environment overrides.
 
 ## Structure
 

@@ -124,7 +124,7 @@ const PILLARS: Pillar[] = [
     name: "Foundations",
     repo: "PlainConceptsPlatform/Foundations",
     href: "https://github.com/PlainConceptsPlatform/Foundations",
-    site: "https://platform.plainconcepts.com",
+    site: "https://platform.plainconcepts.dev",
     icon: Layers,
     description: "The theme, the conventions, the reference architecture, and this site.",
   },

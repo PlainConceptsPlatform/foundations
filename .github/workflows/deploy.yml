@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 20
 
     env:
-      NEXT_PUBLIC_SITE_URL: https://platform.plainconcepts.com
+      NEXT_PUBLIC_SITE_URL: https://platform.plainconcepts.dev
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

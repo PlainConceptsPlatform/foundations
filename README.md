@@ -80,7 +80,7 @@ Reusable GitHub Agentic Workflow skills and copyable loops now live in [`PlainCo
 - [`packages/theme/README.md`](packages/theme/README.md): theme package setup and conventions
 - [`packages/ui-components/README.md`](packages/ui-components/README.md): shared components (Plain logo)
 - [`apps/docs/README.md`](apps/docs/README.md): docs/showcase site structure
-- [platform.plainconcepts.com](https://platform.plainconcepts.com): this repository's docs site
+- [platform.plainconcepts.dev](https://platform.plainconcepts.dev): this repository's docs site
 - [harness.platform.plainconcepts.dev](https://harness.platform.plainconcepts.dev): the Platform Harness site
 - [workflows.platform.plainconcepts.dev](https://workflows.platform.plainconcepts.dev): interactive diagrams of every workflow loop
 - [health.platform.plainconcepts.dev](https://health.platform.plainconcepts.dev): the Project-Health dashboard and Engineering scorecard
