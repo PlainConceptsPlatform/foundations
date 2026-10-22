@@ -34,7 +34,8 @@
   --pc-neutral-900: #0d0e0f;
 
   /* Functional ramps. Figma defines the 100/300/500/700 anchors only; the 400
-     and 600 steps are interpolations for hover and pressed states. */
+     and 600 steps are interpolations for hover and pressed states, and 900
+     extends each ramp past 700 for a deeper shade. */
   --pc-error-100: #fde1e6;
   --pc-error-300: #f99bac;
   --pc-error-400: #f66a82;
@@ -73,7 +74,8 @@
   /* Light card/popover on neutral-50 so the surface reads against the white
      page, mirroring dark mode where card (#17181b) is one step above
      background (#0d0e0f). The Figma light tokens ship card equal to
-     background; the separation is a platform decision. */
+     background; the separation is a platform decision. The tint alone is
+     subtle (1.04:1, see the sidebar note below), so cards keep --border. */
   --card: var(--pc-neutral-50);
   --card-foreground: var(--pc-neutral-900);
   --popover: var(--pc-neutral-50);

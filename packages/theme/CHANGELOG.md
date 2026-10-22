@@ -1,5 +1,12 @@
 # @plainconceptsplatform/ui-theme
 
+## 1.4.0
+
+### Minor Changes
+
+- Add 400, 600 and 900 steps to the error, warning, success and info ramps (`--pc-error-400` and so on). The 400 and 600 steps are interpolated for hover and pressed states; Figma still defines only 100/300/500/700.
+- Light `--card` and `--popover` move from `neutral-0` (`#ffffff`) to `neutral-50` (`#fafafc`), so cards and popovers read as a surface against the white page, as they already do in dark mode. Apps that relied on cards being pure white will see the slight tint.
+
 ## 0.2.0
 
 ### Minor Changes
