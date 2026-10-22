@@ -2,7 +2,7 @@
 // Root files stay the single source of truth; these copies are generated and gitignored.
 // Runs on predev / prebuild.
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, posix, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -48,7 +48,11 @@ const LINK_MAP = {
   "PLAN.md": "/docs/reference/plan",
 };
 
-function transform(raw) {
+// relative links to files outside these docs (README, skills, folders) resolve next
+// to the source on GitHub but not on this site, so they point at the repository
+const REPO_BLOB = "https://github.com/PlainConceptsPlatform/Foundations/blob/main";
+
+function transform(raw, src) {
   let body = raw;
   // strip an existing YAML frontmatter block (e.g. DESIGN.md token frontmatter).
   // Handle optional BOM and CRLF line endings.
@@ -62,6 +66,10 @@ function transform(raw) {
     const re = new RegExp(`\\]\\([^)]*${base.replace(".", "\\.")}\\)`, "g");
     body = body.replace(re, `](${url})`);
   }
+  body = body.replace(
+    /\]\((\.{1,2}\/[^)\s]*)\)/g,
+    (_, rel) => `](${REPO_BLOB}/${posix.join(posix.dirname(src), rel)})`,
+  );
   // Note: files are emitted as .md (lenient markdown). Mermaid blocks stay as
   // code fences so arbitrary doc content (HTML comments, braces, angle brackets)
   // never breaks the strict MDX parser.
@@ -82,7 +90,7 @@ for (const doc of DOCS) {
     console.warn(`[sync-docs] skipping missing source: ${doc.src}`);
     continue;
   }
-  const body = transform(readFileSync(abs, "utf8"));
+  const body = transform(readFileSync(abs, "utf8"), doc.src);
   const frontmatter = `---\ntitle: "${esc(doc.title)}"\ndescription: "${esc(doc.description)}"\n---\n\n`;
   writeFileSync(resolve(outDir, `${doc.slug}.md`), `${frontmatter + body}\n`);
   written.push(doc.slug);

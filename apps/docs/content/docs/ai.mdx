@@ -82,7 +82,8 @@ The design answers what a long-lived self-hosted runner taught: a disk that fill
 The CLI that installs the **Plain Concepts Platform Harness** into a repository and keeps it up to
 date. The harness is ours: the set of files agents work from, being slash commands, `pc-*` skills
 (the `pc-` is Plain Concepts), an agent team, OpenCode plugins, an OpenSpec workspace, and
-generated `ARCHITECTURE.md` and `DESIGN.md`.
+generated `ARCHITECTURE.md` and `DESIGN.md`. Its own documentation is at
+[harness.platform.plainconcepts.dev](https://harness.platform.plainconcepts.dev).
 
 Underneath it wires [OpenCode](https://opencode.ai) to [OpenSpec](https://github.com/fission-ai/openspec) for change management, native subagent waves for parallel work, [codegraph](https://github.com/colbymchenry/codegraph) for code intelligence, and [agentmemory](https://github.com/rohitg00/agentmemory) for context that survives between sessions.
 
@@ -214,7 +215,7 @@ YAML frontmatter is the wiring: when it fires, where it runs, and what it is all
 `gh aw compile` turns it into a `.lock.yml` sibling, and that lock file is what Actions actually
 executes.
 
-Compiling needs the gh-aw extension (`gh extension install github/gh-aw`). The maintained catalog lives in [**PlainConceptsPlatform/agentic-workflows**](https://github.com/PlainConceptsPlatform/agentic-workflows), which is internal to the organisation. It ships the routes, the workers, the composite actions, the compile script, and the CLI that installs and updates them, so a repository does not copy these by hand:
+Compiling needs the gh-aw extension (`gh extension install github/gh-aw`). The maintained catalog lives in [**PlainConceptsPlatform/agentic-workflows**](https://github.com/PlainConceptsPlatform/agentic-workflows), which is internal to the organisation. It ships the routes, the workers, the composite actions, the compile script, and the CLI that installs and updates them, so a repository does not copy these by hand (its own documentation is at [workflows.platform.plainconcepts.dev](https://workflows.platform.plainconcepts.dev)):
 
 ```bash
 npx @plainconceptsplatform/workflows

@@ -19,7 +19,7 @@ export function NavigationMenuDemo() {
           <NavigationMenuContent>
             <ul className="grid w-[260px] gap-1 p-1">
               <li>
-                <NavigationMenuLink href="/docs" className="w-full">
+                <NavigationMenuLink href="/docs/adopt" className="w-full">
                   <div className="font-medium">Getting started</div>
                   <p className="text-muted-foreground">Install the theme package.</p>
                 </NavigationMenuLink>
@@ -34,7 +34,7 @@ export function NavigationMenuDemo() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <a href="/docs" className={navigationMenuTriggerStyle()}>
+          <a href="/docs/how-we-work" className={navigationMenuTriggerStyle()}>
             <Link className="mr-1 size-4" /> Docs
           </a>
         </NavigationMenuItem>
