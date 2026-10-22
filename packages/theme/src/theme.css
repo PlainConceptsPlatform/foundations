@@ -54,9 +54,13 @@
   /* 2. SEMANTIC TOKENS (light) -------------------------------------------- */
   --background: var(--pc-neutral-0);
   --foreground: var(--pc-neutral-900);
-  --card: var(--pc-neutral-0);
+  /* Light card/popover on neutral-50 so the surface reads against the white
+     page, mirroring dark mode where card (#17181b) is one step above
+     background (#0d0e0f). The Figma light tokens ship card equal to
+     background; the separation is a platform decision. */
+  --card: var(--pc-neutral-50);
   --card-foreground: var(--pc-neutral-900);
-  --popover: var(--pc-neutral-0);
+  --popover: var(--pc-neutral-50);
   --popover-foreground: var(--pc-neutral-900);
 
   --primary: var(--pc-blue-500);

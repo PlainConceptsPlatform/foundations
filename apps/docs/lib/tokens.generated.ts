@@ -169,8 +169,8 @@ export const tokens = {
       },
       {
         "token": "--card",
-        "hex": "#ffffff",
-        "ref": "--pc-neutral-0"
+        "hex": "#fafafc",
+        "ref": "--pc-neutral-50"
       },
       {
         "token": "--card-foreground",
@@ -179,8 +179,8 @@ export const tokens = {
       },
       {
         "token": "--popover",
-        "hex": "#ffffff",
-        "ref": "--pc-neutral-0"
+        "hex": "#fafafc",
+        "ref": "--pc-neutral-50"
       },
       {
         "token": "--popover-foreground",
