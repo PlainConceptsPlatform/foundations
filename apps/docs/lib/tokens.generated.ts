@@ -92,12 +92,24 @@ export const tokens = {
         "hex": "#f99bac"
       },
       {
+        "step": "400",
+        "hex": "#f66a82"
+      },
+      {
         "step": "500",
         "hex": "#f33859"
       },
       {
+        "step": "600",
+        "hex": "#dd3351"
+      },
+      {
         "step": "700",
         "hex": "#c72e49"
+      },
+      {
+        "step": "900",
+        "hex": "#9b2439"
       }
     ],
     "warning": [
@@ -110,12 +122,24 @@ export const tokens = {
         "hex": "#fddd8c"
       },
       {
+        "step": "400",
+        "hex": "#fcd266"
+      },
+      {
         "step": "500",
         "hex": "#fbc740"
       },
       {
+        "step": "600",
+        "hex": "#d1a635"
+      },
+      {
         "step": "700",
         "hex": "#a6842a"
+      },
+      {
+        "step": "900",
+        "hex": "#514114"
       }
     ],
     "success": [
@@ -128,12 +152,24 @@ export const tokens = {
         "hex": "#9cdcd7"
       },
       {
+        "step": "400",
+        "hex": "#6bcbc3"
+      },
+      {
         "step": "500",
         "hex": "#3abaaf"
       },
       {
+        "step": "600",
+        "hex": "#309990"
+      },
+      {
         "step": "700",
         "hex": "#257770"
+      },
+      {
+        "step": "900",
+        "hex": "#103431"
       }
     ],
     "info": [
@@ -146,12 +182,24 @@ export const tokens = {
         "hex": "#99e1f9"
       },
       {
+        "step": "400",
+        "hex": "#4dcbf5"
+      },
+      {
         "step": "500",
         "hex": "#00b5f1"
       },
       {
+        "step": "600",
+        "hex": "#00a2d7"
+      },
+      {
         "step": "700",
         "hex": "#008ebd"
+      },
+      {
+        "step": "900",
+        "hex": "#006789"
       }
     ]
   },
