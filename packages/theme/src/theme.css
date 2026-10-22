@@ -33,23 +33,39 @@
   --pc-neutral-700: #383838;
   --pc-neutral-900: #0d0e0f;
 
-  /* Functional (bg / light / base / dark) */
+  /* Functional ramps. Figma defines the 100/300/500/700 anchors only; the 400
+     and 600 steps are interpolations for hover and pressed states. */
   --pc-error-100: #fde1e6;
   --pc-error-300: #f99bac;
+  --pc-error-400: #f66a82;
   --pc-error-500: #f33859;
+  --pc-error-600: #dd3351;
   --pc-error-700: #c72e49;
+  --pc-error-900: #9b2439;
+
   --pc-warning-100: #feeec6;
   --pc-warning-300: #fddd8c;
+  --pc-warning-400: #fcd266;
   --pc-warning-500: #fbc740;
+  --pc-warning-600: #d1a635;
   --pc-warning-700: #a6842a;
+  --pc-warning-900: #514114;
+
   --pc-success-100: #d8f1ef;
   --pc-success-300: #9cdcd7;
+  --pc-success-400: #6bcbc3;
   --pc-success-500: #3abaaf;
+  --pc-success-600: #309990;
   --pc-success-700: #257770;
+  --pc-success-900: #103431;
+
   --pc-info-100: #e3f8ff;
   --pc-info-300: #99e1f9;
+  --pc-info-400: #4dcbf5;
   --pc-info-500: #00b5f1;
+  --pc-info-600: #00a2d7;
   --pc-info-700: #008ebd;
+  --pc-info-900: #006789;
 
   /* 2. SEMANTIC TOKENS (light) -------------------------------------------- */
   --background: var(--pc-neutral-0);
