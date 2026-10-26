@@ -163,6 +163,15 @@ export const COMPONENTS = {
     group: "platform",
     handwritten: true,
   },
+  tour: {
+    title: "Tour",
+    description: "A guided, one-time tour that spotlights parts of the page.",
+    demo: "TourDemo",
+    block: true,
+    source: "package",
+    group: "platform",
+    handwritten: true,
+  },
   chart: {
     title: "Chart",
     description: "Themed charts built on Recharts with shared tokens.",
