@@ -150,6 +150,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      driver.js:
+        specifier: 1.9.0
+        version: 1.9.0
       react:
         specifier: ^19.0.0
         version: 19.2.8
@@ -2036,6 +2039,9 @@ packages:
 
   dompurify@3.4.12:
     resolution: {integrity: sha512-zQvGet8Z2sWbQhCmfFz/T5QWH2oBmjnqK3qvOjaqaNLrLEF912WamU+ohnTp0TCep/MFVHpdJuCZEdFOdTnEFg==}
+
+  driver.js@1.9.0:
+    resolution: {integrity: sha512-+YWVdNVUrY1/2spszQshohWYY4soIjNBnMFS6lfmousT8igos2lmswhlqyuuNMhr+qbV0EjJ+L6i2FECPr6Ygg==}
 
   embla-carousel-react@8.6.0:
     resolution: {integrity: sha512-0/PjqU7geVmo6F734pmPqpyHqiM99olvyecY7zdweCw+6tKEXnrE90pBiBbMMU8s5tICemzpQ3hi5EpxzGW+JA==}
@@ -4947,6 +4953,8 @@ snapshots:
   dompurify@3.4.12:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
+
+  driver.js@1.9.0: {}
 
   embla-carousel-react@8.6.0(react@19.2.8):
     dependencies:

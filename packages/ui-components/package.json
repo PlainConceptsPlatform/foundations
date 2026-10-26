@@ -26,6 +26,11 @@
       "import": "./dist/changelog/changelog.js",
       "default": "./src/changelog/changelog.tsx"
     },
+    "./tour": {
+      "types": "./dist/tour/index.d.ts",
+      "import": "./dist/tour/index.js",
+      "default": "./src/tour/index.ts"
+    },
     "./app-sidebar": {
       "types": "./dist/app-sidebar/index.d.ts",
       "import": "./dist/app-sidebar/index.js",
@@ -34,13 +39,14 @@
   },
   "sideEffects": ["**/*.css", "**/*.ts", "**/*.tsx"],
   "peerDependencies": {
+    "@plainconceptsplatform/ui-theme": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^4.0.0",
-    "@plainconceptsplatform/ui-theme": "workspace:*"
+    "tailwindcss": "^4.0.0"
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "driver.js": "1.9.0",
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
