@@ -1,0 +1,102 @@
+---
+title: Tour
+description: A guided, one-time tour that spotlights parts of the page, with a themed popover, progress, keyboard support and a "take it again" hook.
+---
+
+import { TourDemo } from "@/components/previews/tour-demo"
+
+<ComponentPreview block>
+  <TourDemo />
+</ComponentPreview>
+
+## When to use
+
+When an app ships a redesign or a feature people would otherwise miss: a short walkthrough on first visit that points at the real controls. Keep it to about ten steps and give it a way out on every one.
+
+It started in Delivery Metrics as a welcome tour for its new look and now lives here so every Platform app gets the same behaviour and the same skin.
+
+## How it works
+
+Mount `Tour` once, where the anchors are. It renders nothing. It starts by itself the first time a browser sees it, then remembers that in `localStorage` (`platform:tour:<id>`), so finishing or skipping it, by button, close cross or Escape, means it never shows again.
+
+- A step with an `anchor` spotlights the element carrying `data-tour="<anchor>"`. A step without one sits mid-screen, wider, for the welcome and the goodbye.
+- A step whose anchor is not on the page is skipped, so one tour serves pages and roles that differ.
+- `waitFor` holds the automatic start until an anchor exists, for rows that render after a fetch. It starts anyway after `waitTimeoutMs` (4 s).
+- Ending the tour puts the scroll position back where it was and returns focus to `#main-content`.
+- Storage that cannot be read or written never throws: the tour may show again, and it shows at most once per page load either way.
+- The popover takes the theme tokens (`--popover`, `--primary`, `--accent`, `--ring`), so it follows light and dark mode. Its styles are injected at runtime; there is no stylesheet to import.
+- `driver.js` and the markup renderer are loaded on demand, so a visit that does not show the tour does not download them.
+
+## Install
+
+```bash
+pnpm add @plainconceptsplatform/ui-components
+```
+
+Import from the sub-path:
+
+```tsx
+import { Tour, requestTour, tourAnchor } from "@plainconceptsplatform/ui-components/tour";
+```
+
+## Usage
+
+```tsx
+const steps: TourStep[] = [
+  { icon: <Sparkles />, title: "Welcome", description: "Take a one-minute tour." },
+  { anchor: "main-nav", icon: <PanelsTopLeft />, title: "Three places", description: "Always in the header." },
+  { anchor: "row-menu", title: "More actions", description: "Duplicate, history, close." },
+];
+
+<Tour
+  id="welcome-v1"                    // version it: a new tour is a new id
+  steps={steps}
+  texts={{
+    next: "Next",
+    back: "Back",
+    done: "Done",
+    skip: "Skip tour",
+    close: "Close the tour",
+    progress: "{{current}} of {{total}}",
+  }}
+  enabled={pathname === "/"}         // optional gate
+  waitFor="row-menu"                 // optional: wait for rows to render
+/>
+
+<nav {...tourAnchor("main-nav")}>…</nav>
+```
+
+Anchors are plain `data-tour` attributes, so `tourAnchor("x")` is a convenience, not a requirement.
+
+### Take the tour again
+
+A "Take the tour" item in a user menu calls `requestTour(id)`. It forgets that the tour was seen and starts the mounted `Tour` with that id, even where `enabled` is false. Navigate to the tour's page first when the anchors live there.
+
+### Without the component
+
+`startTour(options)` starts a tour imperatively and resolves to the driver instance, or `undefined` when no step has its anchor on the page. `hasSeenTour`, `markTourSeen` and `forgetTour` expose the storage.
+
+## Props
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `id` | `string` | Storage key. Required. |
+| `steps` | `TourStep[]` | `{ anchor?, icon?, title, description }`. Strings are escaped; `icon` is a React node. |
+| `texts` | `TourTexts` | Every string the tour shows, so the app owns i18n. |
+| `enabled` | `boolean` | Gates the automatic start. Default `true`. |
+| `waitFor` | `string` | Anchor to wait for before starting. |
+| `waitTimeoutMs` | `number` | Default `4000`. |
+| `storage` | `Storage`-like | Default `localStorage`. |
+| `returnFocusTo` | `() => HTMLElement \| null` | Default `#main-content`. |
+| `onEnd` | `(reason: "finished" \| "dismissed") => void` | After the tour is recorded as seen. |
+
+## Platform notes
+
+- Client component with effects: it is exported from the sub-path only, like `DataTable` and `Changelog`.
+- Slot-free: it needs no Dialog or Button from the app, because the popover is driven by `driver.js`.
+- Write steps as tasks the person does next, in the app's own words. A tour that explains what the page already says gets skipped.
+- Spotlighted elements are not clickable while a step shows (`disableActiveInteraction`), and a click on the dimmed page does not close the tour.
+
+## Full API
+
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)
