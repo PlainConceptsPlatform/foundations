@@ -20,8 +20,8 @@
     "format": "biome format --write .",
     "typecheck": "pnpm -r typecheck",
     "verify": "pnpm lint && pnpm typecheck && pnpm build",
-    "release:theme": "pnpm typecheck && cd packages/theme && npm publish --access public",
-    "release:components": "pnpm typecheck && pnpm --filter @plainconceptsplatform/ui-components build && cd packages/ui-components && npm publish --access public",
+    "release:theme": "pnpm --filter @plainconceptsplatform/ui-components build && pnpm typecheck && pnpm --filter @plainconceptsplatform/ui-theme publish --access public",
+    "release:components": "pnpm --filter @plainconceptsplatform/ui-components build && pnpm typecheck && pnpm --filter @plainconceptsplatform/ui-components publish --access public",
     "prepare": "husky"
   },
   "lint-staged": {
