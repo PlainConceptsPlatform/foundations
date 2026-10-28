@@ -30,10 +30,6 @@ A demo page with generated catalog entry goes next to the sidebar's, per the sta
 
 `getInitials(text)` is extracted as a pure, exported util in the app-sidebar folder, with the exact behaviour Capacity shipped locally, and exported from `./app-sidebar` so it can be unit tested later. `AppSidebarUserCard` renders an initials avatar derived from `name` when no `avatar` is passed, styled `flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-medium uppercase text-muted-foreground` with `aria-hidden`. The existing `title={name}` on the card covers the collapsed state, where only the initials remain visible. The `avatar` prop stays as an optional override, so this is additive and releases as 1.5.0. There is no test runner in this repo and the decision was to add none; the util stays pure and exported for the day one exists.
 
-### 5. Fixed peer range
-
-`packages/ui-components/package.json` declares `"@plainconceptsplatform/ui-theme": "workspace:*"` in `peerDependencies`. Published packages must not carry `workspace:*`; Capacity needed a bun `overrides` entry to install the package at all. The range becomes the hardcoded `"^1.4.0"`, which works no matter who publishes. Verification runs `pnpm pack` and inspects the tarball, plus a scratch install that reproduces Capacity's failure and confirms it is gone.
-
 ## Release plan
 
 Per the established practice in release commit `e436d0e` (and against what CONTRIBUTING.md claims about changesets, which no `.changeset` directory backs up), the version bump goes directly into `package.json` (1.3.2 to 1.5.0, since npm already serves 1.4.0 and this branch already matches those sources) and the `CHANGELOG.md` entry is hand-written in the existing committed format. npm already serves 1.4.0 off sources that match this branch, so nothing here regresses that. Publishing itself stays outside this PR.
@@ -42,7 +38,7 @@ Per the established practice in release commit `e436d0e` (and against what CONTR
 
 - Consumers that rely on the sidebar inheriting their font will see the sidebar in the Platform font stack. That is the intended fix.
 - Consumers that passed `avatar` keep working; those that did not now get initials.
-- Capacity can drop its local `Initials` component and bun `overrides` entry on upgrade.
+- Capacity can drop its local `Initials` component on upgrade; the bun `overrides` entry stays (see out of scope).
 - The docs app route restructure moves files but changes no URLs. One known regression was accepted after review: unknown URLs outside `/docs` get Next's default 404 on the static site, because Next.js static export drops the theme stylesheet from the exported 404.html and repairing it needs a postbuild patch. Every `/docs/*` slug and anything inside `(site)` keeps the themed 404 and error boundary.
 
 ## Out of scope
@@ -51,3 +47,4 @@ Per the established practice in release commit `e436d0e` (and against what CONTR
 - A shared header component.
 - Removing preflight from the theme package root entry, or touching the release/publish pipeline.
 - A test runner for the repo.
+- Replacing `workspace:*` with a real semver range in `peerDependencies` (out of scope for this PR; tracked separately).

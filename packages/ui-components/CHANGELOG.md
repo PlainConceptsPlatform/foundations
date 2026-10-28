@@ -10,8 +10,6 @@
 
 - `AppSidebarUserCard` now renders an initials avatar derived from `name` when no `avatar` is passed, so apps without a photo URL from the identity provider get a populated circle instead of a gap. The `avatar` prop still overrides it, and the derivation is exported as the pure util `getInitials` from `@plainconceptsplatform/ui-components/app-sidebar`. Migration notes: if you relied on the sidebar inheriting your app font, pin your own styles now that it applies `font-sans`; if you were passing no `avatar`, you get initials with nothing to do.
 
-- The peer dependency on `@plainconceptsplatform/ui-theme` is a real semver range (`^1.4.0`) again instead of `workspace:*`, which npm cannot resolve outside a pnpm workspace. Installing the published package no longer needs a consumer `overrides` entry.
-
 ## 1.4.0
 
 ### Minor Changes

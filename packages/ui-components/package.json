@@ -44,7 +44,7 @@
   },
   "sideEffects": ["**/*.css", "**/*.ts", "**/*.tsx"],
   "peerDependencies": {
-    "@plainconceptsplatform/ui-theme": "^1.4.0",
+    "@plainconceptsplatform/ui-theme": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^4.0.0"

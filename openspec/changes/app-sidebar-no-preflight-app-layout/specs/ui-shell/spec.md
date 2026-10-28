@@ -53,15 +53,4 @@ The package must provide `AppLayout`, `AppLayoutSidebar` and `AppLayoutContent` 
 - **WHEN** an `avatar` prop is passed
 - **THEN** the card renders that avatar instead of the internally derived initials
 
-# ui-components: publishable peer range
 
-## ADDED Requirements
-
-### Requirement: Published peer dependencies carry an installable range
-
-`packages/ui-components` must not declare `workspace:*` in `peerDependencies` on npm, because consumers outside the pnpm workspace cannot resolve it. The peer range for `@plainconceptsplatform/ui-theme` must be a real semver range.
-
-#### Scenario: consumer installs from npm
-
-- **WHEN** a consumer installs the published package without any `overrides` entry
-- **THEN** installation resolves `@plainconceptsplatform/ui-theme` from the declared semver range and succeeds
