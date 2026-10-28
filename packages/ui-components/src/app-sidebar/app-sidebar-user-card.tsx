@@ -3,11 +3,12 @@
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "../lib/utils";
 import { useAppSidebar } from "./app-sidebar-context";
+import { getInitials } from "./get-initials";
 
 type AppSidebarUserCardProps = {
   name: string;
   subtitle?: string;
-  avatar: ReactNode;
+  avatar?: ReactNode;
   dropdown?: ReactNode;
   className?: string;
 };
@@ -73,7 +74,14 @@ export function AppSidebarUserCard({
           }
         }}
       >
-        {avatar}
+        {avatar ?? (
+          <span
+            aria-hidden="true"
+            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-medium uppercase text-muted-foreground"
+          >
+            {getInitials(name)}
+          </span>
+        )}
         <div className={cn("flex flex-1 flex-col min-w-0", collapsed && "hidden")}>
           <span className="truncate text-[13px] font-medium text-sidebar-foreground">{name}</span>
           {subtitle && <span className="text-[11.5px] text-muted-foreground">{subtitle}</span>}
@@ -144,7 +152,7 @@ export function AppSidebarThemeToggle({
   const options: Array<"light" | "dark" | "system"> = ["light", "dark", "system"];
 
   return (
-    <fieldset className={cn("flex gap-1 px-0.5 py-0.5", className)}>
+    <fieldset className={cn("flex gap-1 border-none m-0 min-w-0 px-0.5 py-0.5", className)}>
       {options.map((pref) => (
         <button
           key={pref}

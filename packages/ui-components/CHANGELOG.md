@@ -1,5 +1,27 @@
 # @plainconceptsplatform/ui-components
 
+## 1.5.0
+
+### Minor Changes
+
+- The sidebar renders correctly in apps that do not ship Tailwind preflight. The theme toggle's `<fieldset>` carries its own reset (`border-none m-0 min-w-0`) instead of showing the browser default groove border, the nav item and brand anchors no longer rely on consumer styles for text decoration or a focus outline, and the sidebar root applies `font-sans`, so it uses the Platform font stack rather than the consuming app's family. The README documents the no-preflight recipe, including the contract that unlayered global rules such as `a { color }` beat `@layer utilities` in the cascade no matter what specificity the package's utilities use, and the expectation of a 16px html root because the spacing utilities are rem-based.
+
+- New composable app shell, from the `@plainconceptsplatform/ui-components/app-layout` sub-path: `AppLayout`, `AppLayoutSidebar` and `AppLayoutContent`. The provider is embedded in `AppLayout`, so collapse persistence and Ctrl+B work with no consumer wiring. The grid is `auto minmax(0,1fr)` with `min-w-0` on the content cell, so the sidebar sizes its own column (no width token mirrored in two places) and wide tables cannot blow out the content track. Desktop only in this version; a shared header stays the app's responsibility for now. It is exported through its sub-path only, not the root barrel, like every other client component with hooks.
+
+- `AppSidebarUserCard` now renders an initials avatar derived from `name` when no `avatar` is passed, so apps without a photo URL from the identity provider get a populated circle instead of a gap. The `avatar` prop still overrides it, and the derivation is exported as the pure util `getInitials` from `@plainconceptsplatform/ui-components/app-sidebar`. Migration notes: if you relied on the sidebar inheriting your app font, pin your own styles now that it applies `font-sans`; if you were passing no `avatar`, you get initials with nothing to do.
+
+## 1.4.0
+
+### Minor Changes
+
+- New `Tour` component, exported from the `@plainconceptsplatform/ui-components/tour` sub-path (not the root barrel, like every other client component with hooks). A declarative product tour on top of driver.js, which becomes a dependency (pinned 1.9.0). Steps attach to the page by spreading `tourAnchor("main-nav")` onto any element; a step whose anchor is not on the page is skipped instead of erroring, so one tour serves several screens. Whether a tour was already seen is remembered by its `id` in `localStorage` and storage failures are ignored, in which case the tour starts at most once per page load; version the id (`welcome-v2`) when a tour should show again, and export `hasSeenTour` / `markTourSeen` / `forgetTour` to build a "replay the tour" control. Automatic start is gated by `enabled` and can wait for a late-rendered anchor (`waitFor` plus `waitTimeoutMs`, default 4 s). `onEnd` receives why it ended (`finished` or `dismissed`) and focus returns to `returnFocusTo` (default `#main-content`). All button and progress strings come from a `texts` prop, and the popover styles are injected at runtime, so the consumer imports no stylesheet.
+
+## 1.3.1
+
+### Patch Changes
+
+- `DataTable` columns can be resized by dragging the handle on the right edge of each header. A user-set width wins over the column's static `width`; string widths are parsed and anything unresolved falls back to 160 px, with a floor of 60 px. Widths persist per table (`dt:<tableId>:widths` in `localStorage`) across reloads, drag-to-reorder is suspended while a column is being resized, and the focused column's width can be nudged with the arrow keys. The handle's accessible name and tooltip default to "Drag to resize column" and can be overridden with the new optional `texts.resizeColumn`.
+
 ## 1.3.0
 
 ### Minor Changes
