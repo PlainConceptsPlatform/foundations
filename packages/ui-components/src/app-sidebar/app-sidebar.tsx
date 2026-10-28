@@ -21,8 +21,7 @@ export function AppSidebar({ children, className, id }: AppSidebarProps) {
       className={cn(
         "flex h-screen flex-col gap-[14px] overflow-y-auto border-r border-sidebar-border bg-sidebar font-sans sticky top-0",
         "transition-[width,padding] duration-200 ease-linear",
-        collapsed ? "w-16 px-2" : "w-[280px] p-[14px] px-3",
-        collapsed && "px-2",
+        collapsed ? "w-16 p-2" : "w-[280px] p-3",
         className,
       )}
     >
