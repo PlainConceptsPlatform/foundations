@@ -3,6 +3,7 @@
   "pages": [
     "---Platform---",
     "plain-logo",
+    "app-layout",
     "app-sidebar",
     "changelog",
     "tour",

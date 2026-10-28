@@ -1,0 +1,24 @@
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@layer utilities {
+  @tailwind utilities source(none);
+}
+
+@import "@plainconceptsplatform/ui-theme/theme.css";
+
+@layer base {
+  body {
+    margin: 0;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  a {
+    color: rebeccapurple;
+  }
+}
+
+@source "./*.tsx";
+@source "../../node_modules/@plainconceptsplatform/ui-components/dist";

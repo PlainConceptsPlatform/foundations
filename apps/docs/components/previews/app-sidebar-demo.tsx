@@ -41,14 +41,6 @@ import {
   AppSidebarUserMenuItem,
 } from "@plainconceptsplatform/ui-components/app-sidebar";
 
-function Avatar({ initials }: { initials: string }) {
-  return (
-    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-xs font-semibold text-sidebar-primary border border-sidebar-border">
-      {initials}
-    </span>
-  );
-}
-
 export function AppSidebarDemo() {
   const [theme, setTheme] = useState<"light" | "dark" | "system">("light");
 
@@ -121,12 +113,7 @@ export function AppSidebarDemo() {
           <AppSidebarSpacer />
 
           <AppSidebarFooter>
-            <AppSidebarUserCard
-              name="Jane Doe"
-              subtitle="Admin"
-              avatar={<Avatar initials="JD" />}
-              dropdown={userDropdown}
-            />
+            <AppSidebarUserCard name="Jane Doe" subtitle="Admin" dropdown={userDropdown} />
           </AppSidebarFooter>
         </AppSidebar>
         <div className="flex flex-1 items-center justify-center bg-background p-6 text-sm text-muted-foreground">

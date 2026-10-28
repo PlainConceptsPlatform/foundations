@@ -40,6 +40,19 @@ export const COMPONENTS = {
     platformNotes:
       'The Platform copy diverges from upstream in a way worth knowing: `AlertDialogAction` and `AlertDialogCancel` render through the `Button` component, so they accept `variant` and `size` directly (`variant="destructive"` on the action for a delete, which pulls `--destructive`), and there is an extra `AlertDialogMedia` slot plus `size="sm"` on the content. Nothing dismisses it by outside click and there is no close icon, which is the point, so the two button labels carry the whole decision: make them specific verbs, and make them i18next messages, not `t("ok")`. Enter and exit come from tw-animate-css and the theme\'s base layer already collapses them under `prefers-reduced-motion: reduce`, so do not layer a transition on top.',
   },
+  "app-layout": {
+    title: "AppLayout",
+    description:
+      "A composable app shell grid: the sidebar sizes its own column beside a min-w-0 content area, with the sidebar provider embedded.",
+    demo: "AppLayoutDemo",
+    block: true,
+    source: "package",
+    group: "platform",
+    whenToUse:
+      "Use AppLayout when a screen needs the Platform app shell: a persistent sidebar beside a full-height scrolling content area, with collapse persistence and Ctrl+B working with no wiring in the app. It replaces the grid two Platform apps each hand-rolled with the same bugs: a `1fr` content column a wide table blows out, and a px width token mirrored between the grid and the sidebar desyncing when one of them changes. For a screen with no navigation, an auth page or a marketing error page, a plain centered container is the smaller answer, and the header stays the app's own for now, so compose it inside AppLayoutContent rather than waiting for a shared header.",
+    platformNotes:
+      "The grid is `grid-cols-[auto_minmax(0,1fr)]` on purpose: the `auto` column is sized by the sidebar component's own width (280px expanded, 64px collapsed), so collapse is a pure width transition and no value lives in two places. The content cell carries `min-w-0`, which is the fix for the wide-table bug that shipped in Capacity: without it, a table wider than its track pushes the whole `1fr` column out under the sidebar. The provider embeds inside AppLayout, so localStorage persistence and the Ctrl+B shortcut cannot be forgotten, and the cells exist as components (AppLayoutSidebar rather than dropping AppSidebar straight on the grid) so mobile fixed positioning can be added to that cell alone later. It is desktop-only in this version and exported from the `@plainconceptsplatform/ui-components/app-layout` sub-path only, not the root barrel, because it is a client component with hooks. The sidebar it holds renders without Tailwind preflight since 1.5.0: see the live no-preflight demo at `/sidebar-without-tailwind` on this site and the recipe in the package README.",
+  },
   "app-sidebar": {
     title: "AppSidebar",
     description:

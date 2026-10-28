@@ -1,7 +1,4 @@
-import "./global.css";
-import { Toaster } from "@/components/ui/toaster";
 import { siteDescription, siteName, siteUrl } from "@/lib/site";
-import { RootProvider } from "fumadocs-ui/provider";
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import type { ReactNode } from "react";
@@ -33,10 +30,7 @@ export const metadata: Metadata = {
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={outfit.variable} suppressHydrationWarning>
-      <body className="flex min-h-screen flex-col">
-        <RootProvider>{children}</RootProvider>
-        <Toaster />
-      </body>
+      <body className="flex min-h-screen flex-col">{children}</body>
     </html>
   );
 }

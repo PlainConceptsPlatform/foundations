@@ -53,9 +53,11 @@ import {
 - **`AppSidebarSeparator`** - Horizontal divider between sections.
 - **`AppSidebarSpacer`** - Pushes everything after it to the bottom.
 - **`AppSidebarFooter`** - Bottom section, pinned.
-- **`AppSidebarUserCard`** - Avatar + name + dropdown menu. Takes `name`, `avatar` and optional `subtitle` and `dropdown`.
+- **`AppSidebarUserCard`** - Renders an initials avatar derived from `name` (decorative, `aria-hidden`), plus name and optional `subtitle` and `dropdown`. Pass `avatar` to override the initials with your own element.
 - **`AppSidebarThemeToggle`** / **`AppSidebarUserMenuItem`** / **`AppSidebarUserMenuDivider`** - Pieces for the user card's `dropdown`.
 - **`AppSidebarCollapseButton`** - Toggle button that collapses to icon-only (64px) mode. `expandIcon` and `collapseIcon` are required, so the icon set stays the consuming app's choice.
+
+An app that does not ship Tailwind preflight can still use the sidebar: since 1.5.0 the components carry their own resets and resolve the Platform font. The package README documents the stylesheet recipe (theme and utilities layers only, the app's globals in `layer(base)`, and a `@source` pointing at the package's `dist`), and you can see the sidebar rendered against exactly that entry on the [no-preflight demo page](/sidebar-without-tailwind).
 
 ### Marking the active item
 

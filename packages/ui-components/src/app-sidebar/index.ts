@@ -38,3 +38,5 @@ export {
   AppSidebarCollapseButton,
   AppSidebarIconButton,
 } from "./app-sidebar-buttons";
+
+export { getInitials } from "./get-initials";

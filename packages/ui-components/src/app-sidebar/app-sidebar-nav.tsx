@@ -96,8 +96,9 @@ export function AppSidebarNavItem({
 
   const itemClass = cn(
     "flex h-[33px] items-center gap-2.5 rounded-md border-none bg-transparent px-2.5 py-[7px]",
-    "text-[13.5px] font-normal cursor-pointer text-left w-full",
-    "transition-colors duration-150 ease-out hover:no-underline",
+    "text-[14px] font-normal cursor-pointer text-left w-full",
+    "transition-colors duration-150 ease-out no-underline",
+    "focus-visible:outline-2 focus-visible:outline-sidebar-ring focus-visible:outline-offset-1",
     isActive
       ? "bg-sidebar-accent text-sidebar-primary font-medium"
       : "text-sidebar-foreground/80 hover:bg-sidebar-hover hover:text-sidebar-foreground",

@@ -1,0 +1,137 @@
+---
+title: "AppLayout"
+description: "A composable app shell grid: the sidebar sizes its own column beside a min-w-0 content area, with the sidebar provider embedded."
+---
+
+import { AppLayoutDemo } from "@/components/previews/app-layout-demo"
+
+<ComponentPreview block>
+  <AppLayoutDemo />
+</ComponentPreview>
+
+## When to use
+
+Use AppLayout when a screen needs the Platform app shell: a persistent sidebar beside a full-height scrolling content area, with collapse persistence and Ctrl+B working with no wiring in the app. It replaces the grid two Platform apps each hand-rolled with the same bugs: a `1fr` content column a wide table blows out, and a px width token mirrored between the grid and the sidebar desyncing when one of them changes. For a screen with no navigation, an auth page or a marketing error page, a plain centered container is the smaller answer, and the header stays the app's own for now, so compose it inside AppLayoutContent rather than waiting for a shared header.
+
+## Platform notes
+
+The grid is `grid-cols-[auto_minmax(0,1fr)]` on purpose: the `auto` column is sized by the sidebar component's own width (280px expanded, 64px collapsed), so collapse is a pure width transition and no value lives in two places. The content cell carries `min-w-0`, which is the fix for the wide-table bug that shipped in Capacity: without it, a table wider than its track pushes the whole `1fr` column out under the sidebar. The provider embeds inside AppLayout, so localStorage persistence and the Ctrl+B shortcut cannot be forgotten, and the cells exist as components (AppLayoutSidebar rather than dropping AppSidebar straight on the grid) so mobile fixed positioning can be added to that cell alone later. It is desktop-only in this version and exported from the `@plainconceptsplatform/ui-components/app-layout` sub-path only, not the root barrel, because it is a client component with hooks. The sidebar it holds renders without Tailwind preflight since 1.5.0: see the live no-preflight demo at `/sidebar-without-tailwind` on this site and the recipe in the package README.
+
+## Install
+
+```bash
+pnpm add @plainconceptsplatform/ui-components
+```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/app-layout`.
+
+## Code
+
+```tsx
+"use client";
+
+import {
+  FolderKanban,
+  LayoutDashboard,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Settings,
+  Users,
+} from "lucide-react";
+
+import {
+  AppLayout,
+  AppLayoutContent,
+  AppLayoutSidebar,
+} from "@plainconceptsplatform/ui-components/app-layout";
+import {
+  AppSidebar,
+  AppSidebarActions,
+  AppSidebarBrand,
+  AppSidebarCollapseButton,
+  AppSidebarContent,
+  AppSidebarFooter,
+  AppSidebarHeader,
+  AppSidebarNav,
+  AppSidebarNavGroup,
+  AppSidebarNavItem,
+  AppSidebarSeparator,
+  AppSidebarSpacer,
+  AppSidebarUserCard,
+} from "@plainconceptsplatform/ui-components/app-sidebar";
+
+export function AppLayoutDemo() {
+  return (
+    <div className="overflow-hidden rounded-md border">
+      <AppLayout>
+        <AppLayoutSidebar>
+          <AppSidebar>
+            <AppSidebarHeader>
+              <AppSidebarBrand
+                name="Platform"
+                logo={<span className="font-bold text-sidebar-primary">P</span>}
+              />
+              <AppSidebarActions>
+                <AppSidebarCollapseButton
+                  expandIcon={<PanelLeftOpen className="size-4" />}
+                  collapseIcon={<PanelLeftClose className="size-4" />}
+                />
+              </AppSidebarActions>
+            </AppSidebarHeader>
+            <AppSidebarSeparator />
+            <AppSidebarContent>
+              <AppSidebarNav>
+                <AppSidebarNavGroup label="Navigation">
+                  <AppSidebarNavItem to="#" isActive icon={LayoutDashboard} label="Dashboard" />
+                  <AppSidebarNavItem to="#" icon={FolderKanban} label="Projects" />
+                  <AppSidebarNavItem to="#" icon={Users} label="Team" />
+                  <AppSidebarNavItem to="#" icon={Settings} label="Settings" />
+                </AppSidebarNavGroup>
+              </AppSidebarNav>
+            </AppSidebarContent>
+            <AppSidebarSpacer />
+            <AppSidebarFooter>
+              <AppSidebarUserCard name="Jane Doe" subtitle="Admin" />
+            </AppSidebarFooter>
+          </AppSidebar>
+        </AppLayoutSidebar>
+        <AppLayoutContent>
+          <div className="flex h-12 items-center gap-2 border-b bg-card px-4 text-sm text-muted-foreground">
+            The header stays the app's own: any markup, height and content
+          </div>
+          <main className="flex flex-1 flex-col gap-4 p-6">
+            <p className="text-sm text-muted-foreground">
+              The content cell holds a wide table here. It scrolls instead of pushing the sidebar
+              column, because the cell carries min-w-0 and the sidebar sizes its own grid track.
+            </p>
+            <table className="w-full min-w-[48rem] table-auto border-collapse text-sm">
+              <thead>
+                <tr className="border-b text-left text-muted-foreground">
+                  <th className="py-2 pr-4 font-medium">Project</th>
+                  <th className="py-2 pr-4 font-medium">Owner</th>
+                  <th className="py-2 pr-4 font-medium">Status</th>
+                  <th className="py-2 font-medium">Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                {["Atlas", "Capacity", "Numa", "Foundations"].map((name) => (
+                  <tr key={name} className="border-b">
+                    <td className="py-2 pr-4">{name}</td>
+                    <td className="py-2 pr-4">Jane Doe</td>
+                    <td className="py-2 pr-4">Active</td>
+                    <td className="py-2">Today</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </main>
+        </AppLayoutContent>
+      </AppLayout>
+    </div>
+  );
+}
+```
+
+## Full API
+
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)
