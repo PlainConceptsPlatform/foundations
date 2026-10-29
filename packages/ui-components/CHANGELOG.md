@@ -1,5 +1,13 @@
 # @plainconceptsplatform/ui-components
 
+## 1.6.0
+
+### Minor Changes
+
+- The sidebar root is `sticky`, which creates a stacking context, and it had no `z-index`. The user card's dropdown is `position: fixed` with `z-index: 200` when the sidebar is collapsed, but that value only counted inside the sidebar's own stacking context, so a positioned element later in the DOM (a `position: relative` card in the page) painted over the open dropdown wherever the two overlapped. Consumers could only see it with the sidebar collapsed, because the expanded dropdown stays inside the sidebar column and overlaps nothing. The root now carries `z-40`, which lifts the whole sidebar subtree above page content while staying below the layers consumers use for portals and overlays (shadcn's popover/dialog ranges and above).
+
+- `AppSidebarUserMenuItem` takes **`isActive`**, mirroring `AppSidebarNavItem`. Pass it on the entry that points at the open route (My profile, Settings) and it reads as selected while that route is active, with the same tokens an active nav item uses (`bg-sidebar-accent text-sidebar-primary font-medium`). Both components now also set `aria-current="page"` when active, so screen readers announce the selected destination. Wrong-name note as with the nav item: the prop is `isActive`, not `active`; with the wrong name nothing is highlighted and nothing reports a problem.
+
 ## 1.5.0
 
 ### Minor Changes

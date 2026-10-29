@@ -62,6 +62,7 @@ type AppSidebarNavItemProps = {
     className: string;
     title?: string;
     "aria-label"?: string;
+    "aria-current"?: "page";
     onClick?: () => void;
     children: ReactNode;
   }>;
@@ -113,6 +114,7 @@ export function AppSidebarNavItem({
         className={itemClass}
         title={collapsed ? label : undefined}
         aria-label={collapsed ? label : undefined}
+        aria-current={isActive ? "page" : undefined}
         onClick={onClick}
       >
         {content}
@@ -126,6 +128,7 @@ export function AppSidebarNavItem({
       className={itemClass}
       title={collapsed ? label : undefined}
       aria-label={collapsed ? label : undefined}
+      aria-current={isActive ? "page" : undefined}
       onClick={onClick}
     >
       {content}

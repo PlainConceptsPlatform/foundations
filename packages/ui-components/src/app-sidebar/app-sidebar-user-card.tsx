@@ -94,6 +94,7 @@ export function AppSidebarUserCard({
 type AppSidebarUserMenuItemProps = {
   icon?: ReactNode;
   children: ReactNode;
+  isActive?: boolean;
   onClick?: () => void;
   className?: string;
 };
@@ -101,6 +102,7 @@ type AppSidebarUserMenuItemProps = {
 export function AppSidebarUserMenuItem({
   icon,
   children,
+  isActive = false,
   onClick,
   className,
 }: AppSidebarUserMenuItemProps) {
@@ -108,10 +110,12 @@ export function AppSidebarUserMenuItem({
     <button
       type="button"
       role="menuitem"
+      aria-current={isActive ? "page" : undefined}
       className={cn(
         "flex w-full items-center gap-2 rounded-md px-1.5 py-1.5 text-[12.5px] text-muted-foreground",
         "hover:bg-sidebar-hover hover:text-sidebar-foreground cursor-pointer border-none bg-transparent text-left",
         "transition-colors duration-150",
+        isActive && "bg-sidebar-accent text-sidebar-primary font-medium",
         className,
       )}
       onClick={onClick}
