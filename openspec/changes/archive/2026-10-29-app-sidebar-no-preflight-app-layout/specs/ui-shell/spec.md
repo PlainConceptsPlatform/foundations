@@ -41,7 +41,7 @@ The package must provide `AppLayout`, `AppLayoutSidebar` and `AppLayoutContent` 
 
 ### Requirement: User card renders initials by default
 
-`AppSidebarUserCard` must derive an initials avatar from `name` and render it internally unless an `avatar` prop is passed. The derivation must live in a pure, exported util `getInitials` from `@plainconceptsplatform/ui-components/app-sidebar`. The initials avatar must be decorative (`aria-hidden`), and the card's `title={name}` must continue to cover the collapsed state.
+`AppSidebarUserCard` MUST derive an initials avatar from `name` and render it internally unless an `avatar` prop is passed. The derivation must live in a pure, exported util `getInitials` from `@plainconceptsplatform/ui-components/app-sidebar`. The initials avatar must be decorative (`aria-hidden`), and the card's `title={name}` must continue to cover the collapsed state.
 
 #### Scenario: initials derived from the name
 

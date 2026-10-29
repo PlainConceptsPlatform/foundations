@@ -4,7 +4,7 @@
 
 ### Requirement: Sidebar paints above page content
 
-The `AppSidebar` root must carry a stacking order above page content, because a `sticky` root creates a stacking context and the user card dropdown's own `z-index` only counts inside it. The root must set `z-40`, which sits above unpositioned and low-order page content and below the layers consumers use for portals and overlays.
+The `AppSidebar` root MUST paint above page content, because a `sticky` root creates a stacking context and the user card dropdown's own `z-index` only counts inside it. The root must set `z-40`, which sits above unpositioned and low-order page content and below the layers consumers use for portals and overlays.
 
 #### Scenario: collapsed dropdown over positioned content
 
@@ -18,7 +18,7 @@ The `AppSidebar` root must carry a stacking order above page content, because a 
 
 ### Requirement: User menu item marks the current route
 
-`AppSidebarUserMenuItem` must accept an optional `isActive` prop (default `false`) that applies the same active tokens as `AppSidebarNavItem`: `bg-sidebar-accent text-sidebar-primary font-medium`. An active entry in either component must set `aria-current="page"`.
+`AppSidebarUserMenuItem` MUST accept an optional `isActive` prop (default `false`) that applies the same active tokens as `AppSidebarNavItem`: `bg-sidebar-accent text-sidebar-primary font-medium`. An active entry in either component must set `aria-current="page"`.
 
 #### Scenario: active user menu entry
 
