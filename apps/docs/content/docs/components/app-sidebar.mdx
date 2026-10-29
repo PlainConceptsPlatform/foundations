@@ -54,7 +54,7 @@ import {
 - **`AppSidebarSpacer`** - Pushes everything after it to the bottom.
 - **`AppSidebarFooter`** - Bottom section, pinned.
 - **`AppSidebarUserCard`** - Renders an initials avatar derived from `name` (decorative, `aria-hidden`), plus name and optional `subtitle` and `dropdown`. Pass `avatar` to override the initials with your own element.
-- **`AppSidebarThemeToggle`** / **`AppSidebarUserMenuItem`** / **`AppSidebarUserMenuDivider`** - Pieces for the user card's `dropdown`.
+- **`AppSidebarThemeToggle`** / **`AppSidebarUserMenuItem`** / **`AppSidebarUserMenuDivider`** - Pieces for the user card's `dropdown`. `AppSidebarUserMenuItem` takes **`isActive`**, styled like an active nav item for the entry that points at the open route.
 - **`AppSidebarCollapseButton`** - Toggle button that collapses to icon-only (64px) mode. `expandIcon` and `collapseIcon` are required, so the icon set stays the consuming app's choice.
 
 An app that does not ship Tailwind preflight can still use the sidebar: since 1.5.0 the components carry their own resets and resolve the Platform font. The package README documents the stylesheet recipe (theme and utilities layers only, the app's globals in `layer(base)`, and a `@source` pointing at the package's `dist`), and you can see the sidebar rendered against exactly that entry on the [no-preflight demo page](/sidebar-without-tailwind).
@@ -67,6 +67,9 @@ every setup and produces a sidebar where nothing is ever highlighted.
 By default the icon follows the item's state, muted when inactive and the accent colour when
 active. Pass **`iconClassName`** when the icon carries its own meaning (a colour shared by every
 AI feature, say) and it keeps that colour in both states.
+
+`AppSidebarUserMenuItem` takes the same **`isActive`**, for the user menu entry that points at the
+open route (My profile, Settings). An active entry in either component also sets `aria-current="page"`.
 
 ```tsx
 <AppSidebarNavItem

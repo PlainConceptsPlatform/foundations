@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Sparkles,
   Sun,
+  User,
   Users,
 } from "lucide-react";
 import { useState } from "react";
@@ -56,6 +57,9 @@ export function AppSidebarDemo() {
         }}
       />
       <AppSidebarUserMenuDivider />
+      <AppSidebarUserMenuItem icon={<User className="size-4" />} isActive>
+        Profile
+      </AppSidebarUserMenuItem>
       <AppSidebarUserMenuItem icon={<LogOut className="size-4" />}>Sign out</AppSidebarUserMenuItem>
     </>
   );
