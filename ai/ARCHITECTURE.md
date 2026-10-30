@@ -54,7 +54,7 @@ Every app picks the **same** library for the same job, so codebases (and AI agen
 
 ### Deliberately not standardized
 
-Custom shared business components, auth/API/state-management abstractions, observability or feature-flag packages, routing wrappers, app-shell components, a custom CLI, project generators, shared form abstractions, a custom DI framework. Add a shared piece **only** when the same real requirement has appeared in **multiple** apps.
+Custom shared business components, auth/API/state-management abstractions, observability packages, feature-flag packages or engines (the section feature flag convention and its UI pieces are the exception, see [Section feature flags](#section-feature-flags)), routing wrappers, app-shell components, a custom CLI, project generators, shared form abstractions, a custom DI framework. Add a shared piece **only** when the same real requirement has appeared in **multiple** apps.
 
 ## Foundation repo structure
 
@@ -316,4 +316,22 @@ Every Platform app is internal and lives on a `*.plainconcepts.com` subdomain, s
 2. **`/robots.txt` with `User-agent: *` / `Disallow: /`**, behind a setting (`Robots:DisallowAll`) that is switched on only after the `noindex` header has been live long enough for crawlers to see it. Blocking crawling first means a crawler never fetches the page, never reads the `noindex`, and an already-indexed URL can stay indexed. A brand-new hostname with no history can switch it on from day one.
 3. **The root never shows the app's own content to an anonymous visitor**: without a session it goes straight to the Entra ID sign-in (server-side redirect when the routing allows it; otherwise a sign-in screen with no branding or copy while it redirects). Public routes an app deliberately exposes (share links, escalation tokens) are the only exceptions and must also carry the header.
 
-<!-- Last updated: 2026-07-23 -->
+## Section feature flags
+
+A feature flag in a Platform app is a **menu section that is not finished yet**, and nothing else. It lets a team merge and deploy a section, keep it hidden, and show it first to chosen roles or people. It is not a permission (roles and permissions decide who may do what in a finished section), not an experiment and not a per-customer setting. The reference implementation is the Kitchen-Sink repository; Numa and Odyssey follow the same convention.
+
+- **Closed catalog in code.** One entry per flaggable section: key, display name, description, owner, default state and a `RemoveBy` date. Being in the catalog means the section is unfinished, so finishing a section is deleting its entry and its gate calls. A key that is not in the catalog is off.
+- **Three states**: off, on for everyone, and selected (on for the listed roles and people).
+- **Stored in the app's database**, with a row version, who changed it and when. A seeder inserts missing catalog keys with their default and never overwrites an existing row, so a deploy cannot undo an administrator's choice.
+- **Evaluated on the server**, by one gate: catalog check, then the kill switch, then the state. Fail closed: an unknown key, a failed read or an exception means off. The browser never evaluates anything.
+- **A section that is off answers 404, not 403**, with the same error body an unknown route returns, so a hidden section looks like it does not exist. Permissions are checked after the gate, never instead of it.
+- **Always on, not flaggable**: sign-in, profile, health and the flags administration itself, so an administrator cannot lock themselves out.
+- **Defaults**: a new section ships off, so merging it exposes nothing. The first time an app introduces flags, every existing section ships on, so the deploy hides nothing.
+- **HTTP and background work use the gate.** An endpoint group declares its section, the anonymous routes of a section are on only when the state is on for everyone, and a background job checks the global on state before each run.
+- **MCP never uses anything that has a flag.** The rule is about whether a section is finished, not about who may see it, so it is static and nothing is evaluated at run time: only the tools, resources and pages of sections without a flag are served over MCP, and then the caller's own permissions apply. Every tool and resource declares its section, an architecture test fails when it does not, and a test generated from the catalog asserts that no flagged section is reachable over MCP, administrators included. Adding a flag to a section that already has MCP tools switches them off, and the administration screen says so before the change is saved. Finishing a section, which means deleting its flag, is how it gets MCP tools.
+- **Administration** has its own permissions: `features:read`, and `features:write` held by Admin only. Every change is written with its audit event (before and after) in one transaction, and the row version turns a concurrent edit into a 409 instead of a silent overwrite.
+- **Kill switch**: a configuration setting per key forces a section off whatever the table says, for operators who cannot reach the administration screen. The screen shows it as forced off by configuration and locks the row.
+- **Engine for .NET**: `Microsoft.FeatureManagement.AspNetCore` with a custom `IFeatureDefinitionProvider` that reads the catalog and the stored state, and the built-in targeting filter (roles as groups, people as users). It adds no service to run and keeps administration and audit inside the app. Foundations ships no engine.
+- **Web**: the app asks the API what is on (`GET /me/features`, the keys that are on for the caller and never the list of off sections) after sign-in, on window focus and on a timer. `FeatureProvider`, `useFeature`, `FeatureGate`, `FeatureGuard` (renders the app's not-found page, never a no-access page) and `FeatureFlagsAdmin` come from `@plainconceptsplatform/ui-components/feature-flags`. Sidebar items of a section that is off are not rendered and its route modules load lazily. The list in the UI is a convenience: the API already refuses what is off.
+
+<!-- Last updated: 2026-10-30 -->

@@ -35,6 +35,7 @@ skills/
 5. **Respect the dependency direction and slice public APIs** (see ARCHITECTURE.md).
 6. **Use pnpm** for all commands.
 7. **Accessibility & all states** (loading/empty/error/success) are required, see DESIGN.md.
+8. **A section still in development is behind a section feature flag**, answered 404 (never 403) when off, and **MCP never serves anything that has a flag**. Use `@plainconceptsplatform/ui-components/feature-flags` on the web, see "Section feature flags" in ARCHITECTURE.md.
 
 ## Theme & components setup (consuming apps)
 

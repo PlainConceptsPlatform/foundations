@@ -1,5 +1,17 @@
 # @plainconceptsplatform/ui-components
 
+## 1.7.0
+
+### Minor Changes
+
+- New section feature flag pieces, from the `@plainconceptsplatform/ui-components/feature-flags` sub-path (not the root barrel, like every other client component with hooks). A flag in a Platform app is a menu section that is not finished yet; the API decides what is on for the signed-in person (`GET /me/features`) and these pieces only show it. There is no data fetching, no i18n library and no router dependency: the app owns its API client, its DI and its strings. See "Section feature flags" in `ai/ARCHITECTURE.md` for the convention.
+
+  `FeatureProvider` takes `features` (the keys that are on, `undefined` while loading) and `children`, and is context only. `useFeature(key)` returns a boolean and `useFeatures()` returns `{ features, isLoading, has(key) }`. All of it fails closed: while the list is loading, for an unknown key, or with no provider, a feature is off, never on. `FeatureGate` (`feature`, `fallback?`, `children`) renders its children only when the feature is on, for menu items and buttons. `FeatureGuard` (`feature`, `notFound`, `loading?`, `children`) wraps a route and renders the not-found page you pass when the feature is off, never a "no access" message, because a section that is off must look like it does not exist.
+
+  `FeatureFlagsAdmin` is the administration table. It takes `flags` (key, name, description, `state` of `off`, `on` or `selected`, `roles`, `people`, row `version`, and optionally `updatedAt`, `updatedBy`, `removeBy`, `forcedOff` and `hasMcpTools`), the available `roles`, and `onSave(key, { state, roles, people, version })`, which returns a promise. A state selector, role chips shown for `selected`, and a plain editable list of people (or your own picker through `renderPeoplePicker`); a confirmation step that names the roles and people losing access; a "forced off by configuration" badge that locks the row; an overdue indicator once `removeBy` has passed; a warning on a section with MCP tools; row-level saving, saved and error states (throw `FeatureFlagConflictError` from `onSave` for a 409); and loading, empty and load-error states through `isLoading`, `loadError` and `onRetry`. Every string comes from the required `texts` prop. It uses native elements and the theme tokens, so it adds no dependency.
+
+  Migration notes: none. Nothing existing changed, and the new sub-path is only loaded when imported. Tailwind must scan the package as for any other component (`@source` pointing at the package `dist`), or the table renders unstyled.
+
 ## 1.6.0
 
 ### Minor Changes
