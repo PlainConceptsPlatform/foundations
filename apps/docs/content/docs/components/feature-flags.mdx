@@ -1,0 +1,289 @@
+---
+title: "Feature Flags"
+description: "Section feature flags for the web: a provider, a hook, a gate, a route guard and an administration table."
+---
+
+import { FeatureFlagsDemo } from "@/components/previews/feature-flags-demo"
+
+<ComponentPreview block>
+  <FeatureFlagsDemo />
+</ComponentPreview>
+
+## When to use
+
+Use it when an app ships a section before it is finished and needs to hide it, from everyone or from some roles and people, without a redeploy. A flag here is a menu section and it means unfinished: when the section is done, the flag and its calls are deleted, so this is not a place for permissions, A/B tests or per-customer settings (roles and permissions already decide who may do what in a finished section). The web side is small on purpose: the API decides and answers `GET /me/features`, `FeatureProvider` holds that answer, `useFeature` and `FeatureGate` hide menu items and buttons, `FeatureGuard` guards a route, and `FeatureFlagsAdmin` is the screen where an administrator changes a flag. The engine, storage and enforcement stay in the app, as `ai/ARCHITECTURE.md` describes under Section feature flags.
+
+## Platform notes
+
+Nothing here fetches, translates or routes. You pass the keys that are on to `FeatureProvider` (`undefined` while loading), the app's not-found page to `FeatureGuard` as `notFound`, and every string to `FeatureFlagsAdmin` through `texts`, so the app keeps its API client, its DI and its react-i18next messages; the function entries in `texts` (`stateLabel`, `confirmLoseRoles`, `removeBy`) are fed from `useTranslation`. It fails closed: while the list is loading, when a key is unknown, or when the provider is missing, a feature is off, never on. `FeatureGuard` renders your not-found page and never a no-access message, because a section that is off must look like it does not exist, exactly as the API answers 404 and not 403. The list in the UI is a convenience, the API already refuses what is off, so hiding a menu item is never the protection. `FeatureFlagsAdmin` takes the flags as props with their row `version`, sends it back on `onSave` so the API can answer 409 (throw `FeatureFlagConflictError` to show the conflict message), asks for a confirmation that names the roles losing access, shows a forced-off badge that locks the row, an overdue indicator once `removeBy` has passed, and a warning on a section with MCP tools, because a flag switches those tools off. Dates render in UTC, so server and client agree, and `now` can be passed to fix the date in tests. It uses native elements and the theme tokens with no new dependency, and it is exported from the `@plainconceptsplatform/ui-components/feature-flags` sub-path only, not the root barrel, because it is a client component with hooks. Pass `renderPeoplePicker` to use the app's own directory search instead of the plain list of identifiers.
+
+## Install
+
+```bash
+pnpm add @plainconceptsplatform/ui-components
+```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/feature-flags`.
+
+## Code
+
+```tsx
+"use client";
+
+import {
+  FeatureFlagConflictError,
+  FeatureFlagsAdmin,
+  FeatureGate,
+  FeatureGuard,
+  FeatureProvider,
+} from "@plainconceptsplatform/ui-components/feature-flags";
+import type {
+  FeatureFlag,
+  FeatureFlagChange,
+  FeatureFlagsAdminTexts,
+} from "@plainconceptsplatform/ui-components/feature-flags";
+import { useState } from "react";
+
+// A fixed "today", so the overdue indicator and the dates render the same on the server, in the
+// browser and in screenshots. A real app omits `now`.
+const NOW = "2026-10-30";
+
+const ROLES = ["Admin", "Manager", "Finance", "Employee"];
+
+const INITIAL: FeatureFlag[] = [
+  {
+    key: "claims",
+    name: "Claims",
+    description: "Expense claims. A new section: shipped off.",
+    state: "off",
+    roles: [],
+    people: [],
+    version: "1",
+    removeBy: "2027-01-31",
+  },
+  {
+    key: "projects",
+    name: "Projects",
+    description: "Project list and detail. On for everyone.",
+    state: "on",
+    roles: [],
+    people: [],
+    version: "1",
+    updatedAt: "2026-10-12T09:30:00Z",
+    updatedBy: "Ana Ruiz",
+    removeBy: "2027-03-31",
+  },
+  {
+    key: "reports",
+    name: "Reports",
+    description: "A beta section, on for selected roles and people.",
+    state: "selected",
+    roles: ["Manager", "Finance"],
+    people: ["lucia@example.com"],
+    version: "3",
+    updatedAt: "2026-10-20T16:05:00Z",
+    updatedBy: "Ana Ruiz",
+    removeBy: "2027-02-28",
+  },
+  {
+    key: "finance",
+    name: "Finance",
+    description: "Payroll and budgets. An operator switched it off.",
+    state: "on",
+    roles: [],
+    people: [],
+    version: "2",
+    updatedAt: "2026-09-02T08:00:00Z",
+    updatedBy: "Mario Gil",
+    removeBy: "2027-01-15",
+    forcedOff: true,
+  },
+  {
+    key: "calculators",
+    name: "Calculators",
+    description: "Already has MCP tools: a flag would switch them off.",
+    state: "on",
+    roles: [],
+    people: [],
+    version: "1",
+    removeBy: "2027-04-30",
+    hasMcpTools: true,
+  },
+  {
+    key: "audit",
+    name: "Audit",
+    description: "Past its removal date: finish the section and delete the flag.",
+    state: "on",
+    roles: [],
+    people: [],
+    version: "4",
+    updatedAt: "2026-05-04T10:00:00Z",
+    updatedBy: "Mario Gil",
+    removeBy: "2026-08-31",
+  },
+];
+
+const TEXTS: FeatureFlagsAdminTexts = {
+  tableLabel: "Section feature flags",
+  columnSection: "Section",
+  columnState: "State",
+  columnAccess: "Who sees it",
+  columnUpdated: "Last change",
+  stateOff: "Off",
+  stateOn: "On for everyone",
+  stateSelected: "Selected roles and people",
+  stateLabel: (name) => `State of ${name}`,
+  accessEveryone: "Everyone",
+  accessNobody: "Nobody",
+  rolesLabel: "Roles",
+  rolesEmpty: "There are no roles to choose from.",
+  peopleLabel: "People",
+  peoplePlaceholder: "name@example.com",
+  addPerson: "Add",
+  removePerson: (person) => `Remove ${person}`,
+  peopleEmpty: "No people added.",
+  selectedEmpty: "Nobody sees this section until you choose a role or add a person.",
+  forcedOff: "Forced off by configuration",
+  forcedOffHint: "An operator switched this section off. It cannot be edited here.",
+  mcpWarning:
+    "This section has MCP tools. A flag switches them off for every caller, administrators included, until the flag is deleted.",
+  removeBy: (date) => `Remove by ${date}`,
+  overdue: (date) => `Overdue: remove by ${date}`,
+  updated: (date, by) => (by ? `${date} by ${by}` : date),
+  neverUpdated: "Never changed",
+  save: "Save",
+  saving: "Saving…",
+  saved: "Saved",
+  discard: "Discard",
+  cancel: "Cancel",
+  confirm: "Save and remove access",
+  confirmTitle: (name) => `Remove access to ${name}?`,
+  confirmLoseEveryone: (name) => `Everyone loses access to ${name}.`,
+  confirmLoseRoles: (roles) => `These roles lose access: ${roles.join(", ")}.`,
+  confirmLosePeople: (people) => `These people lose access: ${people.join(", ")}.`,
+  confirmLoseUnlisted: "Everyone outside the chosen roles and the list loses access.",
+  saveError: (name) => `${name} could not be saved. Try again.`,
+  conflictError: (name) => `Someone else changed ${name}. Reload the list and try again.`,
+  loading: "Loading sections",
+  loadError: "The sections could not be loaded.",
+  retry: "Try again",
+  empty: "There are no sections with a feature flag.",
+};
+
+type View = "table" | "loading" | "empty" | "error";
+
+export function FeatureFlagsDemo() {
+  const [flags, setFlags] = useState<FeatureFlag[]>(INITIAL);
+  const [view, setView] = useState<View>("table");
+  const [failing, setFailing] = useState(false);
+  const [viewer, setViewer] = useState("Employee");
+
+  const onSave = async (key: string, change: FeatureFlagChange) => {
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    if (failing) throw new FeatureFlagConflictError();
+    setFlags((current) =>
+      current.map((flag) =>
+        flag.key === key
+          ? {
+              ...flag,
+              ...change,
+              version: String(Number(flag.version) + 1),
+              updatedAt: `${NOW}T12:00:00Z`,
+              updatedBy: "You",
+            }
+          : flag,
+      ),
+    );
+  };
+
+  // What the API's `GET /me/features` would answer for the person chosen below.
+  const features = flags
+    .filter(
+      (flag) =>
+        !flag.forcedOff &&
+        (flag.state === "on" ||
+          (flag.state === "selected" &&
+            (flag.roles.includes(viewer) || flag.people.includes("lucia@example.com")))),
+    )
+    .map((flag) => flag.key);
+
+  return (
+    <div className="flex w-full flex-col gap-8">
+      <div className="flex flex-wrap items-center gap-4 text-sm">
+        <label className="flex items-center gap-2">
+          View
+          <select
+            className="h-8 rounded-md border bg-background px-2"
+            value={view}
+            onChange={(event) => setView(event.target.value as View)}
+          >
+            <option value="table">Table</option>
+            <option value="loading">Loading</option>
+            <option value="empty">Empty</option>
+            <option value="error">Load error</option>
+          </select>
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={failing}
+            onChange={(event) => setFailing(event.target.checked)}
+          />
+          Make the next saves fail (conflict)
+        </label>
+      </div>
+
+      <FeatureFlagsAdmin
+        flags={view === "empty" ? [] : flags}
+        roles={ROLES}
+        onSave={onSave}
+        isLoading={view === "loading"}
+        loadError={view === "error"}
+        onRetry={() => setView("table")}
+        texts={TEXTS}
+        now={NOW}
+      />
+
+      <section className="flex flex-col gap-3">
+        <h3 className="m-0 text-sm font-semibold">What the app does with the answer</h3>
+        <label className="flex items-center gap-2 text-sm">
+          Signed in as
+          <select
+            className="h-8 rounded-md border bg-background px-2"
+            value={viewer}
+            onChange={(event) => setViewer(event.target.value)}
+          >
+            {ROLES.map((role) => (
+              <option key={role} value={role}>
+                {role}
+              </option>
+            ))}
+          </select>
+        </label>
+        <FeatureProvider features={features}>
+          <ul className="m-0 flex list-none flex-wrap gap-2 p-0 text-sm">
+            {flags.map((flag) => (
+              <FeatureGate key={flag.key} feature={flag.key}>
+                <li className="rounded-md border bg-card px-3 py-1">{flag.name}</li>
+              </FeatureGate>
+            ))}
+          </ul>
+          <div className="rounded-md border p-3 text-sm">
+            <FeatureGuard
+              feature="reports"
+              notFound={<p className="m-0 text-muted-foreground">404: page not found.</p>}
+              loading={<p className="m-0">Loading…</p>}
+            >
+              <p className="m-0">The Reports page.</p>
+            </FeatureGuard>
+          </div>
+        </FeatureProvider>
+      </section>
+    </div>
+  );
+}
+```
+
+## Full API
+
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

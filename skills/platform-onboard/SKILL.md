@@ -74,6 +74,7 @@ Scan all six domains before touching anything. Each check is binary: the artifac
 | react-i18next | `react-i18next` + `i18next` in deps + message files exist | i18n infrastructure in place |
 | Platform theme | `@plainconceptsplatform/ui-theme` in `package.json` deps | Tokens package installed |
 | Platform components | `@plainconceptsplatform/ui-components` in `package.json` deps (optional) | Shared components installed |
+| Section feature flags | `FeatureProvider` from `@plainconceptsplatform/ui-components/feature-flags` at the app root (optional, only when the app has sections in development) | Unfinished sections are flagged, see "Section feature flags" in `ARCHITECTURE.md` |
 
 ### Domain 5: Agent automation
 

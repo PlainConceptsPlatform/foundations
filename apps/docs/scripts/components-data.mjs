@@ -311,6 +311,19 @@ export const COMPONENTS = {
     platformNotes:
       'One pitfall from the source: the base class sets `border-dashed` but no border width, so the dashed outline appears only if you add `border` yourself, which is why the demo passes `className="border rounded-lg"`. The API is slot based (`EmptyHeader` wrapping `EmptyMedia`, `EmptyTitle` and `EmptyDescription`, with `EmptyContent` for the action), and `EmptyMedia variant="icon"` renders a Lucide glyph on `bg-muted`: keep it decorative and let the title carry the meaning. Title, description and the action label are react-i18next messages, including the action verb. Each list owns its own empty state inside its slice, since the useful copy depends on what is missing and what the user can do about it.',
   },
+  "feature-flags": {
+    title: "Feature Flags",
+    description:
+      "Section feature flags for the web: a provider, a hook, a gate, a route guard and an administration table.",
+    demo: "FeatureFlagsDemo",
+    block: true,
+    source: "package",
+    group: "platform",
+    whenToUse:
+      "Use it when an app ships a section before it is finished and needs to hide it, from everyone or from some roles and people, without a redeploy. A flag here is a menu section and it means unfinished: when the section is done, the flag and its calls are deleted, so this is not a place for permissions, A/B tests or per-customer settings (roles and permissions already decide who may do what in a finished section). The web side is small on purpose: the API decides and answers `GET /me/features`, `FeatureProvider` holds that answer, `useFeature` and `FeatureGate` hide menu items and buttons, `FeatureGuard` guards a route, and `FeatureFlagsAdmin` is the screen where an administrator changes a flag. The engine, storage and enforcement stay in the app, as `ai/ARCHITECTURE.md` describes under Section feature flags.",
+    platformNotes:
+      "Nothing here fetches, translates or routes. You pass the keys that are on to `FeatureProvider` (`undefined` while loading), the app's not-found page to `FeatureGuard` as `notFound`, and every string to `FeatureFlagsAdmin` through `texts`, so the app keeps its API client, its DI and its react-i18next messages; the function entries in `texts` (`stateLabel`, `confirmLoseRoles`, `removeBy`) are fed from `useTranslation`. It fails closed: while the list is loading, when a key is unknown, or when the provider is missing, a feature is off, never on. `FeatureGuard` renders your not-found page and never a no-access message, because a section that is off must look like it does not exist, exactly as the API answers 404 and not 403. The list in the UI is a convenience, the API already refuses what is off, so hiding a menu item is never the protection. `FeatureFlagsAdmin` takes the flags as props with their row `version`, sends it back on `onSave` so the API can answer 409 (throw `FeatureFlagConflictError` to show the conflict message), asks for a confirmation that names the roles losing access, shows a forced-off badge that locks the row, an overdue indicator once `removeBy` has passed, and a warning on a section with MCP tools, because a flag switches those tools off. Dates render in UTC, so server and client agree, and `now` can be passed to fix the date in tests. It uses native elements and the theme tokens with no new dependency, and it is exported from the `@plainconceptsplatform/ui-components/feature-flags` sub-path only, not the root barrel, because it is a client component with hooks. Pass `renderPeoplePicker` to use the app's own directory search instead of the plain list of identifiers.",
+  },
   field: {
     title: "Field",
     description: "A form field component with labels, descriptions, and error messages.",

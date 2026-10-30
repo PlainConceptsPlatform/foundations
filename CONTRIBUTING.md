@@ -25,7 +25,7 @@ pnpm verify       # lint + typecheck + build in one go (what CI and the agent ga
 
 A component or utility only belongs here once the **same real requirement has appeared in multiple apps**. Until then it lives in the app that needs it. When something does cross that bar it is promoted deliberately and reviewed, not added speculatively.
 
-Explicitly out of scope: custom business components, auth/API/state abstractions, observability or feature-flag packages, routing or app-shell wrappers, a custom CLI, and project generators.
+Explicitly out of scope: custom business components, auth/API/state abstractions, observability packages, feature-flag packages or engines, routing or app-shell wrappers, a custom CLI, and project generators. The one feature-flag exception is the section feature flag UI pieces (`@plainconceptsplatform/ui-components/feature-flags`) and their convention in `ai/ARCHITECTURE.md`: the same requirement appeared in Kitchen-Sink, Numa and Odyssey, which is the bar above, while the engine stays in each app.
 
 Prefer a **documented convention** over new shared code whenever it will do the job.
 
