@@ -76,6 +76,7 @@ Reusable GitHub Agentic Workflow skills and copyable loops now live in [`PlainCo
 - [`ai/ARCHITECTURE.md`](ai/ARCHITECTURE.md): reference architecture + stack (frontend and backend/.NET)
 - [`ai/DESIGN.md`](ai/DESIGN.md): design tokens & UI rules
 - [`ai/ENGINEERING.md`](ai/ENGINEERING.md): the engineering gates every Platform repository runs, and how Project Health scores them
+- [`ai/DOCUMENTATION.md`](ai/DOCUMENTATION.md): the documentation structure every Platform application keeps, and how it stays current
 - [`skills/platform-onboard/SKILL.md`](skills/platform-onboard/SKILL.md): brownfield migration to Platform practices
 - [`packages/theme/README.md`](packages/theme/README.md): theme package setup and conventions
 - [`packages/ui-components/README.md`](packages/ui-components/README.md): shared components (Plain logo)

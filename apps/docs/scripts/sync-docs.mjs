@@ -31,6 +31,13 @@ const DOCS = [
       "The engineering gates every Platform repository runs, and how the scorecard judges them.",
   },
   {
+    src: "ai/DOCUMENTATION.md",
+    slug: "documentation",
+    title: "Application documentation",
+    description:
+      "The documentation structure every Platform application keeps, and how it stays current.",
+  },
+  {
     src: "ai/AGENTS.md",
     slug: "agents",
     title: "AI agents",
@@ -45,6 +52,7 @@ const LINK_MAP = {
   "DESIGN.md": "/docs/reference/design",
   "AGENTS.md": "/docs/reference/agents",
   "ENGINEERING.md": "/docs/reference/engineering",
+  "DOCUMENTATION.md": "/docs/reference/documentation",
   "PLAN.md": "/docs/reference/plan",
 };
 

@@ -29,7 +29,7 @@ apps/docs/
 │   ├── frontend.mdx, backend.mdx, ai.mdx
 │   ├── tokens.mdx             # Color, typography, radius
 │   ├── components/            # shadcn/ui + custom component pages (generated)
-│   └── reference/             # Synced from ai/ (ARCHITECTURE, DESIGN, ENGINEERING, AGENTS), gitignored
+│   └── reference/             # Synced from ai/ (ARCHITECTURE, DESIGN, ENGINEERING, DOCUMENTATION, AGENTS), gitignored
 ├── components/
 │   ├── showcase.tsx           # Token showcase widgets (palette, type scale)
 │   ├── themed-screen.tsx      # The home page's screen built from the tokens
@@ -47,7 +47,7 @@ Pages that move keep their old URL alive with a small static route under `app/do
 ## Content model
 
 - **Live component pages** (`content/docs/components/*.mdx`): each shows the component themed with our tokens, the usage code, and a link to [ui.shadcn.com](https://ui.shadcn.com) for the full API. Do not re-document shadcn APIs here.
-- **Reference docs** (`content/docs/reference/`): generated from `ai/ARCHITECTURE.md`, `ai/DESIGN.md`, `ai/ENGINEERING.md`, and `ai/AGENTS.md` by `scripts/sync-docs.mjs` (runs on predev/prebuild). These are generated copies, gitignored. The source of truth is the `ai/` folder.
+- **Reference docs** (`content/docs/reference/`): generated from `ai/ARCHITECTURE.md`, `ai/DESIGN.md`, `ai/ENGINEERING.md`, `ai/DOCUMENTATION.md`, and `ai/AGENTS.md` by `scripts/sync-docs.mjs` (runs on predev/prebuild). These are generated copies, gitignored. The source of truth is the `ai/` folder.
 - **Tokens page** (`content/docs/tokens.mdx`): shows colors, typography, and radius from the live theme.
 
 ## Notes
