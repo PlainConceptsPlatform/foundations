@@ -71,7 +71,8 @@ export function StartExperience() {
     function onKey(event: KeyboardEvent) {
       if (event.altKey || event.ctrlKey || event.metaKey || state.phase !== "run") return;
       const target = event.target as HTMLElement | null;
-      if (target?.closest("input, textarea, select, [contenteditable]")) return;
+      // Arrows inside a form field or the guide dialog belong to them, not to the tower.
+      if (target?.closest('input, textarea, select, [contenteditable], [role="dialog"]')) return;
       if (event.key === "ArrowRight") {
         event.preventDefault();
         dispatch({ type: shown === null ? "nextLayer" : "light" });

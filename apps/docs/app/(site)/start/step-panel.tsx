@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { cn } from "@/lib/utils";
 import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock";
+import { BookOpen } from "lucide-react";
 import Link from "next/link";
-import type { Dispatch, ReactNode, RefObject } from "react";
+import { type Dispatch, type ReactNode, type RefObject, useState } from "react";
+import { guideFor } from "./details";
+import { GuideDialog, Inline } from "./guide-dialog";
 import { type JourneyAction, type JourneyState, isLayerComplete, litIn } from "./journey";
 import { PILLARS, pillarAt } from "./steps";
 
@@ -19,6 +22,7 @@ type StepPanelProps = {
 
 export function StepPanel({ state, shown, dispatch, headingRef }: StepPanelProps) {
   const pillar = pillarAt(state.current);
+  const [guideOpen, setGuideOpen] = useState(false);
 
   if (state.phase === "intro") {
     return (
@@ -91,6 +95,7 @@ export function StepPanel({ state, shown, dispatch, headingRef }: StepPanelProps
   const step = pillar.steps[shown];
   if (!step) return null;
   const lit = shown < litIn(state);
+  const guide = guideFor(state.current, shown);
 
   return (
     <Panel
@@ -108,7 +113,24 @@ export function StepPanel({ state, shown, dispatch, headingRef }: StepPanelProps
           After · {step.after}
         </p>
       </div>
-      <Snippet code={step.snippet} />
+      {guide && (
+        <div className="flex flex-col gap-3 rounded-lg border border-border bg-background/60 p-4">
+          <p className="line-clamp-4 text-muted-foreground text-sm leading-relaxed">
+            <Inline text={guide.problem} />
+          </p>
+          <Button variant="secondary" onClick={() => setGuideOpen(true)}>
+            <BookOpen aria-hidden />
+            Read the full guide
+          </Button>
+        </div>
+      )}
+      <GuideDialog
+        open={guideOpen}
+        onOpenChange={setGuideOpen}
+        pillar={state.current}
+        step={shown}
+        onNavigate={(next) => dispatch({ type: "pick", pillar: state.current, step: next })}
+      />
       <div className="flex items-center gap-2">
         <Button size="lg" className="flex-1" onClick={() => dispatch({ type: "light" })}>
           {lit ? "Next piece" : "Light it up"}
