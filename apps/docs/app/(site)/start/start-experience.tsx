@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { PlainLogo } from "@plainconceptsplatform/ui-components";
+import { ThemeToggle } from "fumadocs-ui/components/layout/theme-toggle";
 import Link from "next/link";
 import { useEffect, useReducer, useRef, useState } from "react";
 import {
@@ -99,7 +100,7 @@ export function StartExperience() {
           }`;
 
   return (
-    <div className="dark flex min-h-screen flex-col bg-background text-foreground">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <header className="flex flex-wrap items-center gap-x-4 gap-y-2 border-border border-b px-4 py-4 sm:px-6 lg:px-12">
         <Link
           href="/"
@@ -116,6 +117,7 @@ export function StartExperience() {
           {levelText} · <span className="font-semibold text-foreground">{lit}</span> of{" "}
           {TOTAL_STEPS} pieces
         </span>
+        <ThemeToggle />
         <Button variant="outline" size="sm" asChild>
           <Link href="/docs/adopt">Read the docs</Link>
         </Button>

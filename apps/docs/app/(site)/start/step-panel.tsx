@@ -42,7 +42,7 @@ export function StepPanel({ state, shown, dispatch, headingRef }: StepPanelProps
     return (
       <Panel
         eyebrow="Journey complete"
-        eyebrowClassName="text-[var(--pc-success-300)]"
+        eyebrowClassName="text-[var(--pc-success-700)] dark:text-[var(--pc-success-300)]"
         title="From no AI to Platform"
         headingRef={headingRef}
       >
@@ -71,7 +71,7 @@ export function StepPanel({ state, shown, dispatch, headingRef }: StepPanelProps
     return (
       <Panel
         eyebrow={`Layer ${state.current + 1} complete`}
-        eyebrowClassName="text-[var(--pc-success-300)]"
+        eyebrowClassName="text-[var(--pc-success-700)] dark:text-[var(--pc-success-300)]"
         title={`Level ${state.current + 1} · ${pillar.level}`}
         headingRef={headingRef}
       >
@@ -106,10 +106,10 @@ export function StepPanel({ state, shown, dispatch, headingRef }: StepPanelProps
     >
       <p className="text-muted-foreground leading-relaxed">{step.why}</p>
       <div className="flex flex-col gap-1.5 text-sm">
-        <p className="rounded-md bg-destructive/15 px-2.5 py-2 text-[var(--pc-error-300)]">
+        <p className="rounded-md bg-destructive/15 px-2.5 py-2 text-[var(--pc-error-700)] dark:text-[var(--pc-error-300)]">
           Before · {step.before}
         </p>
-        <p className="rounded-md bg-success/15 px-2.5 py-2 text-[var(--pc-success-300)]">
+        <p className="rounded-md bg-success/15 px-2.5 py-2 text-[var(--pc-success-700)] dark:text-[var(--pc-success-300)]">
           After · {step.after}
         </p>
       </div>
@@ -155,13 +155,16 @@ export function StepPanel({ state, shown, dispatch, headingRef }: StepPanelProps
           <button
             type="button"
             onClick={() => dispatch({ type: "lightLayer" })}
-            className="rounded-md border border-[var(--pc-blue-700)] bg-accent px-2.5 py-2 text-left font-mono text-accent-foreground text-xs transition-colors duration-150 ease-out hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
+            className="rounded-md border border-[var(--pc-blue-200)] dark:border-[var(--pc-blue-700)] bg-accent px-2.5 py-2 text-left font-mono text-accent-foreground text-xs transition-colors duration-150 ease-out hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
           >
             {pillar.shortcut}
           </button>
         </div>
       )}
-      <Link href={pillar.docs.href} className="text-[var(--pc-blue-400)] text-sm hover:underline">
+      <Link
+        href={pillar.docs.href}
+        className="text-primary dark:text-[var(--pc-blue-400)] text-sm hover:underline"
+      >
         Read more: {pillar.docs.label}
       </Link>
     </Panel>

@@ -36,10 +36,8 @@ export function GuideDialog({ open, onOpenChange, pillar, step, onNavigate }: Gu
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {/* The dialog portals to <body>, outside the page's dark wrapper, so it carries
-          the class itself to keep the same tokens. */}
       <DialogContent
-        className="dark flex max-h-[88vh] flex-col gap-0 overflow-hidden bg-background p-0 text-foreground sm:max-w-3xl"
+        className="flex max-h-[88vh] flex-col gap-0 overflow-hidden bg-background p-0 text-foreground sm:max-w-3xl"
         // Radix focuses the first control, which can be a code tab halfway down; start
         // at the top instead, on the scrolling body, so the arrow keys scroll it.
         onOpenAutoFocus={(event) => {
@@ -71,7 +69,9 @@ export function GuideDialog({ open, onOpenChange, pillar, step, onNavigate }: Gu
             {guide.sections.map((section, i) => (
               <li key={section.title} className="flex min-w-0 flex-col gap-3">
                 <h3 className="flex items-baseline gap-3 font-semibold text-lg">
-                  <span className="font-bold text-[var(--pc-blue-400)]">{i + 1}</span>
+                  <span className="font-bold text-primary dark:text-[var(--pc-blue-400)]">
+                    {i + 1}
+                  </span>
                   {section.title}
                 </h3>
                 <Prose text={section.body} />
@@ -87,7 +87,7 @@ export function GuideDialog({ open, onOpenChange, pillar, step, onNavigate }: Gu
                   <li key={item} className="flex gap-2.5 text-sm leading-relaxed">
                     <CircleCheck
                       aria-hidden
-                      className="mt-0.5 size-4 shrink-0 text-[var(--pc-success-300)]"
+                      className="mt-0.5 size-4 shrink-0 text-[var(--pc-success-700)] dark:text-[var(--pc-success-300)]"
                     />
                     <Inline text={item} />
                   </li>
@@ -100,7 +100,7 @@ export function GuideDialog({ open, onOpenChange, pillar, step, onNavigate }: Gu
                   <li key={item} className="flex gap-2.5 text-sm leading-relaxed">
                     <CircleAlert
                       aria-hidden
-                      className="mt-0.5 size-4 shrink-0 text-[var(--pc-warning-300)]"
+                      className="mt-0.5 size-4 shrink-0 text-[var(--pc-warning-700)] dark:text-[var(--pc-warning-300)]"
                     />
                     <Inline text={item} />
                   </li>
@@ -229,7 +229,7 @@ function Code({ sample }: { sample: CodeSample }) {
 
 function PlatformNote({ guide, shortcut }: { guide: StepGuide; shortcut: string }) {
   return (
-    <section className="flex flex-col gap-3 rounded-lg border border-[var(--pc-blue-700)] bg-accent/60 p-5">
+    <section className="flex flex-col gap-3 rounded-lg border border-[var(--pc-blue-200)] dark:border-[var(--pc-blue-700)] bg-accent/60 p-5">
       <h3 className="font-medium text-accent-foreground text-xs uppercase tracking-wider">
         How Platform does it
       </h3>
@@ -243,7 +243,7 @@ function PlatformNote({ guide, shortcut }: { guide: StepGuide; shortcut: string 
 
 function GuideLink({ href, children }: { href: string; children: ReactNode }) {
   const className =
-    "inline-flex items-center gap-1.5 text-[var(--pc-blue-400)] text-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+    "inline-flex items-center gap-1.5 text-primary dark:text-[var(--pc-blue-400)] text-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
   if (href.startsWith("/")) {
     return (

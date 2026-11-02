@@ -41,7 +41,7 @@ export function Tower({ state, shown, onPick }: TowerProps) {
               transformStyle: "preserve-3d",
             }}
           >
-            <div className="absolute -top-[150px] -left-[150px] size-[300px] rounded-[14px] border border-[var(--pc-neutral-700)] bg-secondary/40" />
+            <div className="absolute -top-[150px] -left-[150px] size-[300px] rounded-[14px] border border-[var(--pc-neutral-300)] bg-muted dark:border-[var(--pc-neutral-700)] dark:bg-secondary/40" />
 
             {PILLARS.map((pillar, p) => {
               const shownLayer = p < state.built;
@@ -56,8 +56,12 @@ export function Tower({ state, shown, onPick }: TowerProps) {
                     "absolute -top-[150px] -left-[150px] grid size-[300px] grid-cols-3 gap-2.5 rounded-[14px] border p-[18px]",
                     "transition-[transform,opacity,border-color] duration-700 motion-reduce:transition-none",
                     EASE,
-                    pillar.optional ? "border-dashed bg-card/70" : "bg-card/95",
-                    active ? "border-primary" : "border-border",
+                    // On a white page a light card barely shows, so in light mode a layer is
+                    // white over the grey base with a stronger edge; dark keeps the card tone.
+                    pillar.optional
+                      ? "border-dashed bg-background/70 dark:bg-card/70"
+                      : "bg-background/95 dark:bg-card/95",
+                    active ? "border-primary" : "border-input dark:border-border",
                     shownLayer ? "opacity-100" : "pointer-events-none opacity-0",
                   )}
                   style={{ transform: `translateZ(${shownLayer ? z : z + DROP}px)` }}
@@ -83,7 +87,7 @@ export function Tower({ state, shown, onPick }: TowerProps) {
                           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                           lit
                             ? "border-primary bg-primary hover:bg-[var(--pc-blue-400)]"
-                            : "border-border bg-muted hover:border-primary",
+                            : "border-input bg-muted hover:border-primary dark:border-border",
                           current && "border-accent-foreground",
                           current && !lit && "bg-accent",
                         )}
@@ -137,7 +141,12 @@ function TowerLabel({
       )}
       style={{ left: ORIGIN_X + 228, top }}
     >
-      <span className={cn("h-px w-7", active ? "bg-primary" : "bg-[var(--pc-neutral-600)]")} />
+      <span
+        className={cn(
+          "h-px w-7",
+          active ? "bg-primary" : "bg-[var(--pc-neutral-300)] dark:bg-[var(--pc-neutral-600)]",
+        )}
+      />
       <span className="flex flex-col">
         <span
           className={cn("font-medium text-sm", muted ? "text-muted-foreground" : "text-foreground")}

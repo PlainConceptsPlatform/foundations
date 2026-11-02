@@ -36,7 +36,7 @@ export function LayerList({ state, onPick }: LayerListProps) {
               <span
                 className={cn(
                   "w-5 font-bold text-xl",
-                  active ? "text-[var(--pc-blue-400)]" : "text-muted-foreground",
+                  active ? "text-primary dark:text-[var(--pc-blue-400)]" : "text-muted-foreground",
                 )}
               >
                 {p + 1}
