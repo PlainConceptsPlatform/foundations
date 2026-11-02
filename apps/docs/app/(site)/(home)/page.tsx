@@ -184,16 +184,16 @@ export default function HomePage() {
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
-              href="/docs/how-we-work"
+              href="/start"
               className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-[var(--pc-blue-600)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              How we work
+              Add AI to a project
             </Link>
             <Link
-              href="/start"
+              href="/docs/how-we-work"
               className="rounded-lg border border-border px-5 py-2.5 text-sm font-semibold transition-colors duration-150 hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              Start a project
+              Documentation
             </Link>
           </div>
         </section>
