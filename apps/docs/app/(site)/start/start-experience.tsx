@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { PlainLogo } from "@plainconceptsplatform/ui-components";
 import { ThemeToggle } from "fumadocs-ui/components/layout/theme-toggle";
+import { Headphones } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useReducer, useRef, useState } from "react";
 import {
@@ -16,6 +17,8 @@ import {
   shownStep,
 } from "./journey";
 import { LayerList } from "./layer-list";
+import { HAS_PODCAST, episodeFor } from "./podcast";
+import { PodcastPlayer } from "./podcast-player";
 import { StepPanel } from "./step-panel";
 import { TOTAL_STEPS, pillarAt } from "./steps";
 import { Tower } from "./tower";
@@ -23,8 +26,18 @@ import { Tower } from "./tower";
 export function StartExperience() {
   const [state, dispatch] = useReducer(journeyReducer, initialJourney);
   const [restored, setRestored] = useState(false);
+  const [listening, setListening] = useState<number | null>(null);
+  const [speaking, setSpeaking] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const shown = shownStep(state);
+
+  /** Plays the episode for a layer, or the next one that has audio. */
+  function listen(from = state.current) {
+    const layer = [0, 1, 2, 3].find((l) => l >= from && episodeFor(l)) ?? from;
+    if (!episodeFor(layer)) return;
+    setListening(layer);
+    dispatch({ type: "follow", pillar: layer });
+  }
 
   // Progress lives in localStorage and the piece on screen in the hash, so a link to
   // `/start#2.6` opens that piece. Both are read after hydration: the static export
@@ -118,6 +131,12 @@ export function StartExperience() {
           {TOTAL_STEPS} pieces
         </span>
         <ThemeToggle />
+        {HAS_PODCAST && listening === null && (
+          <Button variant="outline" size="sm" onClick={() => listen()}>
+            <Headphones aria-hidden />
+            Listen
+          </Button>
+        )}
         <Button variant="outline" size="sm" asChild>
           <Link href="/docs/adopt">Read the docs</Link>
         </Button>
@@ -145,18 +164,39 @@ export function StartExperience() {
           <Tower
             state={state}
             shown={shown}
+            speaking={listening !== null && speaking}
             onPick={(pillar, step) => dispatch({ type: "pick", pillar, step })}
           />
         </div>
 
         <div className="lg:col-start-2 lg:row-span-3 lg:row-start-1 xl:col-start-3 xl:row-span-2">
-          <StepPanel state={state} shown={shown} dispatch={dispatch} headingRef={headingRef} />
+          <StepPanel
+            state={state}
+            shown={shown}
+            dispatch={dispatch}
+            headingRef={headingRef}
+            onListen={HAS_PODCAST ? () => listen(0) : undefined}
+          />
         </div>
 
         <div className="lg:col-start-1 lg:row-start-3 xl:row-start-2">
           <LayerList state={state} onPick={(pillar) => dispatch({ type: "pick", pillar })} />
         </div>
       </main>
+
+      {listening !== null && (
+        <>
+          {/* Room under the content for the player bar, so it never covers the panel. */}
+          <div aria-hidden className="h-48" />
+          <PodcastPlayer
+            layer={listening}
+            onLayer={(layer) => listen(layer)}
+            onPiece={(pillar, step) => dispatch({ type: "follow", pillar, step })}
+            onPlayingChange={setSpeaking}
+            onClose={() => setListening(null)}
+          />
+        </>
+      )}
 
       <p aria-live="polite" className="sr-only">
         {announcement}

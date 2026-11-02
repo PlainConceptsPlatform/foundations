@@ -1,0 +1,13 @@
+{
+  "name": "start-podcast-generator",
+  "private": true,
+  "type": "module",
+  "description": "Generates the /start podcast audio locally with Kokoro. Kept out of the workspace so its model runtime is never installed by CI or by the site.",
+  "scripts": {
+    "generate": "node --experimental-strip-types --no-warnings generate.mjs"
+  },
+  "dependencies": {
+    "@breezystack/lamejs": "1.2.7",
+    "kokoro-js": "1.2.1"
+  }
+}

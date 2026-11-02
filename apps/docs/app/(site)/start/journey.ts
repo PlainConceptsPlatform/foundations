@@ -23,6 +23,8 @@ export type JourneyAction =
   | { type: "nextLayer" }
   | { type: "finish" }
   | { type: "pick"; pillar: number; step?: number }
+  /** Like pick, but builds the layer first: the podcast can talk ahead of the reader. */
+  | { type: "follow"; pillar: number; step?: number }
   | { type: "restore"; state: JourneyState }
   | { type: "reset" };
 
@@ -109,6 +111,16 @@ export function journeyReducer(state: JourneyState, action: JourneyAction): Jour
       return {
         ...state,
         phase: "run",
+        current: action.pillar,
+        viewing: action.step ?? null,
+        cascade: null,
+      };
+
+    case "follow":
+      return {
+        ...state,
+        phase: "run",
+        built: Math.max(state.built, action.pillar + 1),
         current: action.pillar,
         viewing: action.step ?? null,
         cascade: null,

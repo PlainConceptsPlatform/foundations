@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { cn } from "@/lib/utils";
 import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Headphones } from "lucide-react";
 import Link from "next/link";
 import { type Dispatch, type ReactNode, type RefObject, useState } from "react";
 import { guideFor } from "./details";
@@ -18,9 +18,11 @@ type StepPanelProps = {
   shown: number | null;
   dispatch: Dispatch<JourneyAction>;
   headingRef: RefObject<HTMLHeadingElement | null>;
+  /** Offered on the intro when the podcast's audio exists. */
+  onListen?: () => void;
 };
 
-export function StepPanel({ state, shown, dispatch, headingRef }: StepPanelProps) {
+export function StepPanel({ state, shown, dispatch, headingRef, onListen }: StepPanelProps) {
   const pillar = pillarAt(state.current);
   const [guideOpen, setGuideOpen] = useState(false);
 
@@ -34,6 +36,12 @@ export function StepPanel({ state, shown, dispatch, headingRef }: StepPanelProps
         <Button size="lg" onClick={() => dispatch({ type: "start" })}>
           Start
         </Button>
+        {onListen && (
+          <Button size="lg" variant="outline" onClick={onListen}>
+            <Headphones aria-hidden />
+            Or listen to it as a podcast
+          </Button>
+        )}
       </Panel>
     );
   }

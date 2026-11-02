@@ -18,10 +18,12 @@ const EASE = "ease-[cubic-bezier(0.2,0.8,0.2,1)]";
 type TowerProps = {
   state: JourneyState;
   shown: number | null;
+  /** The podcast is playing: the piece it is talking about pulses. */
+  speaking?: boolean;
   onPick: (pillar: number, step: number) => void;
 };
 
-export function Tower({ state, shown, onPick }: TowerProps) {
+export function Tower({ state, shown, speaking = false, onPick }: TowerProps) {
   const running = state.phase === "run";
 
   // The stage is drawn at 720×620 and scaled to the column it sits in, so the column's
@@ -90,6 +92,9 @@ export function Tower({ state, shown, onPick }: TowerProps) {
                             : "border-input bg-muted hover:border-primary dark:border-border",
                           current && "border-accent-foreground",
                           current && !lit && "bg-accent",
+                          current &&
+                            speaking &&
+                            "animate-pulse ring-2 ring-primary ring-offset-2 ring-offset-background motion-reduce:animate-none",
                         )}
                         style={{ transitionDelay: `${delay}ms` }}
                       />
