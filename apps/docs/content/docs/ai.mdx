@@ -11,7 +11,7 @@ description: "AI across the Platform delivery lifecycle on one page: GitHub Agen
   it is.
 </Callout>
 
-Alongside that recommendation, Platform maintains three tools. They put our harness into a codebase, supply the workflows that run it, and measure the result. agent-harness and project-health are private repositories and agentic-workflows is internal to the organisation; the `@plainconceptsplatform` npm packages are public.
+Alongside that recommendation, Platform maintains three tools. They put our harness into a codebase, supply the workflows that run it, and measure the result. All three repositories are public, and so are the `@plainconceptsplatform` npm packages.
 
 | Tool | Site | What it does | When to use it |
 |---|---|---|---|
@@ -215,7 +215,7 @@ YAML frontmatter is the wiring: when it fires, where it runs, and what it is all
 `gh aw compile` turns it into a `.lock.yml` sibling, and that lock file is what Actions actually
 executes.
 
-Compiling needs the gh-aw extension (`gh extension install github/gh-aw`). The maintained catalog lives in [**PlainConceptsPlatform/agentic-workflows**](https://github.com/PlainConceptsPlatform/agentic-workflows), which is internal to the organisation. It ships the routes, the workers, the composite actions, the compile script, and the CLI that installs and updates them, so a repository does not copy these by hand (its own documentation is at [workflows.platform.plainconcepts.dev](https://workflows.platform.plainconcepts.dev)):
+Compiling needs the gh-aw extension (`gh extension install github/gh-aw`). The maintained catalog lives in [**PlainConceptsPlatform/agentic-workflows**](https://github.com/PlainConceptsPlatform/agentic-workflows). It ships the routes, the workers, the composite actions, the compile script, and the CLI that installs and updates them, so a repository does not copy these by hand (its own documentation is at [workflows.platform.plainconcepts.dev](https://workflows.platform.plainconcepts.dev)):
 
 ```bash
 npx @plainconceptsplatform/workflows

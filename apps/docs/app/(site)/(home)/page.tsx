@@ -106,8 +106,8 @@ const DESTINATIONS: Destination[] = [
 /**
  * The four repositories the whole way of working rests on. Listed here rather than
  * only in the docs because they are the most important artifacts we have, and the
- * front door should say so. The repositories are private or internal to the
- * organisation; the packages they ship are public on npm. Copy is written here
+ * front door should say so. The repositories and the packages they ship on npm are
+ * all public. Copy is written here
  * because these point at GitHub rather than at a page with frontmatter to read.
  */
 type Pillar = {
@@ -190,7 +190,7 @@ export default function HomePage() {
               How we work
             </Link>
             <Link
-              href="/docs/adopt"
+              href="/start"
               className="rounded-lg border border-border px-5 py-2.5 text-sm font-semibold transition-colors duration-150 hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               Start a project
