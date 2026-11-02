@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "generatedAt": "2026-10-16T11:42:27.971Z",
+  "generatedAt": "2026-11-02T18:37:31.676Z",
   "onboardVersion": "1.6.7",
-  "opencodeVersion": "2.0.22",
+  "opencodeVersion": "2.2.4",
   "platform": {
     "backlog": "github",
     "repo": "github"
@@ -34,5 +34,5 @@
     "architecture": true,
     "openspec": false
   },
-  "harnessVersion": "3.3.1"
+  "harnessVersion": "3.6.0"
 }
