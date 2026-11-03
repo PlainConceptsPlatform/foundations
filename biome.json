@@ -41,6 +41,8 @@
       "**/dist/**",
       "**/.source/**",
       "**/*.generated.ts",
+      "apps/docs/public/podcast/**",
+      "apps/docs/app/(site)/start/podcast/episodes.json",
       ".github/actions/**",
       "scripts/compile-agent-workflows.mjs",
       "scripts/merge-changelog.mjs",

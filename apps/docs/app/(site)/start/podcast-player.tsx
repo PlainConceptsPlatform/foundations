@@ -4,12 +4,23 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Captions, ListOrdered, Pause, Play, SkipForward, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { type PlayableEpisode, SPEAKERS, episodeFor } from "./podcast";
+import {
+  LANGS,
+  type Lang,
+  type PlayableEpisode,
+  type Segment,
+  episodeFor,
+  langsFor,
+  loadLines,
+  nextLayerWith,
+} from "./podcast";
 
 type PodcastPlayerProps = {
   layer: number;
+  lang: Lang;
+  onLang: (lang: Lang) => void;
   onLayer: (layer: number) => void;
-  /** Called when the conversation reaches a piece, so the tower can follow it. */
+  /** Called when the hosts reach a piece, so the tower can follow it. */
   onPiece: (layer: number, piece: number) => void;
   onPlayingChange: (playing: boolean) => void;
   onClose: () => void;
@@ -17,14 +28,31 @@ type PodcastPlayerProps = {
 
 const SPEEDS = [1, 1.25, 1.5];
 
+const COPY: Record<Lang, { episode: string; of: string; disclosure: string }> = {
+  en: {
+    episode: "Episode",
+    of: "of 4",
+    disclosure:
+      "Generated with NotebookLM from the guides on this page. The voices are synthetic and the subtitles were transcribed automatically, so a word can be off.",
+  },
+  es: {
+    episode: "Episodio",
+    of: "de 4",
+    disclosure:
+      "Generado con NotebookLM a partir de las guías de esta página. Las voces son sintéticas y los subtítulos se han transcrito automáticamente, así que alguna palabra puede fallar.",
+  },
+};
+
 export function PodcastPlayer({
   layer,
+  lang,
+  onLang,
   onLayer,
   onPiece,
   onPlayingChange,
   onClose,
 }: PodcastPlayerProps) {
-  const episode = episodeFor(layer);
+  const episode = episodeFor(layer, lang);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
@@ -32,32 +60,49 @@ export function PodcastPlayer({
   const [captions, setCaptions] = useState(true);
   const [transcript, setTranscript] = useState(false);
   const lastPiece = useRef<number | null>(null);
-  const next = episodeFor(layer + 1);
+  // Where to start the next source: switching language resumes at the same piece.
+  const resumeAt = useRef(0);
+  const next = nextLayerWith(layer + 1, lang);
+  const copy = COPY[lang];
 
-  // A new episode starts from the top and plays on its own: the listener asked for it.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: restart only when the layer changes
+  // A new episode or language plays on its own: the listener just asked for it.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: restart only when the source changes
   useEffect(() => {
     lastPiece.current = null;
-    setTime(0);
     const audio = audioRef.current;
     if (!audio) return;
-    audio.currentTime = 0;
+    audio.currentTime = resumeAt.current;
+    setTime(resumeAt.current);
+    resumeAt.current = 0;
     audio.playbackRate = speed;
     audio.play().catch(() => setPlaying(false));
-  }, [layer]);
+  }, [layer, lang]);
 
   useEffect(() => onPlayingChange(playing), [playing, onPlayingChange]);
   useEffect(() => () => onPlayingChange(false), [onPlayingChange]);
 
+  // The subtitles arrive a moment after the audio starts; until then there are none.
+  const [lines, setLines] = useState<Segment[]>([]);
+  const source = episode?.transcript;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fetch again only when the episode changes
+  useEffect(() => {
+    setLines([]);
+    if (!episode) return;
+    let current = true;
+    loadLines(episode).then((loaded) => current && setLines(loaded));
+    return () => {
+      current = false;
+    };
+  }, [source]);
+
   if (!episode) return null;
-  const turn = currentTurn(episode, time);
-  const caption = captionAt(episode, turn, time);
+  const segment = lineAt(lines, time);
 
   function onTime() {
     const audio = audioRef.current;
     if (!audio || !episode) return;
     setTime(audio.currentTime);
-    const piece = pieceAt(episode, currentTurn(episode, audio.currentTime));
+    const piece = pieceAt(episode, audio.currentTime);
     if (piece !== null && piece !== lastPiece.current) {
       lastPiece.current = piece;
       onPiece(layer, piece);
@@ -84,41 +129,57 @@ export function PodcastPlayer({
     if (audioRef.current) audioRef.current.playbackRate = nextSpeed;
   }
 
+  function switchLang(to: Lang) {
+    if (to === lang || !episode) return;
+    const piece = pieceAt(episode, time);
+    const other = episodeFor(layer, to);
+    resumeAt.current = other?.pieces.find((p) => p.piece === piece)?.start ?? 0;
+    onLang(to);
+  }
+
+  const available = langsFor(layer);
+
   return (
     <section
-      aria-label={`Podcast, episode ${episode.number}`}
+      aria-label={`Podcast, ${copy.episode} ${layer + 1}`}
       className="fixed inset-x-0 bottom-0 z-40 flex flex-col"
     >
-      {/* biome-ignore lint/a11y/useMediaCaption: captions and the transcript are rendered below */}
+      {/* biome-ignore lint/a11y/useMediaCaption: the subtitles and transcript are rendered below */}
       <audio
         ref={audioRef}
-        src={episode.timing.src}
+        src={episode.src}
         preload="metadata"
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         onEnded={() => {
           setPlaying(false);
-          if (next) onLayer(layer + 1);
+          if (next !== undefined) onLayer(next);
         }}
         onTimeUpdate={onTime}
       />
 
-      {captions && caption && !transcript && (
+      {captions && segment && !transcript && (
         <div className="pointer-events-none flex justify-center px-4 pb-3">
           <p
-            key={caption.key}
-            className="max-w-3xl rounded-xl border border-border bg-background/95 px-5 py-3 text-center text-base leading-relaxed shadow-none backdrop-blur animate-in fade-in-0 duration-200 motion-reduce:animate-none sm:text-lg"
+            key={segment.start}
+            lang={lang}
+            className="max-w-3xl rounded-xl border border-border bg-background/95 px-5 py-3 text-center text-base leading-relaxed backdrop-blur animate-in fade-in-0 duration-200 motion-reduce:animate-none sm:text-lg"
           >
-            <span className="mr-2 font-semibold text-primary dark:text-[var(--pc-blue-400)]">
-              {SPEAKERS[caption.speaker]}
-            </span>
-            {caption.text}
+            {segment.text}
           </p>
         </div>
       )}
 
       <div className="border-border border-t bg-background/95 backdrop-blur">
-        {transcript && <Transcript episode={episode} current={turn} onSeek={seek} />}
+        {transcript && (
+          <Transcript
+            lang={lang}
+            lines={lines}
+            current={segment}
+            onSeek={seek}
+            note={copy.disclosure}
+          />
+        )}
 
         <div className="mx-auto flex max-w-[1440px] items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 lg:px-12">
           <Button
@@ -133,27 +194,52 @@ export function PodcastPlayer({
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
             <div className="flex items-baseline justify-between gap-3 text-sm">
               <span className="truncate">
-                <span className="font-medium">Episode {episode.number} of 4</span>
+                <span className="font-medium">
+                  {copy.episode} {layer + 1} {copy.of}
+                </span>
                 <span className="text-muted-foreground"> · {episode.title}</span>
               </span>
               <span className="shrink-0 text-muted-foreground tabular-nums">
-                {clock(time)} / {clock(episode.timing.duration)}
+                {clock(time)} / {clock(episode.duration)}
               </span>
             </div>
             <input
               type="range"
               min={0}
-              max={episode.timing.duration}
+              max={episode.duration}
               step={1}
-              value={Math.min(time, episode.timing.duration)}
+              value={Math.min(time, episode.duration)}
               onChange={(event) => seek(Number(event.target.value))}
               aria-label="Position in the episode"
-              aria-valuetext={`${clock(time)} of ${clock(episode.timing.duration)}`}
+              aria-valuetext={`${clock(time)} of ${clock(episode.duration)}`}
               className="h-1.5 w-full cursor-pointer accent-[var(--primary)]"
             />
           </div>
 
           <div className="flex shrink-0 items-center gap-0.5">
+            {available.length > 1 && (
+              <fieldset className="mr-1 flex overflow-hidden rounded-md border border-border">
+                <legend className="sr-only">Language</legend>
+                {LANGS.filter((l) => available.includes(l.id)).map((l) => (
+                  <button
+                    key={l.id}
+                    type="button"
+                    onClick={() => switchLang(l.id)}
+                    aria-pressed={l.id === lang}
+                    aria-label={l.label}
+                    className={cn(
+                      "px-2 py-1 font-medium text-xs transition-colors duration-150 ease-out motion-reduce:transition-none",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      l.id === lang
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted",
+                    )}
+                  >
+                    {l.short}
+                  </button>
+                ))}
+              </fieldset>
+            )}
             <Button
               variant="ghost"
               size="sm"
@@ -182,12 +268,12 @@ export function PodcastPlayer({
             >
               <ListOrdered aria-hidden />
             </Button>
-            {next && (
+            {next !== undefined && (
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => onLayer(layer + 1)}
-                aria-label={`Next episode: ${next.title}`}
+                onClick={() => onLayer(next)}
+                aria-label="Next episode"
               >
                 <SkipForward aria-hidden />
               </Button>
@@ -203,104 +289,78 @@ export function PodcastPlayer({
 }
 
 function Transcript({
-  episode,
+  lang,
+  lines,
   current,
   onSeek,
+  note,
 }: {
-  episode: PlayableEpisode;
-  current: number;
+  lang: Lang;
+  lines: Segment[];
+  current: Segment | null;
   onSeek: (to: number) => void;
+  note: string;
 }) {
   const active = useRef<HTMLButtonElement>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: follow the turn that is playing
+  // biome-ignore lint/correctness/useExhaustiveDependencies: follow the line that is playing
   useEffect(() => {
     active.current?.scrollIntoView({ block: "nearest" });
   }, [current]);
 
   return (
-    <div className="mx-auto max-h-[40vh] max-w-[1440px] overflow-y-auto border-border border-b px-4 py-4 sm:px-6 lg:px-12">
-      <ol className="flex max-w-3xl flex-col gap-1">
-        {episode.turns.map((turn, i) => (
-          <li key={`${i}-${turn.speaker}`}>
-            <button
-              ref={i === current ? active : undefined}
-              type="button"
-              onClick={() => onSeek(episode.timing.starts[i] ?? 0)}
-              aria-current={i === current ? "true" : undefined}
-              className={cn(
-                "w-full rounded-md px-3 py-1.5 text-left text-sm leading-relaxed transition-colors duration-150 ease-out motion-reduce:transition-none",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                i === current ? "bg-accent text-accent-foreground" : "hover:bg-muted",
-              )}
-            >
-              <span className="mr-2 font-semibold">{SPEAKERS[turn.speaker]}</span>
-              {turn.text}
-            </button>
-          </li>
-        ))}
+    <div
+      lang={lang}
+      className="mx-auto max-h-[40vh] max-w-[1440px] overflow-y-auto border-border border-b px-4 py-4 sm:px-6 lg:px-12"
+    >
+      <ol className="flex max-w-3xl flex-col gap-0.5">
+        {lines.map((segment) => {
+          const isCurrent = segment === current;
+          return (
+            <li key={segment.start}>
+              <button
+                ref={isCurrent ? active : undefined}
+                type="button"
+                onClick={() => onSeek(segment.start)}
+                aria-current={isCurrent ? "true" : undefined}
+                className={cn(
+                  "flex w-full gap-3 rounded-md px-3 py-1.5 text-left text-sm leading-relaxed transition-colors duration-150 ease-out motion-reduce:transition-none",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  isCurrent ? "bg-accent text-accent-foreground" : "hover:bg-muted",
+                )}
+              >
+                <span className="w-10 shrink-0 text-muted-foreground tabular-nums">
+                  {clock(segment.start)}
+                </span>
+                {segment.text}
+              </button>
+            </li>
+          );
+        })}
       </ol>
-      <p className="mt-3 text-muted-foreground text-xs">
-        The voices are synthetic, generated with Kokoro, an open-weight text-to-speech model, from a
-        script written for this page.
-      </p>
+      <p className="mt-3 text-muted-foreground text-xs">{note}</p>
     </div>
   );
 }
 
-function currentTurn(episode: PlayableEpisode, time: number) {
-  let index = 0;
-  episode.timing.starts.forEach((start, i) => {
-    if (start <= time + 0.05) index = i;
-  });
-  return index;
+function lineAt(lines: Segment[], time: number) {
+  let found: Segment | null = null;
+  for (const segment of lines) {
+    if (segment.start > time + 0.05) break;
+    found = segment;
+  }
+  // Between two lines there is silence: keep the last line up a moment, not forever.
+  return found && time <= found.end + 1.5 ? found : null;
 }
 
-/** The piece under discussion: the last one the conversation reached at or before this turn. */
-function pieceAt(episode: PlayableEpisode, turn: number) {
-  for (let i = turn; i >= 0; i--) {
-    const piece = episode.turns[i]?.piece;
-    if (piece !== undefined) return piece;
+/** The piece under discussion: the last one announced at or before this moment. */
+function pieceAt(episode: PlayableEpisode, time: number) {
+  let piece: number | null = null;
+  for (const point of episode.pieces) {
+    if (point.start > time + 0.05) break;
+    piece = point.piece;
   }
-  return null;
-}
-
-/**
- * Subtitles a sentence or two at a time. The generator only measures where each turn
- * starts, so within a turn each line gets a share of its time in proportion to its
- * length, which tracks a steady speaking voice closely enough to read along.
- */
-function captionAt(episode: PlayableEpisode, index: number, time: number) {
-  const turn = episode.turns[index];
-  if (!turn) return null;
-  const start = episode.timing.starts[index] ?? 0;
-  const end = episode.timing.starts[index + 1] ?? episode.timing.duration;
-  const lines = captionLines(turn.text);
-  const total = lines.reduce((sum, line) => sum + line.length, 0);
-
-  let at = start;
-  for (const [i, line] of lines.entries()) {
-    const span = ((end - start) * line.length) / total;
-    if (time < at + span || i === lines.length - 1) {
-      return { key: `${index}.${i}`, speaker: turn.speaker, text: line };
-    }
-    at += span;
-  }
-  return null;
-}
-
-const MAX_LINE = 120;
-
-function captionLines(text: string) {
-  const sentences = text.match(/[^.!?]+[.!?]+["”’)]*|[^.!?]+$/g)?.map((s) => s.trim()) ?? [text];
-  const lines: string[] = [];
-  for (const sentence of sentences) {
-    const last = lines.at(-1);
-    if (last && last.length + sentence.length + 1 <= MAX_LINE)
-      lines[lines.length - 1] = `${last} ${sentence}`;
-    else lines.push(sentence);
-  }
-  return lines;
+  return piece;
 }
 
 function clock(seconds: number) {

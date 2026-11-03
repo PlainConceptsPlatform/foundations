@@ -6,6 +6,7 @@
   "customRules": [".markdownlint-rules.cjs"],
   "ignores": [
     "**/node_modules/**",
+    "**/.venv/**",
     "**/.next/**",
     "**/dist/**",
     // Docs-site content stays unlinted for now: around 200 wrapped paragraphs across

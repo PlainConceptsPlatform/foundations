@@ -17,24 +17,46 @@ import {
   shownStep,
 } from "./journey";
 import { LayerList } from "./layer-list";
-import { HAS_PODCAST, episodeFor } from "./podcast";
+import { HAS_PODCAST, type Lang, nextLayerWith } from "./podcast";
 import { PodcastPlayer } from "./podcast-player";
 import { StepPanel } from "./step-panel";
 import { TOTAL_STEPS, pillarAt } from "./steps";
 import { Tower } from "./tower";
+
+const LANG_KEY = "platform-start-podcast-lang";
 
 export function StartExperience() {
   const [state, dispatch] = useReducer(journeyReducer, initialJourney);
   const [restored, setRestored] = useState(false);
   const [listening, setListening] = useState<number | null>(null);
   const [speaking, setSpeaking] = useState(false);
+  const [lang, setLang] = useState<Lang>("en");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const shown = shownStep(state);
 
-  /** Plays the episode for a layer, or the next one that has audio. */
+  // The podcast speaks the reader's language when it can: Spanish for a Spanish
+  // browser, English otherwise, and whatever they last picked after that.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved === "en" || saved === "es") return setLang(saved);
+    } catch {}
+    if (navigator.language.toLowerCase().startsWith("es")) setLang("es");
+  }, []);
+
+  function chooseLang(next: Lang) {
+    setLang(next);
+    try {
+      localStorage.setItem(LANG_KEY, next);
+    } catch {}
+  }
+
+  /** Plays the episode for a layer, or the next one that has audio in the reader's language. */
   function listen(from = state.current) {
-    const layer = [0, 1, 2, 3].find((l) => l >= from && episodeFor(l)) ?? from;
-    if (!episodeFor(layer)) return;
+    const spoken = nextLayerWith(from, lang) !== undefined ? lang : lang === "en" ? "es" : "en";
+    const layer = nextLayerWith(from, spoken) ?? nextLayerWith(0, spoken);
+    if (layer === undefined) return;
+    if (spoken !== lang) setLang(spoken);
     setListening(layer);
     dispatch({ type: "follow", pillar: layer });
   }
@@ -190,6 +212,8 @@ export function StartExperience() {
           <div aria-hidden className="h-48" />
           <PodcastPlayer
             layer={listening}
+            lang={lang}
+            onLang={chooseLang}
             onLayer={(layer) => listen(layer)}
             onPiece={(pillar, step) => dispatch({ type: "follow", pillar, step })}
             onPlayingChange={setSpeaking}

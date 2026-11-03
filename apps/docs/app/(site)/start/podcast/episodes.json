@@ -1,0 +1,280 @@
+{
+ "en": {
+  "1": {
+   "src": "/podcast/en/layer-1.m4a",
+   "transcript": "/podcast/en/layer-1.json",
+   "duration": 1315.57,
+   "pieces": [
+    {
+     "piece": 0,
+     "start": 122.88
+    },
+    {
+     "piece": 1,
+     "start": 335.28
+    },
+    {
+     "piece": 2,
+     "start": 498.28
+    },
+    {
+     "piece": 3,
+     "start": 664.88
+    },
+    {
+     "piece": 4,
+     "start": 811.76
+    },
+    {
+     "piece": 5,
+     "start": 909.84
+    },
+    {
+     "piece": 6,
+     "start": 996.04
+    },
+    {
+     "piece": 7,
+     "start": 1098.52
+    },
+    {
+     "piece": 8,
+     "start": 1186.28
+    }
+   ]
+  },
+  "2": {
+   "src": "/podcast/en/layer-2.m4a",
+   "transcript": "/podcast/en/layer-2.json",
+   "duration": 1708.92,
+   "pieces": [
+    {
+     "piece": 0,
+     "start": 84.88
+    },
+    {
+     "piece": 1,
+     "start": 323.44
+    },
+    {
+     "piece": 2,
+     "start": 535.52
+    },
+    {
+     "piece": 3,
+     "start": 748.88
+    },
+    {
+     "piece": 4,
+     "start": 930.32
+    },
+    {
+     "piece": 5,
+     "start": 1131.12
+    },
+    {
+     "piece": 6,
+     "start": 1328.64
+    },
+    {
+     "piece": 7,
+     "start": 1462.8
+    }
+   ]
+  },
+  "3": {
+   "src": "/podcast/en/layer-3.m4a",
+   "transcript": "/podcast/en/layer-3.json",
+   "duration": 1305.66,
+   "pieces": [
+    {
+     "piece": 0,
+     "start": 218.0,
+     "estimated": true
+    },
+    {
+     "piece": 1,
+     "start": 434.56
+    },
+    {
+     "piece": 2,
+     "start": 661.36
+    },
+    {
+     "piece": 3,
+     "start": 861.6
+    },
+    {
+     "piece": 4,
+     "start": 1049.84
+    }
+   ]
+  },
+  "4": {
+   "src": "/podcast/en/layer-4.m4a",
+   "transcript": "/podcast/en/layer-4.json",
+   "duration": 1499.96,
+   "pieces": [
+    {
+     "piece": 0,
+     "start": 100.16
+    },
+    {
+     "piece": 1,
+     "start": 527.52
+    },
+    {
+     "piece": 2,
+     "start": 741.68,
+     "estimated": true
+    },
+    {
+     "piece": 3,
+     "start": 955.76
+    },
+    {
+     "piece": 4,
+     "start": 1198.8
+    }
+   ]
+  }
+ },
+ "es": {
+  "1": {
+   "src": "/podcast/es/layer-1.m4a",
+   "transcript": "/podcast/es/layer-1.json",
+   "duration": 1858.53,
+   "pieces": [
+    {
+     "piece": 0,
+     "start": 156.28
+    },
+    {
+     "piece": 1,
+     "start": 347.12
+    },
+    {
+     "piece": 2,
+     "start": 518.6
+    },
+    {
+     "piece": 3,
+     "start": 683.16
+    },
+    {
+     "piece": 4,
+     "start": 866.4
+    },
+    {
+     "piece": 5,
+     "start": 1012.6
+    },
+    {
+     "piece": 6,
+     "start": 1166.76
+    },
+    {
+     "piece": 7,
+     "start": 1353.46
+    },
+    {
+     "piece": 8,
+     "start": 1517.54
+    }
+   ]
+  },
+  "2": {
+   "src": "/podcast/es/layer-2.m4a",
+   "transcript": "/podcast/es/layer-2.json",
+   "duration": 1000.8,
+   "pieces": [
+    {
+     "piece": 0,
+     "start": 108.6
+    },
+    {
+     "piece": 1,
+     "start": 227.2
+    },
+    {
+     "piece": 2,
+     "start": 344.1
+    },
+    {
+     "piece": 3,
+     "start": 451.6
+    },
+    {
+     "piece": 4,
+     "start": 538.4
+    },
+    {
+     "piece": 5,
+     "start": 653.0
+    },
+    {
+     "piece": 6,
+     "start": 757.4
+    },
+    {
+     "piece": 7,
+     "start": 851.1
+    }
+   ]
+  },
+  "3": {
+   "src": "/podcast/es/layer-3.m4a",
+   "transcript": "/podcast/es/layer-3.json",
+   "duration": 1044.13,
+   "pieces": [
+    {
+     "piece": 0,
+     "start": 140.1
+    },
+    {
+     "piece": 1,
+     "start": 372.1
+    },
+    {
+     "piece": 2,
+     "start": 562.1
+    },
+    {
+     "piece": 3,
+     "start": 723.1
+    },
+    {
+     "piece": 4,
+     "start": 863.1
+    }
+   ]
+  },
+  "4": {
+   "src": "/podcast/es/layer-4.m4a",
+   "transcript": "/podcast/es/layer-4.json",
+   "duration": 1360.04,
+   "pieces": [
+    {
+     "piece": 0,
+     "start": 140.88
+    },
+    {
+     "piece": 1,
+     "start": 603.56
+    },
+    {
+     "piece": 2,
+     "start": 801.64
+    },
+    {
+     "piece": 3,
+     "start": 1006.2
+    },
+    {
+     "piece": 4,
+     "start": 1180.76
+    }
+   ]
+  }
+ }
+}
