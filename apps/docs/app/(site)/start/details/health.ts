@@ -507,7 +507,7 @@ jq -r '[.generatedAt, .data.global.lineRate, .data.passed] | @tsv' history/*.jso
       "Treating artifacts as the history. They expire, so a dashboard that reads them directly forgets everything older than the retention period.",
     ],
     platform:
-      'project-health reads the `engineering-excellence-<facet>` artifacts of every project that sets `"engineeringExcellence": { "enabled": true }`, validates them against its canonical `schema/engineering-excellence-facets.schema.json`, ignores any whose `repo` or `ref` does not match, keeps one sample per commit in the month file, and scores the Engineering scorecard as measured rather than inferred. To adopt it, read BLUEPRINT.md in PlainConceptsPlatform/project-health and adopt it; the reference producer is vendored from Atlas.',
+      'project-health reads the `engineering-excellence-<facet>` artifacts of every project that sets `"engineeringExcellence": { "enabled": true }`, validates them against its canonical `schema/engineering-excellence-facets.schema.json`, ignores any whose `repo` or `ref` does not match, keeps one sample per commit in the month file, and scores the Engineering scorecard as measured rather than inferred. To adopt it, read BLUEPRINT.md in PlainConceptsPlatform/project-health and adopt it; the reference producer is the quality-gates template of @plainconceptsplatform/workflows (`workflows add --template quality-gates`).',
     links: [
       { label: "actions/upload-artifact", href: "https://github.com/actions/upload-artifact" },
       {

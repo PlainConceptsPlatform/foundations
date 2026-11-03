@@ -80,7 +80,18 @@ A repository publishes one artifact per facet from its **default branch**, named
 
 Facets **never gate**. The floors are judged by the gates; a facet records what they saw, pass or fail, and is uploaded even when a gate fails, because a drop is the data point most worth keeping. Retention is 90 days; the Project-Health collector runs daily and keeps the history, so nothing is lost when artifacts expire. The `security` facet's `jobs` are, by contract, the results of the **blocking** scanner jobs, so a scanner the facet reports counts as blocking whatever its workflow line looks like.
 
-The reference implementation is in Atlas (`scripts/engineering-excellence.mjs`, `scripts/lib/`, `scripts/check-complexity.mjs`) and is vendored into each repository with a header pointing back to it.
+The reference implementation is the `quality-gates` template of [`@plainconceptsplatform/workflows`](https://github.com/PlainConceptsPlatform/agentic-workflows). A repository opts in with `npx @plainconceptsplatform/workflows add --template quality-gates`, and `workflows update` keeps it current. The template carries the gate scripts (`check-coverage`, `check-complexity`, `check-duplication`, `check-mutation`, `engineering-excellence` with its facet schema, `scripts/lib/`, `dast-wait-stable.sh`), the Semgrep hygiene rules, `.jscpd.json`, the `.zap/` rules and the gates CI. What is measured about one repository stays in that repository: the floors in its `quality.config.json`, the complexity and duplication baselines, and its triaged DAST alerts. A repository that has not opted in gets none of these files.
+
+## Template conformance (family apps)
+
+A practice for the Platform app family only: repositories with a `.copier-answers.yml`, whose platform code comes from the Kitchen-Sink template (see "Platform family" in [`ARCHITECTURE.md`](ARCHITECTURE.md)). Own design apps are not measured against it.
+
+- **Conforming** means every path listed in `.platform/manifest` is identical to the template version recorded in `.copier-answers.yml` (`_commit`).
+- **An exception** is an entry in `.platform/exceptions.yml` with the path, the reason, a tracking issue and an `expires` date. A divergent path covered by a live exception conforms; one whose exception has expired, or has no issue, does not.
+- **Version lag** is how many template tags the app is behind. Taking a new tag is a `copier update` in its own pull request, and the gates run on it like on any other change.
+- **The fix is upstream first.** A platform change made in an app moves into Kitchen-Sink and comes back with the next tag, or it carries a dated exception until it does. Editing a platform path to make a check pass, without either, is a conformance failure, not a fix.
+
+Project-Health reports conformance, the template version and the open exceptions of every family app.
 
 ## Adoption checklist
 
@@ -98,6 +109,7 @@ Each line is a yes or no. A repository has adopted the standard when every appli
 - [ ] The facets are produced by workflows that run on push to the default branch.
 - [ ] The blocking checks are required by a ruleset on the default branch.
 - [ ] Security findings the gates surface but cannot safely fix are open issues, not suppressions.
+- [ ] Family apps only: every platform path matches the template version, and every exception names an issue and an expiry date that has not passed.
 
 ## Known pitfalls
 
@@ -123,4 +135,4 @@ Traps that cost real runs while the standard was rolled out. Each one looks like
 
 **Agent merges can be refused.** Symptom: an automation that opens, verifies and merges its own pull requests is stopped with "Merge Without Review". Cause: an agent's permission policy treats merging an unreviewed PR as a human decision. Fix: plan for a human merge step where the policy applies, and never route around it.
 
-<!-- Last updated: 2026-10-12 -->
+<!-- Last updated: 2026-11-03 -->
