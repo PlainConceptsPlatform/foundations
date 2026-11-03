@@ -2,6 +2,8 @@
 
 Linear migration path for bringing a brownfield frontend onto the Platform stack. Each step is a separate OpenSpec change. Steps must run in order: each one depends on the previous.
 
+Route A (joining the family) uses steps 1, 2, 5 and 6 to give the web app the shape the template expects before `copier copy`; the theme wiring, the shell and the platform DI registrations then arrive with the template in `src/shared/platform/`. Route B (own design) runs every step.
+
 ## Before starting
 
 Capture Playwright characterization tests for every existing route. Take desktop (1280x720) and mobile (375x812) screenshots in light and dark themes. These are the visual parity baseline. No migration step is complete until these tests pass.
@@ -30,13 +32,14 @@ Capture Playwright characterization tests for every existing route. Take desktop
 
 1. Add `next` and `react` / `react-dom` as dependencies.
 2. Create `next.config.ts` with `output: "export"` and `images: { unoptimized: true }`.
-3. Create `app/layout.tsx` with a flash-prevention inline script for theme.
-4. Create `app/page.tsx` as a catch-all client component that mounts the existing SPA root (`App.tsx`).
-5. Replace `VITE_API_BASE_URL` with `NEXT_PUBLIC_API_BASE_URL` (production value: `/api/v1`).
-6. Update `vite-env.d.ts` to Next.js type references.
-7. Remove Vite devDeps: `@vitejs/plugin-react`, `vite`.
-8. Change dev/build scripts to `next dev` / `next build`.
-9. React Router stays as the client-side router. Next.js is the build shell only.
+3. Create `app/layout.tsx` that loads the fonts and a theme script (`public/theme-init.js`) before first paint, so dark mode does not flash.
+4. Create `app/page.tsx` as a client component that mounts the existing SPA root (`App.tsx`) with `ssr: false`.
+5. Add an empty `pages/.gitkeep` next to the root `app/` folder, so Next never reads `src/pages` (the FSD layer, step 6) as its Pages Router.
+6. Replace `VITE_API_BASE_URL` with `NEXT_PUBLIC_API_BASE_URL` (production value: `/api/v1`), so the bundle has no environment-specific input.
+7. Update `vite-env.d.ts` to Next.js type references.
+8. Remove Vite devDeps: `@vitejs/plugin-react`, `vite`.
+9. Change dev/build scripts to `next dev` / `next build`.
+10. React Router stays as the client-side router. Next.js is the build shell only, and the API serves `out/` from the same origin.
 
 **Completion criterion:** `pnpm build` produces `out/` directory, existing routes render with visual parity, Playwright tests pass.
 
@@ -67,7 +70,7 @@ Capture Playwright characterization tests for every existing route. Take desktop
    - `tsx`: `true`
    - Tailwind config aliases matching the FSD structure (step 6)
 2. Add shadcn components as source files under `src/shared/ui/`. Start with: Button, Input, Label, Dialog, DropdownMenu, Select, Table, Card, Badge, Avatar, Separator, Skeleton, Popover, Tooltip, ScrollArea.
-3. Replace tabler icons with lucide-react (shadcn default).
+3. Icons: an own design app uses lucide-react (shadcn default). A family app uses Tabler (`@tabler/icons-react`) and aliases the few shadcn recipes that import Lucide, such as the calendar, to Tabler.
 4. Create a `cn()` utility under `src/shared/lib/utils.ts` using `clsx` + `tailwind-merge`.
 5. Migrate existing custom UI primitives to shadcn compositions. Use `Alert` for callouts, `Empty` for empty states, `Separator` for dividers, `Skeleton` for loading.
 6. Do not override shadcn component colors or typography via `className`. Use `className` for layout only.
@@ -95,23 +98,23 @@ Capture Playwright characterization tests for every existing route. Take desktop
 
 **Actions:**
 
-1. Create canonical FSD layers: `src/app/`, `src/pages/`, `src/widgets/`, `src/features/`, `src/entities/`, `src/shared/`. Do not use underscore-prefixed names.
+1. Create canonical FSD layers: `src/app/`, `src/pages/`, `src/widgets/`, `src/features/`, `src/entities/`, `src/shared/`. Do not use underscore-prefixed names or a renamed `views/` layer.
 2. Move app-level code into `src/app/`:
    - Providers, router config, global styles into `src/app/providers/` and `src/app/styles/`.
-3. Move page components into `src/pages/<page-name>/` with `index.ts` barrels.
+3. Move page components into `src/pages/<page-name>/ui/` with an `index.ts` barrel per slice, e.g. `src/pages/claims/ui/ClaimsPage.tsx`.
 4. Move large composite blocks used across pages into `src/widgets/<widget-name>/`.
 5. Move reusable user interactions into `src/features/<feature-name>/`.
 6. Move domain models used across multiple pages into `src/entities/<entity-name>/`.
 7. Move infrastructure (UI kit, API client, utils, auth) into `src/shared/` with segments: `shared/ui/`, `shared/api/`, `shared/lib/`, `shared/auth/`, `shared/config/`.
 8. Each slice gets an `index.ts` public API. External consumers import from the barrel, never from internal files.
-9. Add `steiger.config.ts` with `@feature-sliced/steiger-plugin`. Enable: `forbidden-imports`, `no-public-api-sidestep`, `no-cross-imports`. Disable: `typo-in-layer-name` (if using underscore prefixes temporarily during migration).
+9. Add `steiger.config.ts` with `@feature-sliced/steiger-plugin`. Enable: `forbidden-imports`, `no-public-api-sidestep`, `no-cross-imports`.
 10. Add `lint:fsd` script: `steiger src`.
 11. Add Steiger check step to CI.
 12. Update `tsconfig.json` path aliases: `@/*` mapping to `src/*`.
 
 **Domain-based file naming.** Name files after the business domain, not technical role. Use `user-dto.ts`, not `types.ts`. Use `format-currency.ts`, not `utils.ts`. Catch-all files (`constants.ts`, `types.ts`, `utils.ts`, `helpers.ts`, `config.ts`) are banned.
 
-**Completion criterion:** FSD layers present with barrels, Steiger passes, CI passes, no flat `components/` or `pages/` dirs remain.
+**Completion criterion:** FSD layers present with barrels, Steiger passes, CI passes, no flat `src/components/` dir and no route files outside `src/pages/` remain.
 
 ## Step 7: inversify-hooks
 
@@ -119,7 +122,7 @@ Capture Playwright characterization tests for every existing route. Take desktop
 
 **Actions:**
 
-1. Add `inversify-hooks` as a dependency (it bundles `inversify` and `reflect-metadata`).
+1. Add `inversify-hooks` as a dependency (it bundles inversify). Do not add `inversify` or `reflect-metadata` directly.
 2. Define API contract interfaces in `src/shared/api/contracts/`. One interface per bounded context. Each interface declares the methods the frontend needs from that context.
 3. Implement HTTP contracts in `src/shared/api/contracts/http/`. Each implementation uses the existing API client's `request<T>` method.
 4. Create a composition root in `src/app/providers/composition-root.ts`:
@@ -146,7 +149,7 @@ Capture Playwright characterization tests for every existing route. Take desktop
    ```tsx
    const [quoteContract] = useInject<IQuoteContract>(cid.IQuoteContract);
    ```
-8. `tsconfig.json` must include `experimentalDecorators: true` and `useDefineForClassFields: false`. Target `es2020` or lower.
+8. Decorators are optional; the family apps use none. If the app does use `@injectable()`, `tsconfig.json` needs `experimentalDecorators: true` and `useDefineForClassFields: false`.
 9. Remove the legacy `api` singleton import after all consumers are migrated.
 
 **Minification safety.** Always pass `cid.IContract` as the second argument to `addSingleton`. The default id is `Symbol(constructor.name)`, which minifiers mangle. The `cid` constant returns a stable cached symbol that survives minification.
@@ -187,11 +190,11 @@ Capture Playwright characterization tests for every existing route. Take desktop
 
 **Actions:**
 
-1. Install `@plainconceptsplatform/ui-theme`; install `@plainconceptsplatform/ui-components` when the app uses shared components such as `PlainLogo`.
+1. Install `@plainconceptsplatform/ui-theme`; install `@plainconceptsplatform/ui-components` when the app uses shared components such as `PlainLogo`. In a family app both come from the pnpm `platform` catalog (`catalog:platform`), with the platform `ThemeProvider` and anti-flash script in `src/shared/platform/`.
 2. In the global stylesheet, import `@plainconceptsplatform/ui-theme`. The package supplies Tailwind v4, semantic tokens, base styles, and the dark-mode variant.
 3. Use the semantic utility tokens directly. Do not create a parallel token layer or hardcode design values.
 4. Load the Outfit font via `next/font/google` and expose it as `--font-sans` in the root layout.
-5. Toggle the `dark` class on `<html>` for dark mode.
+5. Toggle the `dark` class on `<html>` for dark mode, set before first paint by an external script, so the content security policy needs no inline-script exception.
 6. Replace custom `BrandMark` / logo components with `PlainLogo` from `@plainconceptsplatform/ui-components`.
 7. Remove now-redundant custom CSS that the Platform theme replaces.
 

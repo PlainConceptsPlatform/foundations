@@ -14,7 +14,9 @@ ai/
 ├── DOCUMENTATION.md    # per-application documentation structure, how it stays current
 ├── AGENTS.md           # this file: index/hub
 skills/
-└── platform-onboard/   # brownfield Platform migration skill
+├── platform-new-project/  # a new family app from Kitchen-Sink's BLUEPRINT.md and template
+├── platform-onboard/      # an existing app: adopt the template and converge, or migrate domain by domain
+└── platform-upstream/     # platform changes go to Kitchen-Sink first, or a dated exception
 ```
 
 ## Stack (summary)
@@ -49,12 +51,16 @@ When building a Platform app, read [`/README.md`](../README.md) for the full set
 - `@plainconceptsplatform/ui-theme` for design tokens (CSS import, Outfit font, shadcn config)
 - `@plainconceptsplatform/ui-components` for shared React components (Plain logo, ...)
 
-## Migration skill
+## Platform skills
 
-[`platform-onboard`](../skills/platform-onboard/SKILL.md) brings a brownfield project onto the Platform stack. Use it when adopting Platform standards or migrating to Platform Foundations. It scans the project before changing it, then progresses through agentic infrastructure, architecture docs, OpenSpec, frontend stack, agentic workflows, and .NET guardrails in dependency order.
+- [`platform-new-project`](../skills/platform-new-project/SKILL.md) creates a new Platform app. It reads Kitchen-Sink's `BLUEPRINT.md`, takes the platform code from the template with `copier copy`, and installs the harness, the workflows and the quality gates. Without access to Kitchen-Sink it builds an own design app from the public rules.
+- [`platform-onboard`](../skills/platform-onboard/SKILL.md) brings an existing app onto the Platform. Route A joins the family: preflight, adopt with `copier copy --overwrite`, converge one capability at a time, install the quality gates, then keep in sync with `copier update`. Route B keeps an own design and migrates agentic infrastructure, architecture docs, OpenSpec, frontend stack, agentic workflows and .NET guardrails in dependency order.
+- [`platform-upstream`](../skills/platform-upstream/SKILL.md) handles a change to a platform path in a family app: Kitchen-Sink first and the template carries it, or a dated exception until it does.
 
 **Workflow**
-- `platform-onboard`: onboard a brownfield project onto the Platform stack (pnpm, Next.js, shadcn, FSD, inversify-hooks, react-i18next, Biome, OpenSpec)
+- `platform-new-project`: create a new family app from the Kitchen-Sink blueprint and template
+- `platform-onboard`: bring an existing project onto the Platform (adopt the template and converge, or migrate pnpm, the Next.js static export, shadcn, FSD with Steiger, inversify-hooks, react-i18next, Biome, OpenSpec)
+- `platform-upstream`: move a platform change into Kitchen-Sink first, or record a dated exception
 - `openspec-propose`: propose a change with design, specs, tasks
 - `openspec-explore`: thinking partner for ideas and investigation
 - `openspec-apply-change`: implement tasks from an OpenSpec change
