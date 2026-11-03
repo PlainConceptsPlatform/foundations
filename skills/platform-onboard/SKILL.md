@@ -1,38 +1,140 @@
 ---
 name: platform-onboard
-description: Onboard a brownfield project onto the Plain Concepts Platform stack. Use when the user says "onboard this project", "adopt platform standards", "migrate to Platform Foundations", "align with Frontend-Foundations", or wants to add pnpm, Next.js, shadcn/ui, FSD, inversify-hooks, react-i18next, Biome, or OpenSpec to an existing project. Also use when another skill needs to reference the onboarding sequence or preflight checks.
+description: Bring an existing project onto the Plain Concepts Platform. For a Platform family app, adopt the Kitchen-Sink template with Copier and converge each capability onto it (preflight, adopt, converge, quality gates, template sync); for an own design app, migrate one domain at a time. Use when the user says "onboard this project", "join the family", "adopt the Kitchen-Sink template", "adopt platform standards", "migrate to Platform Foundations", or wants to add pnpm, a Next.js static export, shadcn/ui, FSD with Steiger, inversify-hooks, react-i18next, Biome, or OpenSpec to an existing project. Also use when another skill needs the onboarding sequence or its preflight checks.
 ---
 
 # Platform Onboard
 
-Bring a brownfield project onto the Plain Concepts Platform stack. The migration follows a fixed sequence of six domains, each with binary preflight checks. Start at the first failing check and work down.
+Bring an existing project onto the Plain Concepts Platform. There are two routes, and the first decision is which one applies.
+
+- **Route A, join the family.** The app becomes a member of the Platform app family: its platform code (session and auth, permissions, audit, feature flags, errors, security headers, the API surfaces, the web shell) comes from the Kitchen-Sink template with Copier and stays identical to the other members. This is the default for a Platform product app with a .NET API and a web app. It needs read access to `PlainConceptsPlatform/Kitchen-Sink`, which is private.
+- **Route B, own design.** The app keeps its own platform code and adopts the Platform conventions domain by domain. Use it when the app cannot share the family's platform code (a different backend, no web app, a library), or when Kitchen-Sink is not accessible.
+
+For a repository with no code yet, use `platform-new-project` instead. For a change to platform code after the app has joined, use `platform-upstream`.
+
+The rules both routes implement are in Foundations `ai/ARCHITECTURE.md`: "Platform family" (ownership, the family files, conformance, upstream first), "API surfaces", "REST", and the frontend and backend sections. Read them before starting.
 
 ## Scope
 
-This checklist targets **consumer Platform applications**, not the foundation repo itself.
+This skill targets **consumer Platform applications**, not the Foundations repository itself.
 
-The Foundations repo deliberately fails some of these checks, and that is correct rather than a gap to close: it keeps its canonical docs in `ai/` (so the docs site can sync them into a Reference section), it publishes the theme rather than consuming it, and it has no `views/` or `entities/` because it is a docs site and two packages, not a product app. Do not "fix" the foundation to satisfy a checklist written for the apps that depend on it.
+Foundations deliberately fails some of these checks, and that is correct rather than a gap to close: it keeps its canonical docs in `ai/` (so the docs site can sync them into a Reference section), it publishes the theme rather than consuming it, and it has no `pages/` or `entities/` layers because it is a docs site and two packages, not a product app. Do not "fix" the foundation to satisfy a checklist written for the apps that depend on it.
 
-## The six domains
+## Route A: adopt the Kitchen-Sink template
 
+Five steps, in order, each as its own pull request (or a series of them for step 3).
+
+```text
+A1. PREFLIGHT     binary checks + a capability inventory, nothing changed
+A2. ADOPT         copier copy --overwrite: platform paths in, app untouched, build green
+A3. CONVERGE      one capability at a time onto the platform code, app copy deleted
+A4. QUALITY GATES workflows add --template quality-gates, floors in quality.config.json
+A5. TEMPLATE SYNC copier update for every new template tag, conformance checked
 ```
-1. AGENTIC INFRA          Platform Harness + .opencode/ + agents + skills/
+
+### A1. Preflight
+
+Scan before touching anything. Each check is binary. Record the results in the OpenSpec change that opens the adoption, so the person sees the whole gap.
+
+| Check | How to detect | Pass condition |
+|---|---|---|
+| Template access | `git ls-remote https://github.com/PlainConceptsPlatform/Kitchen-Sink.git 'refs/tags/v*'` | Lists tags. If it fails, stop: take Route B or ask for access |
+| Copier | `copier --version` | 9.4 or newer (`pipx install copier`) |
+| Not yet adopted | `.copier-answers.yml` absent | Absent. If present, the app has joined: go to A5 |
+| Layout | `apps/api/` holds the .NET solution with `Directory.Packages.props`; `apps/web/` is the pnpm web package | Both present. A different layout is moved first, as its own change |
+| Web shape | `apps/web/next.config.*` has `output: "export"`, the root `app/page.tsx` mounts the SPA, react-router routes it, FSD layers in `apps/web/src/` with `pages/` and an empty root `apps/web/pages/.gitkeep` | All true. Otherwise run Route B domain 4 for the web first |
+| Harness | `.opencode/harness.json` exists | Present (Route B domain 1) |
+| Workflows | `.github/workflows/work-router.yml` carries the `Managed by @plainconceptsplatform/workflows` header | Present (Route B domain 5) |
+| Characterization tests | Integration tests over sign-in, permissions, audit and the error contract; Playwright over the main routes | Present and green. They are what proves each convergence step kept behaviour |
+| Clean tree | `git status --porcelain` | Empty, on a new branch |
+
+Then write the **capability inventory**: one row per family module (auth and session; users, roles and permissions; settings; audit log; email; impersonation; MCP; changelog; health; security headers; rate limiting; i18n; web shell; section feature flags; guided tour; B2B), with the path of the app's own implementation or "missing". This list drives A3.
+
+### A2. Adopt
+
+```bash
+copier copy --trust --defaults --overwrite -d app_name=<Name> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .
+```
+
+Copier writes the paths listed in the template's `.platform/manifest` (the neutral platform paths `apps/api/src/Platform/**` and `apps/web/src/shared/platform/**`, `Directory.Packages.Platform.props`, the pnpm `platform` catalog, the deploy workflow, `docs/platform/`, the capability specs) and `.copier-answers.yml`, and nothing else. Check it with `git status`: a changed file outside the manifest means the template is misconfigured, so stop and report it upstream.
+
+Then make the adoption build, in the same pull request:
+
+1. Import `Directory.Packages.Platform.props` from `Directory.Packages.props`, and make the web package take its platform dependencies from `catalog:platform`. Remove the app's own versions of those packages.
+2. Reference the platform projects from the API and add the app-side pieces the platform code reads through its ports: the permission catalog, the feature catalog, the audit event list. These are app files.
+3. Leave the app's own implementations in place and running. Nothing switches over yet.
+4. If a platform file cannot coexist with the app yet, do **not** edit it. Restore the app's file, and add the path to `.platform/exceptions.yml` with a reason, an issue and an `expires` date.
+
+The pull request is green when the app builds and its existing tests pass with the platform code present but unused.
+
+### A3. Converge, one capability at a time
+
+Each capability is its own OpenSpec change and pull request. A suggested order, which keeps every step small:
+
+1. Errors (the exception hierarchy and the ProblemDetails envelope), because every later step returns errors.
+2. Auth and session (the BFF cookie session and CSRF), then users, roles and permissions.
+3. Audit log.
+4. Security headers, crawler rules and rate limiting.
+5. Section feature flags, settings, email, impersonation, health.
+6. i18n and the web shell (layout, sidebar, theme provider and anti-flash script, tour, changelog).
+7. The API surfaces: MCP (Entra and Forge tokens, no own OAuth server) and B2B (Entra app tokens with app roles).
+8. REST: every endpoint to HAL-FORMS (`_links` and `_templates`, correct verbs, `201` with `Location`, ProblemDetails, `ETag`/`If-Match`, link pagination, transitions as resources), and the SPA rendering its actions from `_templates`.
+
+For each capability:
+
+1. Run the characterization tests and keep them as they are; they are the contract.
+2. Move every caller onto the platform code.
+3. Delete the app's own implementation completely: endpoints, ports, implementations, entities and their migration, seeded permissions, web routes and menu items, tests and specs that described the old version. A half-removed copy compiles and misleads the next agent.
+4. Remove the capability's paths from `.platform/exceptions.yml`, if they were there.
+5. The tests pass, unchanged except where the platform contract deliberately differs (an error code, a status code); each such difference is listed in the change.
+
+When the platform code lacks something the app needs, that is not a reason to edit it here. Use `platform-upstream`: the change goes to Kitchen-Sink first, or the app carries a dated exception until it does.
+
+### A4. Quality gates
+
+```bash
+npx @plainconceptsplatform/workflows add --template quality-gates
+```
+
+This installs the gate scripts, the Semgrep hygiene rules, `.jscpd.json`, the `.zap/` rules and the gates CI, managed by the workflows package. Move the app's coverage and mutation floors out of its own scripts into `quality.config.json`, keep its complexity and duplication baselines and its triaged DAST alerts as app files, and delete the app's own copies of the scripts. The floors do not move down: keep the measured values the app already had.
+
+### A5. Template sync
+
+For every new Kitchen-Sink tag:
+
+```bash
+copier update --trust --defaults --conflict inline
+```
+
+One pull request per tag, through the same gates as any change. A platform file the app had changed comes back with `<<<<<<< before updating` / `>>>>>>> after updating` markers: take the template's side, or, if the app's side is the better code, move it upstream with `platform-upstream`. Then check conformance: every manifest path identical to the tag in `.copier-answers.yml`, except live exceptions.
+
+### Route A is complete when
+
+- `.copier-answers.yml` names the latest template tag.
+- Every manifest path is identical to that tag, except entries in `.platform/exceptions.yml`, each with a reason, an issue and an `expires` date that has not passed.
+- The capability inventory has no app-owned implementation left.
+- The quality-gates template is installed and the floors live in `quality.config.json`.
+- The app's `ARCHITECTURE.md` describes the app's own domain and links to `docs/platform/` for the platform capabilities.
+- Route B domains 1, 2, 3, 5 and 6 pass (harness, docs, OpenSpec, workflows, .NET guardrails).
+
+## Route B: own design, one domain at a time
+
+Six domains, each with binary preflight checks. Start at the first failing check and work down.
+
+```text
+1. AGENTIC INFRA          Platform Harness + .opencode/ + agents + skills
 2. ARCHITECTURE DOCS      ARCHITECTURE.md + DESIGN.md + guardrails
 3. OPENSPEC               openspec/ change management
-4. FRONTEND STACK         pnpm -> Next -> Tailwind v4 -> shadcn -> Biome
-                           -> FSD + Steiger -> inversify-hooks
+4. FRONTEND STACK         pnpm -> Next static export -> Tailwind v4 -> shadcn
+                           -> Biome -> FSD + Steiger -> inversify-hooks
                            -> react-i18next -> Platform theme
 5. AGENT AUTOMATION       one work router owning every trigger, gh-aw markdown
                            workers on agents-arc with engine: opencode
-                           against Forge + GitHub labels
-6. BACKEND GUARDRAILS     (if .NET) plain-dotnet-guardrails, arch tests
+                           against Forge, the quality-gates template
+6. BACKEND GUARDRAILS     (if .NET) build hygiene, arch tests, Aspire, search engines
 ```
 
 Domains 1 through 3 are prerequisites for 4 and 5. Domain 6 runs in parallel with 4 for .NET projects.
-
-## Preflight
-
-Scan all six domains before touching anything. Each check is binary: the artifact either exists or it doesn't. Record results so the user sees the full gap.
 
 ### Domain 1: Agentic infra
 
@@ -41,16 +143,19 @@ Scan all six domains before touching anything. Each check is binary: the artifac
 | Harness config | `.opencode/harness.json` exists | File present with valid JSON |
 | Agent definitions | `.opencode/agents/` has at least 3 `.md` files | frontend, backend, fullstack |
 | Command definitions | `.opencode/commands/` has `.md` files | At least init, plan-propose, plan-apply |
-| Skill installation | `skills/` exists | Directory contains the project skills |
 | Root AGENTS.md | `AGENTS.md` exists at repo root | File present, references agent files |
+
+Run `npx @plainconceptsplatform/agent-harness@latest` in the repository root, then `/repo-initialize`. On a repository that already has the harness, `npx @plainconceptsplatform/agent-harness@latest update` pulls in the current release and preserves files edited by hand.
 
 ### Domain 2: Architecture docs
 
 | Check | How to detect | Pass condition |
 |---|---|---|
-| ARCHITECTURE.md | `ARCHITECTURE.md` or `ai/ARCHITECTURE.md` exists | Not a placeholder (more than 10 lines) |
-| DESIGN.md | `DESIGN.md` or `ai/DESIGN.md` exists | Not a placeholder (more than 10 lines) |
-| Project guardrails | `skills/pc-guardrails-project/SKILL.md` exists | File present when project guardrails are used |
+| ARCHITECTURE.md | `ARCHITECTURE.md` exists | Not a placeholder (more than 10 lines) |
+| DESIGN.md | `DESIGN.md` exists | Not a placeholder (more than 10 lines) |
+| Project guardrails | `.agents/skills/pc-guardrails-project/SKILL.md` exists | Present when project guardrails are used |
+
+Run `/make-architecture`, `/make-design` and `/make-guardrails`. They are idempotent; re-run them after any significant codebase change.
 
 ### Domain 3: OpenSpec
 
@@ -59,22 +164,31 @@ Scan all six domains before touching anything. Each check is binary: the artifac
 | OpenSpec config | `openspec/config.yaml` exists | File present |
 | Archive directory | `openspec/changes/archive/` exists | Directory present |
 
+Run `openspec init`. Each domain below is its own OpenSpec change; do not batch domains into one change.
+
 ### Domain 4: Frontend stack
 
 | Check | How to detect | Pass condition |
 |---|---|---|
 | pnpm | `pnpm-lock.yaml` exists, no `package-lock.json` or `yarn.lock` | Single lockfile, pnpm |
-| Next.js | `next.config.*` exists with `output: "export"` or App Router | Config present |
+| Next.js static export | `next.config.*` sets `output: "export"`; one page mounts the SPA; react-router routes it | Next is the build shell, not the router |
 | Tailwind v4 | CSS file contains `@import "tailwindcss"` | v4 syntax, not v3 `@tailwind` directives |
 | shadcn/ui | `components.json` exists | Config present with style + aliases |
-| Biome | `biome.json` exists, no `eslint.config.*` | Biome is sole linter |
-| FSD structure | `src/app/`, `src/pages/` or `src/shared/` exist | Canonical layer dirs present |
-| Steiger | `steiger.config.*` exists | FSD linter configured |
-| inversify-hooks | `inversify-hooks` in `package.json` deps + composition root file exists | DI container registered |
+| Biome | `biome.json` exists, no `eslint.config.*` other than a complexity-only one | Biome is the linter and formatter |
+| FSD structure | `src/app/`, `src/pages/`, `src/shared/` exist; slices use canonical segments (`pages/x/ui/XPage.tsx`) | Canonical layer names, no `views/` |
+| Root pages guard | Empty `pages/.gitkeep` next to the root `app/` | Next does not read `src/pages` as its Pages Router |
+| Steiger | `steiger.config.*` exists and `lint:fsd` runs in CI | FSD boundaries fail the build |
+| inversify-hooks | `inversify-hooks` in deps + a composition root under `src/app/providers/` | DI container registered |
 | react-i18next | `react-i18next` + `i18next` in deps + message files exist | i18n infrastructure in place |
-| Platform theme | `@plainconceptsplatform/ui-theme` in `package.json` deps | Tokens package installed |
-| Platform components | `@plainconceptsplatform/ui-components` in `package.json` deps (optional) | Shared components installed |
-| Section feature flags | `FeatureProvider` from `@plainconceptsplatform/ui-components/feature-flags` at the app root (optional, only when the app has sections in development) | Unfinished sections are flagged, see "Section feature flags" in `ARCHITECTURE.md` |
+| Platform theme | `@plainconceptsplatform/ui-theme` in deps | Tokens package installed |
+| Platform components | `@plainconceptsplatform/ui-components` in deps (optional) | Shared components installed |
+| Section feature flags | `FeatureProvider` from `@plainconceptsplatform/ui-components/feature-flags` at the app root (only when the app has sections in development) | Unfinished sections are flagged |
+
+This is the largest domain. Read `references/frontend-migration.md` before starting. The steps run in a strict order, each as its own OpenSpec change, with Playwright characterization tests captured before the first one and run after every step:
+
+```text
+pnpm -> Next.js static export -> Tailwind v4 -> shadcn/ui -> Biome -> FSD + Steiger -> inversify-hooks -> react-i18next -> Platform theme
+```
 
 ### Domain 5: Agent automation
 
@@ -84,115 +198,53 @@ The Platform default is **GitHub Agentic Workflows installed by `@plainconceptsp
 |---|---|---|
 | Work Router | `.github/workflows/work-router.yml` carries the `Managed by @plainconceptsplatform/workflows` header | One package-managed router present |
 | Workers | Each `agent-*.md` declares `workflow_call` and no public trigger | Router owns every entry point |
-| Caller grants | Each calling job sets `permissions: write-all` | Calls are not rejected at startup |
 | Runner wiring | Each `.md` sets both `runs-on` and `runs-on-slim` | Framework jobs land on the same runner |
 | Engine | Each `.md` sets `engine.id: opencode` with `OPENAI_BASE_URL` pointed at Forge | Traffic reaches the gateway |
 | Compiled locks | Each `.md` has a committed `.lock.yml` | Actions runs what the source says |
-| Checks | A pull-request workflow runs actionlint, shellcheck, the route matrix, and the manifest lint | The gaps the compiler cannot see are covered |
-| GitHub labels | `gh label list` includes the workflow intent labels | Label set created |
+| Quality gates | The `quality-gates` template is installed and `quality.config.json` holds the floors | The engineering gates run from the managed scripts |
 
-Self-hosted runners, the `agents-arc` fleet included, are only for private or internal repositories. Never attach one to a public repository: a pull request from a fork would execute arbitrary code on it, with whatever credentials it holds.
+1. Run `gh aw init --no-mcp --no-skill --no-agent`. The flags suppress Copilot Chat scaffolding that Platform does not use.
+2. Install the router, workers, composite actions, compile script and `opencode.ci.json` with `npx @plainconceptsplatform/workflows` (the TUI) or `npx @plainconceptsplatform/workflows@latest add <routes>`, and the gates with `add --template quality-gates`. Do not copy files by hand: `workflows update` refreshes package-managed files and keeps each worker's `env:` block.
+3. Add the per-repository `FORGE_API_KEY`, plus the organization `BOT_APP_ID` and `BOT_PRIVATE_KEY` secrets for the Platform App.
+4. Set each worker's `env:` values (`VERIFY_COMMANDS`, `REPO_RULES` and the other repository-owned rules), `CI_WORKFLOW_NAME` and a free `AUDIT_CRON` slot in the router, and make the CI's last job dispatch the merge train (`dispatch-merge-train` in the package's CI templates). The `workflow-consumer` skill from `PlainConceptsPlatform/agentic-workflows` covers each value.
+5. Compile with `node scripts/compile-agent-workflows.mjs`, never bare `gh aw compile`, and **watch one real event end to end**. The compiler and actionlint both pass on workflows that produce zero jobs at runtime.
 
-For a repository that is not on GitHub at all, [loop-task](https://github.com/PlainConceptsPlatform/loop-task) runs the same work on a schedule from any machine.
+Never attach a self-hosted runner, the `agents-arc` fleet included, to a public repository: a pull request from a fork would execute arbitrary code on it. For a repository that is not on GitHub, [loop-task](https://github.com/PlainConceptsPlatform/loop-task) runs the same work on a schedule.
 
 ### Domain 6: Backend guardrails (.NET only)
 
-Skip if no `.csproj` or `.slnx` files. Otherwise:
+Skip if there are no `.csproj` or `.slnx` files.
 
 | Check | How to detect | Pass condition |
 |---|---|---|
-| Directory.Build.props | `Directory.Build.props` exists at solution root | Build defaults configured |
+| Directory.Build.props | Exists at the solution root | Build defaults configured |
 | Central Package Management | `Directory.Packages.props` exists | CPM enabled |
-| .editorconfig | `.editorconfig` exists at root | Code style rules present |
-| Architecture tests | Test project with arch test references | Arch test project exists |
-| Aspire AppHost | An `*.AppHost` project exists in the solution | Local orchestration is Aspire |
+| .editorconfig | Exists at root, `EnforceCodeStyleInBuild` on | Code style rules fail the build |
+| Architecture tests | A test project with NetArchTest layer rules | Layer direction enforced |
+| Aspire AppHost | An `*.AppHost` project exists | Local orchestration is Aspire |
 | ServiceDefaults | An `*.ServiceDefaults` project exists and the API references it | Telemetry and health defaults shared |
 | AppHost dev script | Root `package.json` `dev` script runs the AppHost | One command starts the whole system |
 | No docker-compose | No `docker-compose.yml` at repo root | The AppHost is the only composition |
 | Noindex header | A middleware registered first sets `X-Robots-Tag` | `X-Robots-Tag: noindex, nofollow` on every response, including static files and errors |
 | robots.txt switch | `/robots.txt` served behind `Robots:DisallowAll` | `Disallow: /` when on; switched on only after the noindex header is live (new hostnames: from day one) |
-| No anonymous content at the root | Request `/` without a session | Redirects to the Entra ID sign-in (or a sign-in screen with no branding while it redirects) |
+| No anonymous content at the root | Request `/` without a session | Redirects to the Entra ID sign-in |
 
-## Execution
+Add the noindex header first and ship it before switching robots.txt on. For a repository still orchestrating locally with docker-compose, the move to Aspire is one OpenSpec change: add `{Project}.ServiceDefaults` and `{Project}.AppHost` (SQL Server with a persistent lifetime and data volume, the API with `.WithReference(...).WaitFor(...)`, the web app through `AddPnpmApp` on its fixed dev port), switch EF Core to the Aspire client integration, delete the compose files, and point the root `dev` script at the AppHost.
 
-Process domains in order. For each domain:
+### Route B is complete when
 
-1. If all checks pass, skip.
-2. If any check fails, create an OpenSpec change for that domain.
-3. Run the change through `propose -> apply -> evidence -> archive`.
-4. After archive, re-run the preflight for that domain to confirm.
-
-### Domain 1: Agentic infra
-
-Run `npx @plainconceptsplatform/agent-harness@latest` in the repository root. That installs the Plain Concepts Platform Harness: `.opencode/` with agents and commands, the `pc-*` skills, and `harness.json`. Then run `/repo-initialize` to generate the architecture and design documentation for a brownfield project and activate the agent team.
-
-On a repository that already has the harness, `npx @plainconceptsplatform/agent-harness@latest update` pulls in the current release without prompting and preserves files anyone has edited by hand.
-
-Keep reusable project skills in `skills/`. The agent definitions should include at minimum: `fullstack-engineer.md`, `frontend-engineer.md`, and `backend-engineer.md`.
-
-### Domain 2: Architecture docs
-
-Run `/make-architecture` to generate `ARCHITECTURE.md` from the codebase and `/make-design` to generate `DESIGN.md`. Record project-specific conventions in a project guardrail skill when one is needed, and make it available to the agents that implement changes.
-
-These commands are idempotent. Re-run them after any significant codebase change.
-
-### Domain 3: OpenSpec
-
-Run `openspec init` to create `openspec/config.yaml` and the archive directory. If the project already has an `openspec/` directory, verify `config.yaml` is valid.
-
-Each domain below generates its own OpenSpec change. Do not batch domains into one change.
-
-### Domain 4: Frontend stack
-
-This is the largest domain. Read `references/frontend-migration.md` before starting. The migration has a strict dependency order:
-
-```
-pnpm -> Next.js -> Tailwind v4 -> shadcn/ui -> Biome -> FSD + Steiger -> inversify-hooks -> react-i18next -> Platform theme
-```
-
-Each step is an OpenSpec change. Capture Playwright characterization tests before the first migration step to preserve visual and behavioral parity. Run these tests after every step.
-
-### Domain 5: Agent automation
-
-The Platform default is **Agentic Workflows from `@plainconceptsplatform/workflows`, on the `agents-arc` fleet**. Private and internal repositories only.
-
-1. Run `gh aw init --no-mcp --no-skill --no-agent`. The extra flags matter: the scaffolding they suppress is for authoring workflows with GitHub Copilot Chat, which Platform does not use, and it comes back every time you rerun `init` without them.
-2. Install the router, workers, composite actions, compile script and `opencode.ci.json` with `npx @plainconceptsplatform/workflows` (the TUI) or `npx @plainconceptsplatform/workflows@latest add <routes>`. The shape is **one router that owns every trigger and workers that have none**, so do not give a worker its own trigger. Do not copy files by hand: `workflows update` refreshes package-managed files and keeps each worker's `env:` block.
-3. Add the per-repository `FORGE_API_KEY` for the configured gateway, plus the organization `BOT_APP_ID` and `BOT_PRIVATE_KEY` secrets for the Platform App that lifecycle writes are attributed to.
-4. Set each worker's `env:` values: `VERIFY_COMMANDS` (the repository's own verification command, such as `pnpm verify`), `REPO_RULES` and the other repository-owned rules. In the router, set `CI_WORKFLOW_NAME` to the CI's name and pick a free `AUDIT_CRON` slot. Make the CI's last job dispatch the merge train (`dispatch-merge-train` in the package's CI templates). The self-contained `workflow-consumer` skill from [`PlainConceptsPlatform/agentic-workflows`](https://github.com/PlainConceptsPlatform/agentic-workflows) covers each value.
-5. Labels are created the first time a workflow applies them; nothing needs creating up front.
-6. Compile with `node scripts/compile-agent-workflows.mjs`, never bare `gh aw compile`, lint, and then **watch one real event end to end**. The compiler and actionlint both pass on workflows that produce zero jobs at runtime.
-
-If the repository is not on GitHub, [loop-task](https://github.com/PlainConceptsPlatform/loop-task) covers the same ground on a schedule. When migrating a repository that still has `.loops/recipes/`, keep the recipes until the workflows reproduce their behaviour; they are the record of what to reproduce.
-
-### Domain 6: Backend guardrails
-
-Only for .NET projects. Read the `plain-dotnet-guardrails` skill for what to check. The key artifacts are `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig`, and an architecture test project.
-
-The three search-engine checks (noindex header, robots.txt switch, no anonymous content at the root) are mandatory for every Platform app; see "Keeping Platform apps out of search engines" in `ai/ARCHITECTURE.md`. Add the header first and ship it before switching robots.txt on.
-
-For a repo still orchestrating locally with docker-compose, migrate it to the Platform Aspire pattern (it is one OpenSpec change, not part of the guardrails pass):
-
-1. Add a `{Project}.ServiceDefaults` project and reference it from every service; fold any hand-rolled OpenTelemetry wiring from `Program.cs` into its exporter section.
-2. Add a `{Project}.AppHost` project: SQL Server with `WithLifetime(ContainerLifetime.Persistent)` and `WithDataVolume()`, one database resource per connection name, the API with `.WithReference(...).WaitFor(...)` on every resource, and the web frontend via `AddPnpmApp` on its existing fixed dev port with `.WithPnpmPackageInstallation()`. Redis joins with `.WithRedisCommander()` where used.
-3. Swap plain EF Core registration for the Aspire client integration (`Aspire.Microsoft.EntityFrameworkCore.SqlServer`) so connection strings are injected by name; remove hardcoded dev connection strings from `appsettings.Development.json`.
-4. Delete `docker-compose.yml` and `docker-compose.override.yml`. The AppHost is the only composition; the production container keeps coming from the Dockerfile and Bicep, not Compose.
-5. Make the root `dev` script run `dotnet run --project` on the AppHost and update the README quickstart around it. Verify with the full build, the AppHost run (`/health` returns 200, web loads), and the test suite.
-
-## Completion criteria
-
-The onboard is complete when every preflight check across all six domains passes. Verify by re-running the full preflight scan and confirming zero failures.
+Every preflight check across all six domains passes. Verify by re-running the full scan and confirming zero failures.
 
 ## Key rules
 
-Each rule below comes from a real migration. Skipping one causes rework.
+Each rule comes from a real migration. Skipping one causes rework.
 
-1. Capture characterization tests before migrating. Playwright screenshots catch regressions that manual review misses.
-2. Every domain is a separate OpenSpec change. Batching domains into one change makes review impossible.
-3. Platform theme packages are public npm packages. Install them with pnpm; no custom registry or package token is required.
-4. FSD layers use canonical names: `app/`, `pages/`, `widgets/`, `features/`, `entities/`, `shared/`. Do not use underscore-prefixed names like `_app/` or `_pages/`.
-5. inversify-hooks registration uses `cid` as the second argument to `addSingleton` for minification safety: `container.addSingleton<IContract>(HttpContract, cid.IContract)`.
-6. react-i18next from the first day of migration. Zero magic strings. Every user-facing text element must be a translation message.
-7. Biome is the sole linter. Remove ESLint config before adding Biome to avoid conflicts.
-8. Next.js uses `output: "export"` for static SPA hosting served by the backend API.
-9. The container is built at module-load time in a `'use client'` module, never inside `useEffect` (render runs first and `useInject` throws).
+1. Capture characterization tests before migrating anything. Playwright screenshots and integration tests catch regressions that review misses.
+2. Every domain, and every converged capability, is a separate OpenSpec change. Batching makes review impossible.
+3. In a family app, never edit a path listed in `.platform/manifest`. Change it in Kitchen-Sink first, or record a dated exception (`platform-upstream`).
+4. FSD layers use canonical names: `app/`, `pages/`, `widgets/`, `features/`, `entities/`, `shared/`, with canonical segments. No `views/`, no underscore-prefixed layers.
+5. Next.js builds a static export (`output: "export"`) served by the API; react-router decides routes. There are no server components or route handlers in a Platform web app.
+6. inversify-hooks registration passes `cid` as the second argument to `addSingleton`: `container.addSingleton<IContract>(HttpContract, cid.IContract)`. The container is built at module load in a client module, never inside `useEffect`.
+7. react-i18next from the first day. Zero magic strings.
+8. Biome is the linter and formatter. Remove ESLint config before adding Biome, except a complexity-only ESLint config the quality gates use.
+9. Platform theme packages are public npm packages; no custom registry or token.

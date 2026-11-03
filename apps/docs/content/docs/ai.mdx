@@ -143,17 +143,13 @@ After onboarding, open OpenCode in your project and type:
 
 For **brownfield** projects, it generates `ARCHITECTURE.md` and `DESIGN.md` from your actual codebase, archives project history into OpenSpec, and activates the agent team. For **greenfield** projects, it skips documentation generation and leaves placeholder files you can populate later with `/make-architecture` and `/make-design`.
 
-### Platform migration skill
+### Platform skills
 
-[`platform-onboard`](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-onboard)
-is the Platform Foundations skill for migrating a brownfield repository to the recommended stack.
-Use it after the agent setup is in place when the repository needs a deliberate, end-to-end adoption
-rather than a theme-only upgrade.
+Three Foundations skills cover an app's life on the Platform. Kitchen-Sink, which two of them read, is private<Internal inline />.
 
-It starts with a binary preflight across six domains, then creates and completes one OpenSpec change
-per failing domain: agentic infrastructure, architecture documentation, OpenSpec, the frontend
-stack, agentic workflows, and .NET guardrails where relevant. Frontend work begins with Playwright
-characterization tests to protect existing behavior and visual parity.
+- [`platform-new-project`](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-new-project) creates a new family app: it reads Kitchen-Sink's `BLUEPRINT.md`, takes the platform code from the Kitchen-Sink template with `copier copy`, and installs the harness, the workflows and the quality gates. Without access it builds an own design app from the public rules.
+- [`platform-onboard`](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-onboard) brings an existing repository in. A family app adopts the template (`copier copy --overwrite`) and converges one capability at a time onto it; an own design app runs a binary preflight across six domains and completes one OpenSpec change per failing domain. Both start with characterization tests, so behaviour is pinned before anything moves.
+- [`platform-upstream`](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-upstream) handles a change to platform code in a family app: into Kitchen-Sink first, then every app through the next template tag, or a dated exception until then.
 
 ### Key commands
 

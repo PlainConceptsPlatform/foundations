@@ -311,13 +311,13 @@ jobs:
     sections: [
       {
         title: "Write the rule as layers with one direction",
-        body: "A boundary rule is only checkable if it is precise. The shape most frontends need is a short list of layers, each allowed to import only from the layers below it, plus two rules inside a layer: sibling slices do not import each other (compose them one layer up instead), and a slice is imported only through its public index.ts.\n\nThe layout below is Feature-Sliced Design as Platform uses it on the Next.js App Router. views is the FSD pages layer, renamed so it does not collide with the Next.js app directory. A new app can start with app, views and shared and add the other layers when a real need appears. The direction rule is the same either way, and it is what keeps a slice safe to move or delete.",
+        body: "A boundary rule is only checkable if it is precise. The shape most frontends need is a short list of layers, each allowed to import only from the layers below it, plus two rules inside a layer: sibling slices do not import each other (compose them one layer up instead), and a slice is imported only through its public index.ts.\n\nThe layout below is Feature-Sliced Design as Platform uses it, with the canonical layer names. On Next.js the router folder sits at the project root, outside src/, and an empty root pages/ folder stops Next from reading src/pages as its Pages Router, so the FSD pages layer keeps its name. A new app can start with app, pages and shared and add the other layers when a real need appears. The direction rule is the same either way, and it is what keeps a slice safe to move or delete.",
         code: [
           {
             lang: "text",
             code: `src/
   app/        routing shell and providers (top)
-  views/      one slice per screen: invoice-list, invoice-detail
+  pages/      one slice per screen: invoice-list, invoice-detail
   widgets/    blocks that combine features: invoice-table
   features/   user actions: approve-invoice, export-invoices
   entities/   domain models and their ui: invoice, customer
@@ -326,21 +326,21 @@ jobs:
 Allowed:   features/approve-invoice  ->  entities/invoice  (through its index.ts)
 Forbidden: entities/invoice          ->  features/approve-invoice   (upward)
 Forbidden: features/approve-invoice  ->  features/export-invoices   (sibling)
-Forbidden: views/invoice-detail      ->  entities/invoice/model/invoice.ts  (internals)`,
+Forbidden: pages/invoice-detail      ->  entities/invoice/model/invoice.ts  (internals)`,
           },
         ],
       },
       {
         title: "Enforce it with dependency-cruiser",
-        body: "dependency-cruiser reads your imports, resolves them through tsconfig paths, and fails when one matches a forbidden rule. It does not care what your layers are called, which makes it the right tool when you rename a layer as above. Install it with npm install --save-dev dependency-cruiser; npx dependency-cruiser --init writes a starting configuration you can replace with the one below.\n\nEach rule has a from and a to, matched as regular expressions on file paths. The sibling rule uses a capture group: the slice name matched in from is available as $1 in to, so pathNot excludes the slice's own files. The rules are generated from the layer list, so adding a layer is a one-line change.\n\nWith the err reporter, which is the default, the command exits with the number of error-severity violations, so any violation fails the CI job. Add it as a script and as its own job, so the check shows up under its own name in the pull request.",
+        body: "dependency-cruiser reads your imports, resolves them through tsconfig paths, and fails when one matches a forbidden rule. It works with any layer names; when yours are the canonical FSD ones, Steiger (next section) is less to maintain, and it is what the Platform apps run. Install it with npm install --save-dev dependency-cruiser; npx dependency-cruiser --init writes a starting configuration you can replace with the one below.\n\nEach rule has a from and a to, matched as regular expressions on file paths. The sibling rule uses a capture group: the slice name matched in from is available as $1 in to, so pathNot excludes the slice's own files. The rules are generated from the layer list, so adding a layer is a one-line change.\n\nWith the err reporter, which is the default, the command exits with the number of error-severity violations, so any violation fails the CI job. Add it as a script and as its own job, so the check shows up under its own name in the pull request.",
         code: [
           {
             lang: "js",
             file: ".dependency-cruiser.cjs",
             code: `/** Layers from top to bottom. A layer imports only from layers after it. */
-const layers = ["app", "views", "widgets", "features", "entities", "shared"];
+const layers = ["app", "pages", "widgets", "features", "entities", "shared"];
 /** Layers made of slices, which get the sibling and public API rules. */
-const sliced = ["views", "widgets", "features", "entities"];
+const sliced = ["pages", "widgets", "features", "entities"];
 
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
@@ -493,7 +493,7 @@ public class LayerTests
             lang: "md",
             file: "AGENTS.md (excerpt)",
             code: `## Boundaries
-- Layers import only downward: app > views > widgets > features > entities > shared.
+- Layers import only downward: app > pages > widgets > features > entities > shared.
 - Import a slice through its index.ts.
 - If the Boundaries check fails, move the code to the layer that owns it.
   Never edit .dependency-cruiser.cjs or the architecture tests to make it pass;
@@ -504,7 +504,7 @@ public class LayerTests
     ],
     verify: [
       "Add an import of a feature from an entity file and run npx dependency-cruiser --config .dependency-cruiser.cjs src: it reports no-upward-imports-from-entities and exits non-zero.",
-      "Import entities/invoice/model/invoice.ts directly from a view: the public-api-only-entities rule fails.",
+      "Import entities/invoice/model/invoice.ts directly from a page: the public-api-only-entities rule fails.",
       "Add a reference from Invoices.Domain to Invoices.Infrastructure and use one of its types: dotnet test fails in LayerTests and names the dependency.",
       "Open a pull request that edits .dependency-cruiser.cjs: GitHub requests a review from the code owners and the merge waits for it.",
     ],
@@ -1108,17 +1108,21 @@ fi`,
     sections: [
       {
         title: "Slice the frontend by feature, with a public API per slice",
-        body: "Feature-Sliced Design organises code by what it does for the user rather than by technical type. A slice is a folder for one business thing (the invoice entity, the approve-invoice feature), split into segments by purpose: ui, model, api, lib. Everything about approving an invoice lives in one place and can be deleted in one place.\n\nEach slice exposes one index.ts. Other slices import from it and nowhere else, so the slice can reorganise its files without breaking anyone, and its index.ts is the list of what it promises. Name files after the domain (format-invoice-total.ts), never utils.ts or types.ts: a catch-all file is where unrelated code goes to hide.\n\nOn Next.js, keep the routes in app/ thin: a page file renders a screen from views/ and does nothing else. The boundaries guide shows how to make the layer direction break the build.",
+        body: "Feature-Sliced Design organises code by what it does for the user rather than by technical type. A slice is a folder for one business thing (the invoice entity, the approve-invoice feature), split into segments by purpose: ui, model, api, lib. Everything about approving an invoice lives in one place and can be deleted in one place.\n\nEach slice exposes one index.ts. Other slices import from it and nowhere else, so the slice can reorganise its files without breaking anyone, and its index.ts is the list of what it promises. Name files after the domain (format-invoice-total.ts), never utils.ts or types.ts: a catch-all file is where unrelated code goes to hide.\n\nPlatform apps build Next.js as a static export: the root app/ folder holds the layout and one page that mounts the SPA, react-router maps each URL to a screen in src/pages/, and the API serves the result from the same origin. A page slice uses the canonical segments, so the screen is pages/invoice-detail/ui/InvoiceDetailPage.tsx. The boundaries guide shows how to make the layer direction break the build.",
         code: [
           {
             lang: "text",
-            code: `src/
+            code: `app/
+  layout.tsx                        fonts and the theme script
+  page.tsx                          mounts the SPA, nothing else
+pages/.gitkeep                      empty: keeps Next away from src/pages
+src/
   app/
-    invoices/[number]/page.tsx       renders <InvoiceDetailView /> and nothing else
-    providers/composition-root.ts    the DI container (see below)
-  views/
+    router.tsx                      /invoices/:number -> InvoiceDetailPage
+    providers/composition-root.ts   the DI container (see below)
+  pages/
     invoice-detail/
-      ui/invoice-detail-view.tsx
+      ui/InvoiceDetailPage.tsx
       index.ts
   features/
     approve-invoice/
@@ -1295,8 +1299,8 @@ export default [
         ],
       },
       {
-        title: "On .NET: vertical slices, one place for versions, rules that fail the build",
-        body: "The backend follows the same idea. Projects are the Clean Architecture layers (Domain, Application, Infrastructure, Api) with the dependency arrow pointing inward, and inside each layer the code is grouped by feature, not by type: everything for approving an invoice lives under Invoices/ApproveInvoice. Commands change state and return a result; queries read and never mutate. Domain errors are return values (for example with ErrorOr, mapped to RFC 7807 ProblemDetails at the endpoint), not exceptions.\n\nThree files at the solution root keep every project consistent. Directory.Build.props sets the build defaults once: nullable on, warnings as errors, code style enforced in the build. Directory.Packages.props turns on Central Package Management, so every package has one version for the whole solution and project files carry no Version attributes. .editorconfig sets rule severities; with EnforceCodeStyleInBuild, an IDE rule set to error fails dotnet build on the CI runner, not only in the editor.\n\nRegister handlers by convention rather than one line each, for example with Scrutor's assembly scanning, so a new slice cannot be forgotten in Program.cs.",
+        title: "On .NET: contexts behind ports, one place for versions, rules that fail the build",
+        body: "The backend follows the same idea. Projects are the Clean Architecture layers (Domain, Application, Infrastructure, Api) with the dependency arrow pointing inward, and inside each layer the code is grouped by bounded context, not by type: Application declares the Invoices ports and DTOs, and Infrastructure holds the one or two services that implement them. Another context reaches invoices only through those ports. Expected failures are a few domain exceptions (not found, conflict, domain rule) that one exception handler maps to RFC 9457 ProblemDetails with a stable code, so every endpoint answers errors the same way.\n\nThree files at the solution root keep every project consistent. Directory.Build.props sets the build defaults once: nullable on, warnings as errors, code style enforced in the build. Directory.Packages.props turns on Central Package Management, so every package has one version for the whole solution and project files carry no Version attributes. .editorconfig sets rule severities; with EnforceCodeStyleInBuild, an IDE rule set to error fails dotnet build on the CI runner, not only in the editor.\n\nRegister services by hand in one DependencyInjection.cs per layer. It is one line per service, and it is the one place that shows which implementation backs each port, including the stub an integration falls back to; an integration test that resolves every endpoint catches a forgotten line.",
         code: [
           {
             lang: "xml",
@@ -1320,8 +1324,7 @@ export default [
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="ErrorOr" Version="2.1.1" />
-    <PackageVersion Include="Scrutor" Version="7.0.0" />
+    <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.14" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="NetArchTest.Rules" Version="1.3.2" />
@@ -1331,7 +1334,7 @@ export default [
   </ItemGroup>
 </Project>
 
-<!-- In each .csproj, no Version attribute: <PackageReference Include="ErrorOr" /> -->`,
+<!-- In each .csproj, no Version attribute: <PackageReference Include="FluentValidation" /> -->`,
           },
           {
             lang: "ini",
@@ -1348,17 +1351,27 @@ dotnet_diagnostic.IDE0040.severity = warning`,
           },
           {
             lang: "csharp",
-            file: "src/Invoices.Api/Program.cs (excerpt)",
-            code: `// src/Invoices.Application/Invoices/ApproveInvoice/ApproveInvoiceCommand.cs
-// src/Invoices.Application/Invoices/ApproveInvoice/ApproveInvoiceHandler.cs
-// src/Invoices.Api/Endpoints/Invoices/ApproveInvoiceEndpoint.cs
+            file: "src/Invoices.Infrastructure/DependencyInjection.cs",
+            code: `// src/Invoices.Application/Invoices/IInvoiceCommandService.cs   the port
+// src/Invoices.Infrastructure/Invoices/InvoiceCommandService.cs   the service
+// src/Invoices.Api/Endpoints/InvoiceEndpoints.cs                  thin endpoints
 
-// Every handler in Application is registered by convention.
-builder.Services.Scan(scan => scan
-    .FromAssemblyOf<ApproveInvoiceHandler>()
-    .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)))
-    .AsImplementedInterfaces()
-    .WithScopedLifetime());`,
+public static class DependencyInjection
+{
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
+    {
+        services.AddScoped<IInvoiceCommandService, InvoiceCommandService>();
+        services.AddScoped<IInvoiceReadService, InvoiceReadService>();
+
+        // The stub or the real integration, chosen here and nowhere else.
+        if (config.GetValue<bool>("Payments:Enabled"))
+            services.AddHttpClient<IPaymentProvider, HttpPaymentProvider>();
+        else
+            services.AddSingleton<IPaymentProvider, StubPaymentProvider>();
+
+        return services;
+    }
+}`,
           },
         ],
       },
@@ -1386,6 +1399,143 @@ builder.Services.Scan(scan => scan
       {
         label: "Central Package Management",
         href: "https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management",
+      },
+    ],
+  },
+  // 6. Start from a living template
+  {
+    problem:
+      "Four apps started from the same reference app a year ago. Each copy of the sign-in, the permission checks and the audit chain has been fixed since, a little differently each time. A security fix lands in one app and nobody remembers the other three, and when an agent is asked why two apps answer the same error differently, the honest answer is that nobody knows which copy is right.",
+    sections: [
+      {
+        title: "Decide what is platform, and write the list down",
+        body: "A template only stays useful if it is clear which files it owns. List them in one file, one glob per line, relative to the repository root: the shared backend code, the shared web code, the deploy workflow, the documentation of that code. Everything not on the list belongs to the app, and the template never touches it.\n\nPut the shared code at paths that do not carry the app's name, such as apps/api/src/Platform/ and apps/web/src/shared/platform/. A file whose namespace or import path contains the app name is different in every app by construction, so it can never be compared and every update to it is a conflict. The shared code reads app-specific things (the permission catalog, the list of audit events) through an interface the app implements, never by importing app code.\n\nKeep agent and workflow configuration off the list. Those files already have an installer that owns them, and two owners for one file means each update undoes the other.",
+        code: [
+          {
+            lang: "text",
+            file: ".platform/manifest",
+            code: `# Platform-owned paths. Only the template changes them.
+apps/api/src/Platform/**
+apps/web/src/shared/platform/**
+apps/api/Directory.Packages.Platform.props
+docs/platform/**
+.github/workflows/app-deploy.yml
+.platform/manifest`,
+          },
+        ],
+      },
+      {
+        title: "Turn the reference app into a Copier template",
+        body: 'Copier copies a template into a project and, later, updates the project to a newer template version with a three-way merge, so a local edit is kept or shown as a conflict instead of silently overwritten. The template can be a working application: tag its releases (v1.4.0) and those tags are the template versions.\n\nA working app has far more files than the template owns, so the exclude list is include-only. It excludes everything first, then re-includes each manifest path. The order matters: the "**" line must come first, and a broad re-include such as "!*/" or "!**/" brings every file back. Generate this list from the manifest and add a check that fails when the two disagree, so they cannot drift.\n\nThe answers file is what records which template version an app is on. Copier renders it from a .jinja file at the template root, and its presence in an app is also the simplest marker that the app is opted in.',
+        code: [
+          {
+            lang: "yaml",
+            file: "copier.yml (at the reference app's root)",
+            code: `_min_copier_version: "9.4.0"
+
+# Generated from .platform/manifest. "**" must stay first.
+_exclude:
+  - "**"
+  - "!apps/api/src/Platform/**"
+  - "!apps/web/src/shared/platform/**"
+  - "!apps/api/Directory.Packages.Platform.props"
+  - "!docs/platform/**"
+  - "!.github/workflows/app-deploy.yml"
+  - "!.platform/manifest"
+  - "!.copier-answers.yml"
+
+app_name:
+  type: str
+  help: The app's name, in PascalCase`,
+          },
+          {
+            lang: "text",
+            file: ".copier-answers.yml.jinja",
+            code: "{{ _copier_answers|to_nice_yaml -}}",
+          },
+        ],
+      },
+      {
+        title: "Adopt it, update it, and date every exception",
+        body: "An app joins with copier copy and --overwrite: the platform paths are written, everything else is left as it is. Taking a new template version is copier update, in its own pull request, through the same checks as any other change. With --conflict inline, a platform file the app changed locally comes back with conflict markers, which is the signal that the change belongs in the template.\n\nSometimes an app has to differ for a while: a capability it has not moved onto the shared code yet, or a fix it needs before the template ships it. Record that in the app, with a reason, an issue and an expiry date. An exception without a date becomes the new normal; one with a date turns back into a failure when the date passes, and someone has to decide again.",
+        code: [
+          {
+            lang: "bash",
+            code: `# Join: platform paths only, local versions overwritten
+copier copy --trust --defaults --overwrite -d app_name=Invoices \\
+  https://github.com/acme/reference-app.git .
+
+# Take the next template version, in its own pull request
+copier update --trust --defaults --conflict inline`,
+          },
+          {
+            lang: "yaml",
+            file: ".platform/exceptions.yml",
+            code: `exceptions:
+  - path: apps/web/src/shared/platform/shell/**
+    reason: The invoices shell keeps its own sidebar until the export menu moves upstream.
+    issue: https://github.com/acme/invoices/issues/412
+    expires: 2026-12-15`,
+          },
+        ],
+      },
+      {
+        title: "Check conformance in CI",
+        body: "Conformance is a plain question: are the platform paths identical to the template version the answers file names? git answers it without any extra tool. Fetch that tag from the template repository, then diff the working tree against it, limited to the manifest globs and excluding the paths of live exceptions. An expired exception is simply not excluded, so it fails.\n\nRun it on every pull request. A change that edits a platform path without an exception fails here with the file named, which is when it is cheapest to move the change upstream.",
+        code: [
+          {
+            lang: "bash",
+            file: "scripts/check-template-conformance.sh",
+            code: `#!/usr/bin/env bash
+# Fails when a platform path differs from the template version this app records.
+set -euo pipefail
+
+src=$(yq -r '._src_path' .copier-answers.yml)
+ref=$(yq -r '._commit' .copier-answers.yml)
+git fetch --quiet --depth 1 "$src" "refs/tags/$ref:refs/tags/template-$ref"
+
+specs=()
+while read -r glob; do specs+=(":(glob)$glob"); done < <(grep -Ev '^\\s*(#|$)' .platform/manifest)
+
+today=$(date +%F)
+if [[ -f .platform/exceptions.yml ]]; then
+  while IFS=$'\\t' read -r path expires; do
+    [[ "$expires" < "$today" ]] || specs+=(":(glob,exclude)$path")
+  done < <(yq -r '.exceptions[] | [.path, .expires] | @tsv' .platform/exceptions.yml)
+fi
+
+git diff --exit-code --stat "template-$ref" -- "\${specs[@]}"`,
+          },
+        ],
+      },
+    ],
+    verify: [
+      "Run copier copy into an empty folder: it contains only the manifest paths and .copier-answers.yml, and nothing of the reference app's business.",
+      "Change a line in a platform file and run the conformance check: it fails and names the file. Add an exception dated next month: it passes. Date it yesterday: it fails again.",
+      "Tag a new template version and run copier update in an app: the pull request touches only manifest paths, and the answers file names the new tag.",
+    ],
+    pitfalls: [
+      'Putting "**" anywhere but first in _exclude, or re-including with "!*/" or "!**/". Either way Copier copies the whole reference app into every project.',
+      "Templating the app's name into shared files. They can never be identical across apps, so conformance is meaningless and every update conflicts.",
+      "Editing a platform file in an app to get unblocked and moving on. The next update shows a conflict nobody remembers the reason for; move the fix upstream or record a dated exception.",
+      "Listing harness or workflow files in the manifest. They already have an owner, and the two installers overwrite each other.",
+      "Treating the template as a starter kit. Copied once and never updated, it is a fork with extra steps; the value is in copier update.",
+    ],
+    platform:
+      "Kitchen-Sink is the template of the Platform app family: the reference app where every platform capability runs, tagged, with .platform/manifest and the include-only copier.yml generated from it. Numa, Odyssey and Hermes are built from it. The platform-new-project skill creates a new app from its BLUEPRINT.md, platform-onboard adopts an existing one with copier copy --overwrite and converges it one capability at a time, and platform-upstream moves a fix born in an app into Kitchen-Sink first. Project-Health's Family tab shows each app's template version, conformance and exceptions. Kitchen-Sink is private: it requires access to the PlainConceptsPlatform organisation.",
+    links: [
+      {
+        label: "Platform family (Foundations)",
+        href: "/docs/reference/architecture#platform-family",
+      },
+      { label: "Copier", href: "https://copier.readthedocs.io/en/stable/" },
+      {
+        label: "Updating a project with Copier",
+        href: "https://copier.readthedocs.io/en/stable/updating/",
+      },
+      {
+        label: "git pathspec magic",
+        href: "https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec",
       },
     ],
   },

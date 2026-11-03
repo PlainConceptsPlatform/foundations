@@ -1,4 +1,5 @@
 import { ComponentPreview } from "@/components/component-preview";
+import { Internal } from "@/components/internal-note";
 import { Mermaid } from "@/components/mermaid";
 import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
 import { Callout } from "fumadocs-ui/components/callout";
@@ -27,6 +28,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     File,
     Files,
     Folder,
+    Internal,
     Mermaid,
     Step,
     Steps,

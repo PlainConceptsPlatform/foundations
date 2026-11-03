@@ -1,6 +1,8 @@
 # AGENTS.md
 
-Hub for AI coding agents working in this repo and in PlainConcepts **Platform** apps. It covers the **frontend** stack and **backend/.NET** conventions. Keep this file short, the detail lives in the docs and skills it points to.
+Hub for AI coding agents working in this repo and in PlainConcepts **Platform** apps. It covers the **frontend** stack, **backend/.NET** conventions and the **platform contract** of the app family. Keep this file short, the detail lives in the docs and skills it points to.
+
+This repository owns the theme, the conventions, the docs and the showcase, and defines the family's platform contract ("Platform family" in [`ARCHITECTURE.md`](ARCHITECTURE.md)). It ships no platform code: the family's platform code reaches each app as source from the Kitchen-Sink template (internal: requires access to the PlainConceptsPlatform organisation), never as a new shared package.
 
 ## What's here
 
@@ -12,12 +14,14 @@ ai/
 ├── DOCUMENTATION.md    # per-application documentation structure, how it stays current
 ├── AGENTS.md           # this file: index/hub
 skills/
-└── platform-onboard/   # brownfield Platform migration skill
+├── platform-new-project/  # a new family app from Kitchen-Sink's BLUEPRINT.md and template
+├── platform-onboard/      # an existing app: adopt the template and converge, or migrate domain by domain
+└── platform-upstream/     # platform changes go to Kitchen-Sink first, or a dated exception
 ```
 
 ## Stack (summary)
 
-**Next.js (App Router) + React + TypeScript (strict)**, **shadcn/ui** on **Radix** + **Tailwind v4**, themed by **`@plainconceptsplatform/ui-theme`**, shared components from **`@plainconceptsplatform/ui-components`** (Plain logo, ...), icons from **Lucide**. DI via **inversify-hooks** (mandatory). Translations: **react-i18next + i18next** (mandatory, the only translation library — zero magic strings). Package manager: **pnpm**. Lint/format **Biome** (scoped `biome.json` per package, never `biome check .` at monorepo root). Markdown: **markdownlint-cli2**, one rule, no hard-wrapped prose. Full list: [`ARCHITECTURE.md`](ARCHITECTURE.md).
+**React + TypeScript (strict)** built by **Next.js as a static export** and routed by **react-router**, served by the API. **Feature-Sliced Design** with the canonical `pages/` layer, checked by **Steiger**. **shadcn/ui** on **Radix** + **Tailwind v4**, themed by **`@plainconceptsplatform/ui-theme`**, shared components from **`@plainconceptsplatform/ui-components`** (Plain logo, app shell, data table, ...), icons from **Lucide** (**Tabler** in family apps). DI via **inversify-hooks** (mandatory). Translations: **react-i18next + i18next** (mandatory, the only translation library — zero magic strings). Package manager: **pnpm**. Lint/format **Biome** (scoped `biome.json` per package, never `biome check .` at monorepo root). Markdown: **markdownlint-cli2**, one rule, no hard-wrapped prose. Full list: [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ## Read these first
 
@@ -38,6 +42,7 @@ skills/
 6. **Use pnpm** for all commands.
 7. **Accessibility & all states** (loading/empty/error/success) are required, see DESIGN.md.
 8. **A section still in development is behind a section feature flag**, answered 404 (never 403) when off, and **MCP never serves anything that has a flag**. Use `@plainconceptsplatform/ui-components/feature-flags` on the web, see "Section feature flags" in ARCHITECTURE.md.
+9. **In a family app, platform paths belong to the template.** A path listed in `.platform/manifest` is changed in Kitchen-Sink first and arrives with `copier update`; until then the app records a dated entry in `.platform/exceptions.yml`. Do not propose a shared package for platform code. See "Platform family" in ARCHITECTURE.md.
 
 ## Theme & components setup (consuming apps)
 
@@ -46,12 +51,16 @@ When building a Platform app, read [`/README.md`](../README.md) for the full set
 - `@plainconceptsplatform/ui-theme` for design tokens (CSS import, Outfit font, shadcn config)
 - `@plainconceptsplatform/ui-components` for shared React components (Plain logo, ...)
 
-## Migration skill
+## Platform skills
 
-[`platform-onboard`](../skills/platform-onboard/SKILL.md) brings a brownfield project onto the Platform stack. Use it when adopting Platform standards or migrating to Platform Foundations. It scans the project before changing it, then progresses through agentic infrastructure, architecture docs, OpenSpec, frontend stack, agentic workflows, and .NET guardrails in dependency order.
+- [`platform-new-project`](../skills/platform-new-project/SKILL.md) creates a new Platform app. It reads Kitchen-Sink's `BLUEPRINT.md`, takes the platform code from the template with `copier copy`, and installs the harness, the workflows and the quality gates. Without access to Kitchen-Sink it builds an own design app from the public rules.
+- [`platform-onboard`](../skills/platform-onboard/SKILL.md) brings an existing app onto the Platform. Route A joins the family: preflight, adopt with `copier copy --overwrite`, converge one capability at a time, install the quality gates, then keep in sync with `copier update`. Route B keeps an own design and migrates agentic infrastructure, architecture docs, OpenSpec, frontend stack, agentic workflows and .NET guardrails in dependency order.
+- [`platform-upstream`](../skills/platform-upstream/SKILL.md) handles a change to a platform path in a family app: Kitchen-Sink first and the template carries it, or a dated exception until it does.
 
 **Workflow**
-- `platform-onboard`: onboard a brownfield project onto the Platform stack (pnpm, Next.js, shadcn, FSD, inversify-hooks, react-i18next, Biome, OpenSpec)
+- `platform-new-project`: create a new family app from the Kitchen-Sink blueprint and template
+- `platform-onboard`: bring an existing project onto the Platform (adopt the template and converge, or migrate pnpm, the Next.js static export, shadcn, FSD with Steiger, inversify-hooks, react-i18next, Biome, OpenSpec)
+- `platform-upstream`: move a platform change into Kitchen-Sink first, or record a dated exception
 - `openspec-propose`: propose a change with design, specs, tasks
 - `openspec-explore`: thinking partner for ideas and investigation
 - `openspec-apply-change`: implement tasks from an OpenSpec change

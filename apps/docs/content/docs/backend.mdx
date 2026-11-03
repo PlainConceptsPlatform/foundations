@@ -3,9 +3,9 @@ title: Backend
 description: The .NET conventions, the reasoning, and the patterns for everyday work.
 ---
 
-Backend apps are .NET and C#. The source of truth is the Plain engineering skills. This page explains how the pieces fit and when to reach for each one; the skills hold the exhaustive rules.
+Backend apps are .NET and C#. The rules, including where the Platform family chose differently from the general Plain skills, are in [Architecture](/docs/reference/architecture#backend-architecture-net). This page explains how the pieces fit and when to reach for each one.
 
-Two skills anchor everything. `plain-engineering-conventions` is language-agnostic (errors, boundaries, observability, testing, security). `plain-dotnet-guardrails` is the .NET side (VSA, EF Core, Aspire, DI, build hygiene, architecture tests). Read those two first.
+Two skills give the general background. `plain-engineering-conventions` is language-agnostic (errors, boundaries, observability, testing, security). `plain-dotnet-guardrails` is the .NET side (EF Core, Aspire, DI, build hygiene, architecture tests). Where they describe vertical slices, errors as values or Scrutor, a family app follows the family's choice below instead.
 
 ## Local orchestration with Aspire
 
@@ -41,53 +41,54 @@ Guardrails that every AppHost carries: `.WithDataVolume()` on stateful container
 
 ## Architecture
 
-Apps use Clean Architecture layers with the dependency arrow pointing inward:
+Apps are a modular monolith in Clean Architecture layers, with the dependency arrow pointing inward:
 
 ```text
-Api             minimal-API endpoints, grouped by feature; the composition root
-Application     use-cases as commands and queries (CQS); DTOs
-Domain          entities, value objects, domain events; no outward dependencies
-Infrastructure  EF Core and external integrations; implements Application/Domain interfaces
-SharedKernel    DDD building blocks reused across the domain
+Api             minimal-API endpoints, security, MCP; the composition root
+Application     per bounded context: ports (interfaces), DTOs, validators
+Domain          the model and its pure rules; no I/O, no framework
+Infrastructure  EF Core and the services that implement the ports
+SharedKernel    errors, identity, paging, auditing primitives
+Platform        family apps: the platform code the template delivers
 ```
 
-A request flows one direction. It lands on an endpoint in **Api**, which dispatches a command or query to **Application**. The handler works with the **Domain** model and persists through **Infrastructure**. `Domain` knows nothing about the outer layers, which is what keeps the core testable and stable. The full reference is in [Architecture](/docs/reference/architecture); deeper tactical patterns are in the `clean-ddd-hexagonal` skill.
+A request flows one direction. It lands on a thin endpoint in **Api**, which validates it and calls a port declared in **Application**. The **Infrastructure** service behind the port works with the **Domain** model, persists through EF Core and appends its audit event in the same transaction. `Domain` knows nothing about the outer layers, which is what keeps the core testable, and architecture tests fail the build when a reference crosses the wrong way.
 
-## Vertical slices and CQS
+## Bounded contexts and ports
 
-Inside the layers, organize **by feature**, not by technical type. Everything for "create invoice" lives together rather than being scattered across generic `Services` and `Repositories` folders. Separate the write side from the read side: **commands** change state and return a result, **queries** read and never mutate. This keeps handlers small and intention-revealing.
+Organize by bounded context, not by technical type. A context is a folder mirrored between Application (its ports and DTOs) and Infrastructure (the one or few services that implement them). One context reaches another only through that context's ports, never through its classes. There is no mediator and no handler per feature: a service per context keeps a use case and its transaction boundary in one place. Services are registered by hand in one `DependencyInjection.cs`, which is also where the stub or the real implementation of each integration is chosen.
 
-## Errors as values
+## Errors
 
-Domain and application errors are return values, not thrown exceptions, using `ErrorOr<T>` mapped to RFC 7807 ProblemDetails at the edge:
+Expected failures are a small exception hierarchy (not found, unauthorized, forbidden, conflict, domain rule), and one global exception handler maps them to the error envelope: RFC 9457 ProblemDetails with a stable `code` the SPA translates.
 
 ```csharp
-public async Task<ErrorOr<User>> Handle(GetUser query)
+public async Task<ClaimDto> GetAsync(string publicId, CancellationToken ct)
 {
-    var user = await _users.FindAsync(query.Id);
-    return user is null
-        ? Error.NotFound("User.NotFound", "User not found")
-        : user;
+    var claim = await db.Claims.FindByPublicIdAsync(publicId, ct)
+        ?? throw new NotFoundException("CLAIM_NOT_FOUND", $"Claim {publicId} does not exist.");
+    return ClaimMapper.ToDto(claim);
 }
-
-// endpoint maps the result to HTTP
-result.Match(Results.Ok, errors => errors.ToProblemDetails());
 ```
 
-Exceptions are for the genuinely exceptional, not for control flow.
+The mapping is one pure function with a unit test, so every endpoint, MCP tool and B2B route answers the same way. Request validation is FluentValidation called by the endpoint, answering 422 with the field errors.
+
+## API surfaces and REST
+
+A family API serves three surfaces over the same Application services: the private BFF for the SPA (session cookie and CSRF), MCP for agents (Entra or Forge tokens), and a versioned B2B API (Entra app tokens with app roles). Every endpoint is REST at Richardson level 3 with HAL-FORMS: `_links` to navigate and `_templates` with the actions the caller may take now. Both are specified in [Architecture](/docs/reference/architecture#api-surfaces); in a family app the code for them is platform code from the template.
 
 ## When to use what
 
-- **A service or small app:** a few layered projects with feature folders inside. This is the default. Do not add modules or a mediator before you feel the pain.
-- **A larger system:** a modular monolith where each module is a bounded context, internally VSA and CQS. Split into separate deployables only when a boundary genuinely demands it.
+- **A service or small app:** the layered projects with a folder per bounded context. This is the default. Do not add modules or a mediator before you feel the pain.
+- **A larger system:** the same modular monolith with more contexts. Split into separate deployables only when a boundary genuinely demands it; contexts that talk only through ports can be extracted later.
 
 ## Data access
 
-EF Core is the default. Keep queries in Infrastructure behind interfaces the Application layer owns. Project to DTOs for reads instead of loading full aggregates, use `AsNoTracking` for read-only queries, and watch for N+1 with explicit `Include` or split queries. Repository and query patterns are in `dotnet-backend-patterns`; tuning is in `optimizing-ef-core-queries`.
+EF Core is the default. Keep queries in Infrastructure behind the ports the Application layer owns. Project to DTOs for reads instead of loading full aggregates, use `AsNoTracking` for read-only queries, and watch for N+1 with explicit `Include` or split queries. Repository and query patterns are in `dotnet-backend-patterns`; tuning is in `optimizing-ef-core-queries`.
 
 ## Testing
 
-Follow the testing trophy, not the pyramid (Kent C. Dodds; Spotify's honeycomb is the same shape for services with many collaborators). Most of the weight goes to **integration** tests: run a real host through `WebApplicationFactory` against a real database through Testcontainers and assert behaviour through the HTTP surface, so you catch the wiring, mapping and query bugs that mocks hide. Add **unit** tests with xUnit only where there is logic with real branching, such as domain rules, calculations, parsers and state machines, where the value-as-errors style makes assertions clean. Keep **end-to-end** tests few, over the critical journeys. Static analysis (the compiler, analyzers and `check-diff`) is the base layer. A bug fix gets one regression test. Do not test constants, configured defaults, mocks of your own code or markup details: those tests fail when someone edits the code, not when behaviour breaks. Skill: `csharp-xunit`.
+Follow the testing trophy, not the pyramid (Kent C. Dodds; Spotify's honeycomb is the same shape for services with many collaborators). Most of the weight goes to **integration** tests: run a real host through `WebApplicationFactory` against a real database through Testcontainers and assert behaviour through the HTTP surface, so you catch the wiring, mapping and query bugs that mocks hide. Add **unit** tests with xUnit only where there is logic with real branching, such as domain rules, calculations, parsers and state machines, where a pure function makes assertions clean. Keep **end-to-end** tests few, over the critical journeys. Static analysis (the compiler, analyzers and `check-diff`) is the base layer. A bug fix gets one regression test. Do not test constants, configured defaults, mocks of your own code or markup details: those tests fail when someone edits the code, not when behaviour breaks. Skill: `csharp-xunit`.
 
 ## Azure SQL backups in production
 

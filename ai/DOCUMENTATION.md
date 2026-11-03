@@ -16,6 +16,7 @@ docs/
 ├── reference/            facts, generated wherever possible
 ├── runbooks/             what to do when something breaks
 ├── decisions/            decision records, with a generated index
+├── platform/             family apps only: the platform documentation, delivered by the template
 └── glossary.md           domain and product terms
 ```
 
@@ -32,6 +33,7 @@ A small application may merge folders, for example a single `docs/operations.md`
 | `docs/runbooks/` | Operator | It is broken: how do I tell, fix it and confirm? |
 | `docs/decisions/` | Developer, auditor | What was decided, why, and does it still hold? |
 | `docs/glossary.md` | Everyone | What does this word mean here? |
+| `docs/platform/` | Developer, operator (family apps) | How does the platform code this app shares with the family work, and how is it configured? |
 
 The four kinds of page come from [Diátaxis](https://diataxis.fr/): tutorials, how-to guides, reference and explanation serve different needs, and a page that tries to do two does neither. Architecture diagrams follow [C4](https://c4model.com/): context and containers are enough for most applications, written as Mermaid in the repository so they change with the code.
 
@@ -41,6 +43,7 @@ The four kinds of page come from [Diátaxis](https://diataxis.fr/): tutorials, h
 - **Generate what can be derived.** Component lists, permission matrices, job catalogues, decision indexes and counts come from the code, and CI fails when the generated file is out of date. A count typed by hand is already wrong.
 - **Documents state their limits.** A runbook says what it does not cover. A page that has been superseded says so at the top and links forward.
 - **Runbooks follow failures.** Write one for what has actually broken or would hurt most, with how to detect it, how to fix it, and how to confirm. Start with failed deploy, dependency down, data restore and secret rotation.
+- **Platform documentation is the template's.** In a family app, `docs/platform/` is a template path listed in `.platform/manifest`: it arrives and changes with `copier update`, and the app does not edit it. The app's `ARCHITECTURE.md` links to it for session, permissions, audit, feature flags, errors, the API surfaces and the web shell, and describes only what is the app's own. A fix to it goes to Kitchen-Sink first, like any platform path.
 - **Archive, don't accumulate.** Parked or historical material moves to `docs/archive/` and leaves the portal. It is not deleted, and it is not in the reader's way.
 
 ## Decision records
@@ -69,5 +72,6 @@ Each line is a yes or no.
 - [ ] Reference pages that can be generated are generated, and CI checks them.
 - [ ] The application's main failure modes have a runbook.
 - [ ] The glossary covers the domain terms a new reader would stumble on.
+- [ ] Family apps: `docs/platform/` matches the template version, and `ARCHITECTURE.md` links to it instead of restating it.
 - [ ] CI requires documentation or a declaration in every pull request, and fails on broken links.
 - [ ] The `docs-audit` worker is installed with its own slot.

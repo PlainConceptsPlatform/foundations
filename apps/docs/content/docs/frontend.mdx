@@ -3,43 +3,48 @@ title: Frontend
 description: The frontend stack, the reasoning behind it, and the patterns for everyday work.
 ---
 
-The frontend stack is Next.js (App Router), React, and TypeScript. Styling is Tailwind v4 with shadcn/ui components, themed by `@plainconceptsplatform/ui-theme`. Icons come from Lucide. Dependency injection uses `inversify-hooks`.
+The frontend is a React and TypeScript single-page app, built by Next.js as a static export, routed by react-router and served by the app's own API. Styling is Tailwind v4 with shadcn/ui components, themed by `@plainconceptsplatform/ui-theme`. Dependency injection uses `inversify-hooks`. The rules, and where the family apps chose differently, are in [Architecture](/docs/reference/architecture#stack); this page explains how to work with them.
 
 The idea behind the foundation: share the **look** and the **conventions**, not a component library. Every app installs the same token package and follows the same structure, so a developer moving between apps already knows where things live. Apps still own their own components and features.
 
 | Concern | Choice |
 |---|---|
 | Language | TypeScript (strict) |
-| Framework | Next.js (App Router) + React |
+| Framework | Next.js static export + React, routed by react-router |
 | Components | shadcn/ui on Radix |
 | Styling | Tailwind CSS v4 |
 | Theme | `@plainconceptsplatform/ui-theme` |
-| Icons | Lucide (`lucide-react`) |
+| Icons | Lucide (`lucide-react`); Tabler in family apps |
 | Dependency injection | inversify-hooks |
 | Internationalization | react-i18next + i18next |
-| Data fetching | TanStack Query (or RSC / Server Actions) |
-| Forms | react-hook-form + zod |
-| Lint and format | Biome |
+| Data fetching | TanStack Query |
+| Forms | react-hook-form + zod; family apps validate on the API |
+| Lint and format | Biome, Steiger for FSD boundaries |
 | Markdown lint | markdownlint-cli2 |
 | Tests | Vitest + Playwright |
 
 ## Architecture
 
-Apps use a pragmatic Feature-Sliced Design on the App Router:
+Next.js is the build shell, not the router. `next build` with `output: "export"` produces static files, the root layout loads the fonts and the theme script, and one page mounts the SPA, where react-router decides every route. The API serves the export, so the browser talks to one origin: no CORS, one content security policy, and a session cookie that never leaves the API's host.
+
+The code follows Feature-Sliced Design with the canonical layer names:
 
 ```text
-src/
-  app/        Next.js routing shell (layouts, segments, route handlers) + providers
-  views/      the screen for a route, composed from widgets and features
-  widgets/    self-contained UI blocks (earn it)
-  features/   user interactions and use-cases (earn it)
-  entities/   business models and their api/ui (earn it)
-  shared/     ui (shadcn), lib (cn, formatters), api clients, hooks
+apps/web/
+  app/          Next.js: root layout + the one page that mounts the SPA
+  pages/.gitkeep  empty, so Next does not read src/pages as its Pages Router
+  src/
+    app/        composition root, providers, router
+    pages/      one slice per route, e.g. pages/claims/ui/ClaimsPage.tsx
+    widgets/    self-contained UI blocks, e.g. the app shell (earn it)
+    features/   user interactions and use-cases (earn it)
+    entities/   business models and their api/ui (earn it)
+    shared/     ui (shadcn), lib, api, i18n, and platform/ in family apps
 ```
 
-Two rules carry most of the value. First, **dependencies point one way**: a layer may import from layers below it, never above, and siblings do not import each other. A `feature` can use an `entity` and `shared`, but an `entity` never reaches up into a `feature`. This is what keeps slices easy to move or delete. Second, **each slice has one public entry** (`index.ts`); import a slice through that, never by reaching into its files.
+Two rules carry most of the value. First, **dependencies point one way**: a layer may import from layers below it, never above, and siblings do not import each other. A `feature` can use an `entity` and `shared`, but an `entity` never reaches up into a `feature`. This is what keeps slices easy to move or delete. Second, **each slice has one public entry** (`index.ts`); import a slice through that, never by reaching into its files. Steiger checks both in CI, so a violation fails the build rather than waiting for review.
 
-Start a new app with only `app`, `views`, and `shared`. Add the other layers when a real need appears, not before. The `views` name is deliberate: it is the Feature-Sliced "pages" layer, renamed so it does not collide with the Next.js App Router `app` directory. Full layer rules are in [Architecture](/docs/reference/architecture).
+Start a new app with only `app`, `pages`, and `shared`. Add the other layers when a real need appears, not before. In a family app, `shared/platform/` is the web code the template delivers (shell, theme provider, auth, flags); treat it as read-only and change it upstream. Full layer rules are in [Architecture](/docs/reference/architecture#reference-app-structure-fsd-on-a-nextjs-static-export).
 
 ## Theming
 
@@ -62,16 +67,19 @@ Dark mode is a class on `<html>` (`class="dark"`); the semantic tokens already c
 Frontend apps use `inversify-hooks` so that use-cases and API clients sit behind interfaces and can be swapped in tests. Depend on an interface, register the implementation once in a composition root under `app/`, and resolve it where you need it:
 
 ```ts
-// contract lives with the entity/feature
-export interface UserApi {
+// contract lives in shared/api/contracts (or with the entity)
+export interface IUserContract {
   getById(id: string): Promise<User>;
 }
 
-// composition root under app/: bind the interface to an implementation
-container.bind<UserApi>(TYPES.UserApi).to(HttpUserApi);
+// composition root under src/app/providers: built once, at module load
+container.addSingleton<IUserContract>(HttpUserContract, cid.IUserContract);
+
+// in a component
+const [users] = useInject<IUserContract>(cid.IUserContract);
 ```
 
-Components resolve the contract through the hook the library provides, so a test binds a fake instead. Because Inversify uses decorators, apps need `experimentalDecorators` and `useDefineForClassFields: false` (already set in `tsconfig.base.json`) plus decorator support in the Next.js compiler. The exact hook API is in the [inversify-hooks](https://github.com/CKGrafico/inversify-hooks) docs. The rule underneath is simple: depend on abstractions, not concretions.
+Components resolve the contract through `useInject`, so a test registers a fake instead. Pass the `cid` id as the second argument: the default id comes from the class name, which a minifier rewrites. Decorators are optional, and the family apps use none. The exact hook API is in the [inversify-hooks](https://github.com/CKGrafico/inversify-hooks) docs. The rule underneath is simple: depend on abstractions, not concretions.
 
 ## Components
 
@@ -81,7 +89,7 @@ App-specific components live in the app, in the slice that owns them. A componen
 
 ## Data fetching
 
-Prefer the server for server data: fetch in Server Components or Server Actions and pass the result down. Reach for **TanStack Query** when you need a client-side cache, background refetching, or optimistic updates. Keep query keys structured and colocated with the feature that owns them.
+A static export has no server components, so server data goes through **TanStack Query** and the API contracts. Build every query key from one factory per API area, so an invalidation reaches every list and detail it should and nothing else. A family API answers in HAL-FORMS: render the actions a resource offers from its `_templates` rather than recomputing permissions in the client ([REST](/docs/reference/architecture#rest)).
 
 ## Forms
 
@@ -92,7 +100,7 @@ const schema = z.object({ email: z.string().email() });
 const form = useForm({ resolver: zodResolver(schema) });
 ```
 
-Validate on the client and show errors inline. Always design the empty, loading, success, and error states, not just the happy path.
+Validate on the client where it helps the person, and show errors inline. The API is the validator that counts: family apps keep form state in the component and show the field errors the API returns with its 422. Always design the empty, loading, success, and error states, not just the happy path.
 
 ## Internationalization
 
