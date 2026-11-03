@@ -13,7 +13,7 @@ Explicitly out of scope: custom business components, auth/API/state abstractions
 
 ## Changing the theme
 
-Edit tokens in `packages/theme/src/theme.css` (the single source of truth), bump the package version, and publish. Apps pick up the change by bumping the dependency. Never fork the theme in an app.
+Edit tokens in `packages/theme/src/theme.css` (the single source of truth), and in the same pull request bump the package version and add the changelog entry. After the merge a maintainer publishes with `pnpm release:theme` (or `pnpm release:components` for the components); [Releases](/docs/releases) has the details. Apps pick up the change by bumping the dependency. Never fork the theme in an app.
 
 ## Changing the docs
 

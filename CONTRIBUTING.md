@@ -51,7 +51,7 @@ Do not hand-edit `apps/docs/content/docs/components/*.mdx`, `apps/docs/content/d
 
 ## Changing the theme
 
-Edit tokens in `packages/theme/src/theme.css`, the single source of truth. Add a changeset, and apps pick the change up when they bump the dependency. Never fork the theme in an app.
+Edit tokens in `packages/theme/src/theme.css`, the single source of truth. Bump the package version and add a changelog entry in the same pull request (see [Releasing](#releasing)), and apps pick the change up when they bump the dependency. Never fork the theme in an app.
 
 Two rules the theme enforces rather than documents, so do not fight them:
 
@@ -60,13 +60,18 @@ Two rules the theme enforces rather than documents, so do not fight them:
 
 ## Releasing
 
-Both packages publish publicly to npm. Releases go through [Changesets](https://github.com/changesets/changesets):
+Both packages publish publicly to npm, by hand, from `main`. There is no release workflow and no Changesets.
+
+1. In the pull request that changes a package, bump `version` in its `package.json` and add the entry at the top of its `CHANGELOG.md`: what changed, and a "Visual change" note when apps will look different.
+2. Merge it.
+3. A maintainer with publish rights pulls `main` and runs the script for that package:
 
 ```bash
-pnpm changeset          # describe the change and pick a bump
+pnpm release:theme        # @plainconceptsplatform/ui-theme
+pnpm release:components   # @plainconceptsplatform/ui-components
 ```
 
-Commit the generated file with your PR. On merge to `main`, the release workflow opens a "Version Packages" PR; merging **that** publishes to npm with provenance. Do not run `pnpm publish` by hand.
+Each script builds the components, typechecks the workspace and runs `pnpm publish --access public` for that one package. Publish only what the merged pull request bumped, and only from a clean `main`.
 
 Pick the bump honestly: a token value change is a **minor** because it changes how every consuming app looks, even though nothing breaks at the type level. Removing or renaming a token is a **major**.
 

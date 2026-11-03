@@ -40,16 +40,21 @@ Never fork the theme in an app to avoid an upgrade. If an update is wrong for yo
 
 ## Changelogs
 
-Each package keeps its own, generated from changesets:
+Each package keeps its own, written by hand in the pull request that bumps the version:
 
 - [`packages/theme/CHANGELOG.md`](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/theme/CHANGELOG.md)
 - [`packages/ui-components/CHANGELOG.md`](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/CHANGELOG.md)
 
 ## How a release happens
 
-Contributors add a changeset describing the change and the bump. Merging to `main` opens a "Version Packages" pull request that collects pending changesets into version bumps and changelog entries. Merging **that** publishes to npm with provenance.
+The pull request that changes a package also bumps its `version` and adds the changelog entry, so the version and the reason for it are reviewed together. After it merges, a maintainer publishes from a clean `main`:
 
-Nobody publishes from a laptop. See [Contributing](/docs/contributing) for the contributor side.
+```bash
+pnpm release:theme        # @plainconceptsplatform/ui-theme
+pnpm release:components   # @plainconceptsplatform/ui-components
+```
+
+Each script builds the components, typechecks the workspace and publishes that one package to npm. No workflow publishes and there is no release pull request to merge. See [Contributing](/docs/contributing) for the contributor side.
 
 ## Deprecation
 
