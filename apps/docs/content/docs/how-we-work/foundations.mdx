@@ -46,6 +46,19 @@ The set differs per app, but the recurring ones are:
 Written down alongside them is a definition of done that an agent can actually check itself against,
 which is what makes an unattended run able to tell whether it finished.
 
+## The living template is a guardrail too
+
+The guardrails above stop a bad change inside one app. In a family of apps there is a second way to go wrong: each app's copy of the shared plumbing (sign-in and session, permissions, the audit chain, feature flags, the error contract, security headers, the API surfaces, the web shell) drifts a little with every fix made in one place and not the others. After a year nobody can say which app has the right version, and an agent asked to fix a bug in one app fixes it in that app only.
+
+So the platform code is not copied once and forgotten. [Kitchen-Sink](https://github.com/PlainConceptsPlatform/Kitchen-Sink)<Internal inline /> is the reference app where every platform capability runs for real, and it is also the Copier template that owns those paths in Numa, Odyssey and Hermes. Its tags are template versions.
+
+- **The paths are listed.** `.platform/manifest` names every platform path, and only the template changes them. An app owns everything else.
+- **Divergence is dated.** An app that has to differ from the template records the path in `.platform/exceptions.yml` with a reason, an issue and an expiry date. An exception that expires without being resolved shows up as a failure, not as the new normal.
+- **Upstream first.** A fix to platform code lands in Kitchen-Sink, is tested where every capability runs, and reaches the other apps with `copier update` as an ordinary pull request that goes through the same gates.
+- **It is measured.** [Health](/docs/health#the-family) shows, per family app, the template version, whether its platform paths match it, and its open exceptions.
+
+This is what makes the template a guardrail rather than a starter kit: the shared code stays the same code, and a change to it can only travel one way. The contract it follows is in [Architecture](/docs/reference/architecture#platform-family), and the day-one steps are on [Adopt in your project](/docs/adopt).
+
 ## The determinism ladder
 
 The single most useful rule from this phase, and it generalises well beyond workflows:

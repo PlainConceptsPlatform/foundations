@@ -7,7 +7,7 @@ Health is the fourth pillar, and it changes nothing in the repositories it reads
 
 ## Four areas, one question each
 
-A project page has four tabs. The overview across every project has four too, with one difference: the comments and tests scan, a panel inside Engineering on a project page, gets its own **Code** tab on the overview, and Roadmap has no overview tab.
+A project page has four tabs. The overview across every project has four too, with one difference: the comments and tests scan, a panel inside Engineering on a project page, gets its own **Code** tab on the overview, and Roadmap has no overview tab. The overview also has a **Family** tab for the apps built from the shared template, described [below](#the-family).
 
 | Area | The question it answers | What it judges | Read more |
 |---|---|---|---|
@@ -17,6 +17,16 @@ A project page has four tabs. The overview across every project has four too, wi
 | **Roadmap** | Who had each issue at each moment, and what is waiting on a person? | The pipeline of [maintenance mode](/docs/how-we-work/maintenance), issue by issue | [Roadmap](/docs/health/roadmap) |
 
 The overview opens on the Engineering scorecard, not on delivery. Delivery numbers say how fast work ships, and with agents writing most of it the more useful first question is whether anything would stop a bad change.
+
+## The family
+
+Numa, Odyssey, Hermes and Kitchen-Sink are the Platform app family: their platform code comes from the Kitchen-Sink template and is meant to stay identical (see [Architecture](/docs/reference/architecture#platform-family)). The **Family** tab answers one question about them: how alike are they?
+
+- **Which apps are in it.** A repository is a family app when it has a `.copier-answers.yml`. Its row shows the template version it is on and how far behind the latest tag that is.
+- **Conformance.** Whether every path in the app's `.platform/manifest` is identical to that template version, and which ones are not.
+- **Exceptions.** The entries in `.platform/exceptions.yml`, with their reason, issue and expiry date. An expired exception is flagged rather than quietly counted as conforming.
+
+Every other project is listed as **own design**. That is a fact, not a grade: an own design app is measured on the four areas like any project, and it is not compared with a template it never used.
 
 ## Where it lives and how fresh it is
 
