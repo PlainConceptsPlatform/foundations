@@ -3,13 +3,13 @@ title: Contributing
 description: How the foundation evolves, and the bar for adding shared code.
 ---
 
-The foundation stays small on purpose. It owns the **theme, conventions, docs, and showcase**, and almost nothing else. That restraint is what makes it adoptable.
+The foundation stays small on purpose. It owns the **theme, conventions, docs, and showcase**, and it **defines the platform contract** of the app family. It ships no platform code: that reaches each family app as source from the [Kitchen-Sink](https://github.com/PlainConceptsPlatform/Kitchen-Sink)<Internal inline /> template. That restraint is what makes it adoptable.
 
 ## The bar for shared code
 
 A component or utility only belongs in the foundation once the **same real requirement has appeared in multiple apps**. Until then it lives in the app that needs it. When something does cross that bar, it is promoted deliberately and reviewed, not added speculatively.
 
-Explicitly out of scope: custom business components, auth/API/state abstractions, observability or feature-flag packages, routing or app-shell wrappers, a custom CLI, project generators, and a custom DI framework.
+Explicitly out of scope as packages from this repository: custom business components, auth/API/state abstractions, observability or feature-flag packages, routing or app-shell wrappers, a custom CLI, project generators, and a custom DI framework. When family apps need the same platform code, it goes into the Kitchen-Sink template first and travels from there; [Principles](/docs/principles) explains why.
 
 ## Changing the theme
 

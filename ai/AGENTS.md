@@ -1,6 +1,8 @@
 # AGENTS.md
 
-Hub for AI coding agents working in this repo and in PlainConcepts **Platform** apps. It covers the **frontend** stack and **backend/.NET** conventions. Keep this file short, the detail lives in the docs and skills it points to.
+Hub for AI coding agents working in this repo and in PlainConcepts **Platform** apps. It covers the **frontend** stack, **backend/.NET** conventions and the **platform contract** of the app family. Keep this file short, the detail lives in the docs and skills it points to.
+
+This repository owns the theme, the conventions, the docs and the showcase, and defines the family's platform contract ("Platform family" in [`ARCHITECTURE.md`](ARCHITECTURE.md)). It ships no platform code: the family's platform code reaches each app as source from the Kitchen-Sink template (internal: requires access to the PlainConceptsPlatform organisation), never as a new shared package.
 
 ## What's here
 
@@ -17,7 +19,7 @@ skills/
 
 ## Stack (summary)
 
-**Next.js (App Router) + React + TypeScript (strict)**, **shadcn/ui** on **Radix** + **Tailwind v4**, themed by **`@plainconceptsplatform/ui-theme`**, shared components from **`@plainconceptsplatform/ui-components`** (Plain logo, ...), icons from **Lucide**. DI via **inversify-hooks** (mandatory). Translations: **react-i18next + i18next** (mandatory, the only translation library — zero magic strings). Package manager: **pnpm**. Lint/format **Biome** (scoped `biome.json` per package, never `biome check .` at monorepo root). Markdown: **markdownlint-cli2**, one rule, no hard-wrapped prose. Full list: [`ARCHITECTURE.md`](ARCHITECTURE.md).
+**React + TypeScript (strict)** built by **Next.js as a static export** and routed by **react-router**, served by the API. **Feature-Sliced Design** with the canonical `pages/` layer, checked by **Steiger**. **shadcn/ui** on **Radix** + **Tailwind v4**, themed by **`@plainconceptsplatform/ui-theme`**, shared components from **`@plainconceptsplatform/ui-components`** (Plain logo, app shell, data table, ...), icons from **Lucide** (**Tabler** in family apps). DI via **inversify-hooks** (mandatory). Translations: **react-i18next + i18next** (mandatory, the only translation library — zero magic strings). Package manager: **pnpm**. Lint/format **Biome** (scoped `biome.json` per package, never `biome check .` at monorepo root). Markdown: **markdownlint-cli2**, one rule, no hard-wrapped prose. Full list: [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ## Read these first
 
@@ -38,6 +40,7 @@ skills/
 6. **Use pnpm** for all commands.
 7. **Accessibility & all states** (loading/empty/error/success) are required, see DESIGN.md.
 8. **A section still in development is behind a section feature flag**, answered 404 (never 403) when off, and **MCP never serves anything that has a flag**. Use `@plainconceptsplatform/ui-components/feature-flags` on the web, see "Section feature flags" in ARCHITECTURE.md.
+9. **In a family app, platform paths belong to the template.** A path listed in `.platform/manifest` is changed in Kitchen-Sink first and arrives with `copier update`; until then the app records a dated entry in `.platform/exceptions.yml`. Do not propose a shared package for platform code. See "Platform family" in ARCHITECTURE.md.
 
 ## Theme & components setup (consuming apps)
 

@@ -2,7 +2,7 @@
 
 **Platform Foundations** is the shared foundation for PlainConcepts **Platform** apps. It keeps many independent apps consistent and easy for developers *and* AI agents to work in, without becoming a heavy in-house framework.
 
-It covers the **frontend** (a shared theme, conventions, docs, and a themed showcase) and **backend/.NET** conventions (recommended skills and a reference architecture in [`ai/ARCHITECTURE.md`](ai/ARCHITECTURE.md)).
+It covers the **frontend** (a shared theme, conventions, docs, and a themed showcase), **backend/.NET** conventions (recommended skills and a reference architecture in [`ai/ARCHITECTURE.md`](ai/ARCHITECTURE.md)), and the **platform contract** of the Platform app family: the capabilities, paths and ownership rules that Numa, Odyssey, Hermes and Kitchen-Sink share.
 
 It is **not** a component library, an app framework, or a design system to be maintained by hand.
 
@@ -21,12 +21,12 @@ packages/ui-components  @plainconceptsplatform/ui-components, shared React compo
 1. Prefer established open-source libraries over custom code.
 2. Use **shadcn/ui** components directly; don't wrap them or build a proprietary library.
 3. App-specific components live in the app. Share a component only after the same need appears in **multiple** apps.
-4. The foundation owns the **theme, conventions, docs, and showcase**, nothing more.
-5. Keep the scope small. Add a directory/package only when it has a clear job today.
+4. The foundation owns the **theme, conventions, docs, and showcase**, and **defines the family platform contract**. It ships no platform code.
+5. Keep the scope small. Add a directory/package only when it has a clear job today. The family's platform code is distributed as source by the [Kitchen-Sink](https://github.com/PlainConceptsPlatform/Kitchen-Sink) (internal: requires access to the PlainConceptsPlatform organisation) template with Copier, not by new shared packages.
 
 ## Stack
 
-Next.js (App Router) + React + TypeScript, shadcn/ui on Radix + Tailwind v4, themed by `@plainconceptsplatform/ui-theme`, icons from Lucide. DI via inversify-hooks (mandatory). Biome, markdownlint-cli2, Vitest + Playwright, pnpm. See [`ai/ARCHITECTURE.md`](ai/ARCHITECTURE.md).
+React + TypeScript built by Next.js as a static export and routed by react-router, Feature-Sliced Design checked by Steiger, shadcn/ui on Radix + Tailwind v4, themed by `@plainconceptsplatform/ui-theme`. DI via inversify-hooks (mandatory), react-i18next. Biome, markdownlint-cli2, Vitest + Playwright, pnpm. On .NET: a modular monolith with services behind Application ports, Aspire locally and Azure Container Apps in the environments. See [`ai/ARCHITECTURE.md`](ai/ARCHITECTURE.md).
 
 ## Getting started (this repo)
 

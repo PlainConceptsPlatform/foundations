@@ -27,20 +27,22 @@ Share a component only after the same real requirement has appeared in **multipl
 
 One app with a need is a signal. Two apps with the same need is a case. Speculative sharing produces abstractions shaped by a single caller, which then fit the second caller badly.
 
-## 4. The foundation owns the theme, conventions, docs, and showcase
+## 4. The foundation owns the theme, conventions, docs, and showcase, and defines the family contract
 
-Nothing more. Explicitly out of scope: custom business components, auth, API or state-management abstractions, observability and feature-flag packages, routing wrappers, app-shell components, a custom CLI, and project generators.
+Those four are what this repository ships. The fifth thing it owns ships nothing: the **platform contract** of the app family, written in [Architecture](/docs/reference/architecture#platform-family). It says which capabilities every family app has, which paths belong to the platform, who owns each file, how an app conforms and how a change travels upstream.
 
-Each of those is a reasonable thing to want. None of them is worth the coupling it creates across independent apps with their own teams, domains, and lifecycles.
+Explicitly out of scope **as shared packages**: custom business components, auth, API or state-management abstractions, observability and feature-flag engines, routing wrappers, app-shell code, a custom CLI, and project generators. Each of those is a reasonable thing to want. None of them is worth the coupling a versioned package creates across independent apps with their own teams, domains, and lifecycles.
 
-## 5. Keep the scope small
+## 5. Keep the scope small, and keep platform code as source
 
 Add a directory or a package only when it has a clear job today.
 
 This is why the repo has two packages rather than eight, why there is no Turborepo or Nx, and why the FSD layers are earned rather than scaffolded. Structure you add before you need it is structure you have to justify later.
 
+The family's platform code (session, permissions, audit, errors, the API surfaces, the web shell) is real code that several apps need identically, and it is still not a package here. The [Kitchen-Sink](https://github.com/PlainConceptsPlatform/Kitchen-Sink)<Internal inline /> template copies it into each app as source with Copier, at fixed platform paths, and updates it from tagged template versions. An app can read it, debug it and step through it like its own code, nobody waits on a package release, and a fix proves itself in a running app before it reaches the others. What stays shared is a contract and a template version, not a dependency.
+
 ## Applying them
 
 Most proposals resolve by asking, in order: has this appeared in more than one app, could a documented convention do the job instead, and does it belong to the look or to a domain?
 
-A convention costs a paragraph. Shared code costs a version, a migration path, and a maintainer. Reach for the paragraph first. [Contributing](/docs/contributing) covers the process.
+A convention costs a paragraph. Shared code costs a version, a migration path, and a maintainer. Reach for the paragraph first, and when apps of the family genuinely need the same code, reach for the template before a package. [Contributing](/docs/contributing) covers the process.
