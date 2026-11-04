@@ -19,9 +19,25 @@ The order below is not alphabetical. Each step is a prerequisite for the one aft
 
 <Step>
 
+### Install the skill
+
+In the new, empty repository:
+
+```bash
+npx skills add PlainConceptsPlatform/Foundations --skill platform-new-project
+```
+
+Then ask your agent: *create a new Platform project*. The skill runs the steps below in order and stops to ask what only you can answer.
+
+Always pass `--skill`. Without it the CLI offers every skill in this repository, including the harness skills vendored under `.agents/`. The skill lands in `.agents/skills/platform-new-project/`, recorded in `skills-lock.json`.
+
+</Step>
+
+<Step>
+
 ### Start from the template
 
-Ask an agent to create the project from [Kitchen-Sink](https://github.com/PlainConceptsPlatform/Kitchen-Sink)<Internal inline />. The [`platform-new-project` skill](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-new-project) reads Kitchen-Sink's `BLUEPRINT.md`, asks for the domain in one message, builds the app's own code in Kitchen-Sink's shape, and takes the platform paths from the template:
+The agent creates the project from [Kitchen-Sink](https://github.com/PlainConceptsPlatform/Kitchen-Sink)<Internal inline />. The [`platform-new-project` skill](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-new-project) reads Kitchen-Sink's `BLUEPRINT.md`, asks for the domain in one message, builds the app's own code in Kitchen-Sink's shape, and takes the platform paths from the template:
 
 ```bash
 pipx install copier
@@ -98,6 +114,14 @@ It reads the repository and prints a suggested entry, writing nothing. Paste it 
 </Steps>
 
 ## An app that already exists
+
+Install the onboarding skill in the repository:
+
+```bash
+npx skills add PlainConceptsPlatform/Foundations --skill platform-onboard
+```
+
+Then ask your agent: *onboard this project*. The skill decides between the two routes below with you, after a preflight that changes nothing.
 
 **Joining the family** is adopt, then converge. The [`platform-onboard` skill](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-onboard) runs it as a sequence of pull requests:
 
