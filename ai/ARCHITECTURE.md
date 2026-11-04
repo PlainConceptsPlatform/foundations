@@ -346,50 +346,54 @@ Infrastructure is provisioned outside the app repositories: an app's repository 
 
 ## API surfaces
 
-A family API exposes three surfaces over the **same Application services**, so permissions, validation, scoping and audit are identical whichever door a caller uses. Only the authentication and the shape of the surface differ.
+A family API exposes three surfaces over the **same Application services**, so permissions, validation, scoping and audit are identical whichever door a caller uses. Only the authentication and the shape of the surface differ. The three never accept each other's credentials: a session cookie on `/mcp` or a B2B route is refused, and so is an app token on the private API.
 
 ### Private API (BFF)
 
 For the app's own SPA and nothing else, under `/api/v1`.
 
 - **Session cookie.** After the Entra ID sign-in the API issues an HttpOnly, `Secure` session cookie. No token reaches browser JavaScript, and the SPA never sees an Entra token.
-- **CSRF.** Every unsafe method (`POST`, `PUT`, `PATCH`, `DELETE`) carries an anti-forgery token in a header that the API checks against the session. A request without it is refused before it reaches an endpoint.
+- **CSRF.** Every unsafe method (`POST`, `PUT`, `PATCH`, `DELETE`) carries an anti-forgery token in the `X-CSRF-Token` header that the API checks against the session. A request without it is refused before it reaches an endpoint.
 - **Same origin.** The API serves the SPA's static export, so there is no CORS configuration and one content security policy covers both.
 - **Deny by default.** Every endpoint requires an authenticated caller unless it says otherwise, and declares the permission it needs (`module:action`).
+- **Sessions are not resources.** `/auth/*` and the health probes answer plain JSON: they start or end a session, or report on the host. Everything else is a resource (see [REST](#rest)).
 
 ### MCP
 
-For AI agents, at `/mcp`, following the MCP specification revision **2026-07-28**.
+For AI agents, at `/mcp` (Streamable HTTP, stateless), following the MCP specification revision **2026-07-28**.
 
-- **Tokens.** Entra ID access tokens and Forge tokens only. The app runs no OAuth server of its own. It publishes [RFC 9728](https://www.rfc-editor.org/rfc/rfc9728) Protected Resource Metadata at `/.well-known/oauth-protected-resource`, so a client discovers which authorization server to use.
-- **The caller's permissions apply.** A token is mapped to the same principal and permissions the person or application would have in the SPA, and each tool checks the same `module:action` permission as the matching endpoint.
+- **Tokens.** Entra ID access tokens for the app's registration with its MCP scope, or Forge assertions from the configured issuer, and nothing else. The session cookie and the app's own tokens are refused, because a browser session that reached `/mcp` would let any page script act as an agent. The app runs no OAuth server of its own.
+- **Discovery.** [RFC 9728](https://www.rfc-editor.org/rfc/rfc9728) Protected Resource Metadata at `/.well-known/oauth-protected-resource` (and `/.well-known/oauth-protected-resource/mcp`), naming Entra as the authorization server and the scope, and a `401` challenge whose `resource_metadata` points at it.
+- **The caller's permissions apply.** A token is mapped to the app's person, so permissions, audit and revocation are the same as on the web, and each tool checks the same `module:action` permission as the matching endpoint. A Forge caller never provisions a person and is read-only.
 - **Schemas.** Tool input and output schemas are JSON Schema 2020-12. Tools return structured output (`structuredContent` matching the declared `outputSchema`) as well as text.
-- **Annotations.** Every tool declares `readOnlyHint`, `destructiveHint`, `idempotentHint` and `openWorldHint` truthfully, so a client can decide what needs a person's confirmation.
-- **MCP Apps.** Interactive views are served through the `io.modelcontextprotocol/ui` extension as `ui://` resources.
+- **Annotations.** Every tool declares `readOnlyHint`, `destructiveHint`, `idempotentHint` and `openWorldHint` truthfully, so a client can decide what needs a person's confirmation. A tool not annotated read-only counts as a write.
+- **MCP Apps.** The server advertises the `io.modelcontextprotocol/ui` extension. A tool with a view carries `_meta.ui.resourceUri` pointing at a `ui://` resource (never the deprecated flat `ui/resourceUri` key), served with the MIME type `text/html;profile=mcp-app` under the same section and permission rules as a tool.
 - **Flagged sections are never served.** A section with a feature flag is unfinished, and nothing in it is listed, called or read over MCP, whoever the caller is. See [Section feature flags](#section-feature-flags).
 
 ### B2B API
 
-For other systems, under its own versioned route group (for example `/api/b2b/v1`).
+For other organisations' systems, under its own versioned route group, `/api/b2b/v1`.
 
-- **Entra application tokens** (client credentials) with **app roles**. Each app role maps to a set of permissions, and a client with no role configured is refused everything.
-- **Contract.** A published OpenAPI document per version. A breaking change is a new version; the old one keeps working until its clients have moved.
+- **Entra application tokens** (client credentials or a managed identity) with **Entra app roles**. The token becomes an application principal, never a person; a delegated token is refused.
+- **Roles open endpoints, per deployment.** Every endpoint names the app role it needs in code, and the role counts only while the environment's configuration grants it (`B2B:Roles`). With no roles granted, every call is refused (`403`), and so is an endpoint that names no role. A new endpoint is closed until someone opens it, and an environment can close a role without a release.
+- **Contract.** The group publishes its own OpenAPI document, `/api/b2b/v1/openapi.json`. A breaking change is a new version; the old one keeps working until its clients have moved.
 - **Per-client limits.** Rate limits are partitioned by the calling application, so one client cannot starve another.
-- **Audited as the app principal.** Every write records the calling application as the actor.
+- **Audited as the app principal.** Every call is appended to the audit chain with the calling application as the actor, and so is every write it causes.
 
 ## REST
 
 Every family endpoint is REST at [Richardson maturity level 3](https://martinfowler.com/articles/richardsonMaturityModel.html), using [HAL-FORMS](https://rwcbook.github.io/hal-forms/) as the hypermedia format. The point is that the server, which already knows permissions, state and flags, tells the client what it may do, and the client stops recomputing it.
 
-- **`_links`.** Every resource links to itself (`self`) and to the resources a client navigates to from it.
+- **`_links`.** Every resource links to itself (`self`) and to the resources a client navigates to from it. A link to an area the caller may not open now is not written, so a menu built from links never leads to a refusal.
 - **`_templates`.** Every resource lists the actions **this caller may take on it now**, each with its method, target, content type and fields. An action appears only when the caller holds the permission, the resource's state allows it and its section is on. A platform helper builds them, so no endpoint assembles its own.
-- **Verbs mean what HTTP says.** `GET` reads, `POST` creates (`201 Created` with a `Location` header), `PUT` replaces, `PATCH` updates part of a resource, `DELETE` removes (`204 No Content`).
-- **Errors are [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) ProblemDetails** (`application/problem+json`), carrying the stable error `code` the SPA translates and, for validation, the field errors.
-- **Concurrency.** A resource with a row version returns it as an `ETag`. A write to it sends `If-Match`: a stale value answers `412 Precondition Failed` and a missing one `428 Precondition Required`, instead of overwriting someone else's change.
-- **Pagination.** Every list uses the same `page` and `pageSize` parameters, returns the total, and links `first`, `prev`, `next` and `last`.
-- **State transitions are resources.** Approving a claim is `POST /claims/{id}/approvals`, not a `PATCH` of its status, so each transition has its own permission, its own template and its own audit event.
+- **Template keys are action names.** A template's key is `update`, `delete`, `set-roles` and so on, never HAL-FORMS' `default`, even when a resource offers one action, so a client asks for an action by name and never guesses what `default` means for this caller.
+- **Verbs mean what HTTP says.** `GET` reads, `POST` creates (`201 Created` with a `Location` header), `PUT` replaces a document saved as a whole, `PATCH` merges a record with JSON Merge Patch (`application/merge-patch+json`, anything else is `415`), `DELETE` removes (`204 No Content`).
+- **State transitions are noun sub-resources.** A state the resource is in is set with `PUT` on a sub-resource named by a noun (`/users/{id}/active`, `/claims/{id}/status`, `/claims/{id}/sign-offs/{role}`), so repeating it changes nothing. An action that makes a new resource is a `POST` to the collection it lands in (`/claims/{id}/versions`). Anything else is a `POST` to a noun (`/claims/{id}/booking-sync`). A path never holds a verb such as `/approve`; the verb is the template's key.
+- **Errors are [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) problems** (`application/problem+json`) with two extension members: `code`, the stable machine code the SPA translates, and `traceId`, the request's trace id for support. `type` is `urn:problem:<code in kebab case>`. Validation adds the field errors, and a bare error status is completed into a problem, so no error answers with an empty body.
+- **Concurrency.** A resource with a row version sends it as a strong `ETag` and in its body as `version`, so a list can change an item without reading it again. A write sends it back in `If-Match`: a stale value answers `412 Precondition Failed`, and `*` matches whatever is stored. A write that replaces content another person may have changed requires it and answers `428 Precondition Required` without it; one that sets an absolute state (activate, delete) checks it only when sent. A domain counter also called a version is named `versionNumber`.
+- **Pagination.** Every list uses the same `page` and `pageSize` parameters, returns the total, links `first` and `last` and, when they exist, `prev` and `next`, and keeps the request's filters in those links.
 
-**The SPA renders actions from `_templates`.** A button or menu item exists when its template is present and is built from it; the client does not hold a copy of the permission matrix to decide. Route and menu guards remain a convenience for navigation, and the API still refuses what is not allowed.
+**The SPA renders actions from `_templates`.** A button or menu item exists when its template is present and is built from it, and `submit` sends the template with the resource's `version` as `If-Match`; the client does not hold a copy of the permission matrix to decide. Route and menu guards remain a convenience for navigation, and the API still refuses what is not allowed.
 
 ## Backend architecture (.NET)
 
@@ -428,7 +432,7 @@ From `plain-engineering-conventions`:
 What a family app runs. An own design app may choose differently and records why in its own `ARCHITECTURE.md`.
 
 - **Architecture:** a **modular monolith** in Clean Architecture layers. A bounded context is a folder mirrored between Application and Infrastructure. Each context has one or a few **services** that implement its use cases, in Infrastructure behind **ports** (interfaces) declared in Application. Cross-context calls go through those ports, never through another context's classes. There is no mediator and no per-feature handler.
-- **Errors:** a small **domain exception hierarchy** (not found, unauthorized, forbidden, conflict, domain rule) that one global exception handler maps to the error envelope: RFC 9457 ProblemDetails with a stable `code` (see [REST](#rest)). Expected failures are exceptions, so the mapping is in one place and unit tested.
+- **Errors:** a small **domain exception hierarchy** (not found, unauthorized, forbidden, conflict, precondition failed, domain rule) that one global exception handler maps to the error envelope: RFC 9457 ProblemDetails with a stable `code` and the request's `traceId` (see [REST](#rest)). Expected failures are exceptions, so the mapping is in one place and unit tested.
 - **Validation:** FluentValidation, called by the endpoint, answering 422 with the field errors.
 - **Dependency injection:** registered **by hand** in one `DependencyInjection.cs` per layer. Several registrations are not one-to-one (two ports on one class, a stub or a real integration chosen from configuration), and a hand list makes that choice visible. No Scrutor assembly scanning.
 - **Persistence:** **EF Core**, one configuration class per entity, migrations applied by a job, never by the API outside Development.

@@ -182,13 +182,17 @@ From 3.2.0 the harness ships `.opencode/scripts/check-diff.mjs`, a deterministic
 
 Tool directives (`biome-ignore`, `nosemgrep`, `@ts-expect-error` and the like) are not comments. A project changes the limits under `codeRules` in `.opencode/harness.json`. `/plan-apply` runs it with the other checks, implement and apply-review run it with their verification, and the [merge gate](#the-merge-gate-and-the-merge-train) runs it on the pull request head before its agent starts. A failing result never auto-merges. Health reads the same shapes across the whole default branch, in [Engineering](/docs/health/engineering#comments-and-tests).
 
+### Reuse before you build
+
+From 3.8.0 the harness reads the platform contract, `.platform/contract.yml`, when a repository has one (see [How it fits together](/docs/how-it-fits)). It denies agent edits to the paths listed under `owned` unless an unexpired exception covers them, and `check-diff` fails a diff that changes one (`platform-file`), except a template sync. When the contract has `reuse`, install and `update` write a "Reuse before you build" block into `AGENTS.md`, between `<!-- PC-PLATFORM-CONTRACT-START -->` and `<!-- PC-PLATFORM-CONTRACT-END -->`: read the `reuse.docs` before designing anything, import the exports of the `reuse.packages` instead of re-implementing them, and ask for a change to an owned path at `source.changes`. Every proposal then has a "What is reused" section, `/plan-apply` stops on one that lacks it, and `check-diff` warns with `reuse-shadow` when a new file is named like a reusable export. A repository without a contract sees none of it. The format is documented on the harness site, [Platform contracts](https://harness.platform.plainconcepts.dev/docs/platform-contracts).
+
 ### Multi-platform
 
 Mix backlog and repository platforms. Examples: Jira backlog plus GitHub repository, browser backlog plus GitLab repository. The matching `pc-userstory-*` skill is installed based on your backlog choice; PR operations are injected into `/ops-*` commands based on your repo choice.
 
 ## Using them together
 
-The tools compose, and each one still holds its own. agent-harness gets the harness into a repository in the first place, agentic-workflows runs the agents against it, and project-health measures whether both are installed and current and how much of the agents' work merged without a person.
+The tools compose, and each one still holds its own. agent-harness gets the harness into a repository in the first place, agentic-workflows runs the agents against it, and project-health measures whether both are installed and current and how much of the agents' work merged without a person. None of them calls another: they meet in files in the repository, such as the skills the harness installs, `quality.config.json` and the platform contract, which is how any one of them can be used alone ([How it fits together](/docs/how-it-fits)).
 
 ```text
 agent-harness                    agentic-workflows
@@ -200,9 +204,11 @@ agent-harness                    agentic-workflows
   /repo-initialize
 ```
 
-The order matters, because the workers call the skills and commands the harness provides. The full
+The order matters for us, because the implement worker follows the planning skills a repository carries (the harness's `pc-plan-*`) and runs its `check-diff` when it is there. The full
 day-one sequence, with the reason behind each step, is on
 [Adopt in your project](/docs/adopt).
+
+From 1.12.0 the workflows' opt-in `platform-template` template is driven by the same contract: the weekly sync reads the applied version from `sync.version`, runs `sync.update` and opens one pull request per template version, and the conformance guard compares the `owned` paths with `source.url` at that version, honouring the exceptions file. Nothing in it is specific to Copier or to Kitchen-Sink beyond what the contract says, and a repository without a contract gets nothing from it.
 
 ## Agentic workflows
 
