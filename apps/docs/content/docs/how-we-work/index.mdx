@@ -30,10 +30,12 @@ Four repositories carry all of this. All four are public, and so are the npm pac
   <Card title="Foundations" href="https://github.com/PlainConceptsPlatform/Foundations" description="The theme, the conventions, the reference architecture, and this site. Used in all three phases." />
   <Card title="agent-harness" href="https://github.com/PlainConceptsPlatform/agent-harness" description="Installs the Platform Harness into a repository: skills, commands, an agent team, an OpenSpec workspace, and the comments and tests gate. Phases 2 and 3." />
   <Card title="agentic-workflows" href="https://github.com/PlainConceptsPlatform/agentic-workflows" description="The router and worker catalog that runs the pipeline, the merge gate and merge train, plus the CLI that installs and updates it. Phases 2 and 3." />
-  <Card title="project-health" href="https://github.com/PlainConceptsPlatform/project-health" description="Measures the other three in every project: engineering gates, delivery, agentic adoption, and the roadmap. All three phases." />
+  <Card title="project-health" href="https://github.com/PlainConceptsPlatform/project-health" description="Measures every project from GitHub: engineering gates, delivery, agentic adoption, the roadmap, and how far each app has drifted from its template. All three phases." />
 </Cards>
 
 Taken in order they form a chain, which is the clearest way to see why there are four and not one: **Foundations** sets the conventions, **agent-harness** puts them into a repository as something agents can act on, **agentic-workflows** runs the agents against it, and **project-health** measures all three. It checks that the guardrails Foundations defines guard each default branch, that the harness and the workflows are installed and current, and how much of what the agents produce merges without a person. Drop any of the first three and the phase it carries stops working. Drop the fourth and nobody can tell whether it did.
+
+The chain is how Plain Concepts uses them, not how they are built. Each is an independent tool that never imports, names or calls another; they couple only through open file formats such as the platform contract, `.platform/contract.yml`, so any organisation can adopt any one of them. [How it fits together](/docs/how-it-fits) draws who writes and who reads each format.
 
 Each one also publishes a site: [platform.plainconcepts.dev](https://platform.plainconcepts.dev) (this one), [harness.platform.plainconcepts.dev](https://harness.platform.plainconcepts.dev), [workflows.platform.plainconcepts.dev](https://workflows.platform.plainconcepts.dev) and [health.platform.plainconcepts.dev](https://health.platform.plainconcepts.dev).
 

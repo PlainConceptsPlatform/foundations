@@ -235,6 +235,8 @@ Numa, Odyssey, Hermes and Kitchen-Sink are one family. Their business differs, a
 
 **Kitchen-Sink** (internal: requires access to the PlainConceptsPlatform organisation) is both things at once. It is the reference app, where every platform capability runs for real, and it is the [Copier](https://copier.readthedocs.io/) template that delivers that code to the other members. Template versions are Kitchen-Sink's `v*` tags.
 
+The tools that keep the family together are independent. agent-harness, agentic-workflows and Project Health never name Kitchen-Sink or Copier; each one reads the **platform contract**, `.platform/contract.yml`, an open format any template can write, and the family's choices live in the contract Kitchen-Sink ships.
+
 ### Every family module is mandatory
 
 Auth and session, users, roles and permissions, settings, the audit log, email, impersonation, MCP, the changelog, health, security headers, rate limiting, i18n, the web shell, section feature flags, the guided tour, and the B2B surface. A family app carries all of them, so a fix in one reaches every app the same way.
@@ -246,45 +248,97 @@ Every file in a family app has exactly one owner, and only that owner changes it
 | Owner | Files | How it changes them |
 |---|---|---|
 | **agent-harness** | `.opencode/**`, `.agents/**`, `opencode.jsonc`, `skills-lock.json`, and the `AGENTS.md`, `ARCHITECTURE.md` and `DESIGN.md` it generates | `npx @plainconceptsplatform/agent-harness update` |
-| **agentic-workflows** | Every file with the `Managed by @plainconceptsplatform/workflows` header (router, workers, actions, evidence, `opencode.ci.json`, the compile script), and the `quality-gates` template (gate scripts and rules) | `npx @plainconceptsplatform/workflows update` |
-| **Template** | Only the paths listed in `.platform/manifest`: the platform code, its deploy workflow, the Dockerfile shape, `Directory.Packages.Platform.props`, the pnpm `platform` catalog, the capability specs and `docs/platform/` | `copier update` |
-| **App** | Everything else: the business, the catalogs (permissions, feature catalog, audit events), migrations, baselines, quality floors and environment configuration | the app's own pull requests |
+| **agentic-workflows** | Every file with the `Managed by @plainconceptsplatform/workflows` header (router, workers, actions, evidence, `opencode.ci.json`, the compile script), and the `quality-gates` and `platform-template` bundles (gate scripts and rules, the template sync and the conformance guard) | `npx @plainconceptsplatform/workflows update` |
+| **Template** | Only the paths the contract lists under `owned`: the contract itself, the platform code, `Directory.Packages.Platform.props`, the capability specs, `docs/platform/`, the deploy workflows and the `Dockerfile` | the contract's `sync.update`, which the template sync runs |
+| **App** | Everything else: the business, the catalogs (permissions, feature catalog, audit events), the exceptions file, migrations, baselines, quality floors and environment configuration | the app's own pull requests |
 
-Copier never touches harness or workflows files, and Kitchen-Sink's own CI fails when a manifest path is also managed by the harness or carries the workflows header.
+Copier never touches harness or workflows files, and Kitchen-Sink's own CI fails when an owned path is also managed by the harness or carries the workflows header.
 
-### The family files
+### The platform contract
+
+`.platform/contract.yml` is the source of truth for what the template owns. The template delivers it, so it is an owned file itself, identical in every app. Kitchen-Sink's reads:
+
+```yaml
+version: 1
+source:
+  name: Kitchen-Sink platform template
+  url: https://github.com/PlainConceptsPlatform/Kitchen-Sink
+  changes: https://github.com/PlainConceptsPlatform/Kitchen-Sink/issues/new
+owned:
+  - .platform/contract.yml
+  - .platform/manifest
+  - apps/api/src/Platform/**
+  - apps/api/Directory.Packages.Platform.props
+  - apps/web/src/shared/platform/**
+  - docs/platform/**
+  - openspec/specs/platform-*/**
+  - .github/workflows/app-deploy.yml
+  - .github/workflows/app-deploy-aca.yml
+  - /Dockerfile
+reuse:
+  docs: [docs/platform/]
+  packages: ["@plainconceptsplatform/ui-components", "@plainconceptsplatform/ui-theme"]
+exceptions: .platform/exceptions.yml
+sync:
+  marker: .copier-answers.yml
+  version:
+    file: .copier-answers.yml
+    key: _commit
+  update: copier update --trust --defaults --conflict inline
+```
+
+| Field | Meaning | Who reads it |
+|---|---|---|
+| `version` | The format's major version, `1`. A tool refuses one it does not know. | every reader |
+| `source` | The template's `name`, its `url`, and `changes`, where to ask for a change to an owned path. | the harness's messages, the template sync, Health's Family tab, `platform-upstream` |
+| `owned` | gitwildmatch globs, repository-relative; a leading `/` anchors to the root and `!` excludes. The paths only the template changes. | the harness guard and `check-diff`, the conformance guard, Health, the `platform-*` skills |
+| `reuse` | `docs` to read before building something new, `packages` whose exports are imported rather than re-implemented, and optional extra `names`. | the harness's "Reuse before you build" block in `AGENTS.md` and its `reuse-shadow` warning, `platform-new-project` |
+| `exceptions` | The app's exceptions file, `.platform/exceptions.yml` by default. | every reader |
+| `sync` | The `marker` whose change makes a diff a template sync, the `version` file and key that record the applied template version, and the `update` command that pulls the next one. | the template sync, the conformance guard, `check-diff`, Health |
+
+Each tool has its own small reader, and a contract that does not read gives one error naming the file and the field, never a silent pass. A repository without a contract sees no change in any tool. The field-by-field behaviour of each tool is in its own documentation: [agent-harness](https://harness.platform.plainconcepts.dev/docs/platform-contracts), [agentic-workflows](https://github.com/PlainConceptsPlatform/agentic-workflows/blob/main/docs/platform-contracts.md) and [Project Health](https://github.com/PlainConceptsPlatform/project-health#the-platform-contract).
+
+### The other family files
 
 | File | Owner | Content |
 |---|---|---|
-| `.copier-answers.yml` | Copier (generated) | `_commit` (the template tag), `_src_path`, and the answers such as `app_name`. Its presence is the opt-in marker: harness and workflows features for the family do nothing in a repository without it. |
-| `.platform/manifest` | Template | One gitwildmatch glob per line, relative to the repository root, `#` for comments. The list of platform-owned paths. |
-| `.platform/exceptions.yml` | App | `exceptions: [{ path: <glob>, reason: <text>, issue: <url>, expires: YYYY-MM-DD }]`. The platform paths this app may diverge from, and until when. |
+| `.copier-answers.yml` | Copier (generated) | `_commit` (the template tag), `_src_path`, and the answers such as `app_name` and `app_slug`. The contract's `sync.marker` and `sync.version.file`. |
+| `.platform/exceptions.yml` | App | `exceptions: [{ path: <glob>, reason: <text>, issue: <url>, expires: YYYY-MM-DD }]`. The owned paths this app may diverge from, and until when; `expires` is inclusive. |
+| `.platform/manifest` | Template | The legacy mirror of `owned`, one glob per line, for agent-harness 3.7.0 and workflows 1.11.0, which read only it. Kitchen-Sink's CI fails when it disagrees with the contract, and it goes once every app pins agent-harness 3.8.0 and workflows 1.12.0 or later. Those versions, and Health, still read a repository with `.copier-answers.yml` and a manifest but no contract as an implicit contract. |
 
 ### Neutral platform paths
 
 Platform code lives at paths that carry no app name, so a file is byte-identical in every app: `apps/api/src/Platform/**` for the API and `apps/web/src/shared/platform/**` for the web. App code depends on the platform code; the platform code never imports app code. The catalogs it needs (permissions, feature sections, audit events) are app files it reads through a port.
 
-Platform dependency versions are template files too. `Directory.Packages.Platform.props` holds the NuGet versions the platform code needs and is imported from the app's `Directory.Packages.props` (Central Package Management). The pnpm `platform` catalog in `pnpm-workspace.yaml` does the same for npm, and the web package references those entries as `catalog:platform`. An app bumps its own packages freely and takes platform versions with the template.
+Platform dependency versions travel with the template too. `Directory.Packages.Platform.props` is an owned file that holds the NuGet versions the platform code needs, imported from the app's `Directory.Packages.props` (Central Package Management). The pnpm `platform` catalog in `pnpm-workspace.yaml` does the same for npm, and the web package references those entries as `catalog:platform`. An app bumps its own packages freely and takes platform versions with the template; Dependabot ignores the platform packages, since a bump to an owned file outside a sync fails conformance.
 
 ### Adopting and updating
 
 ```bash
-# An existing app joins the family: platform paths are overwritten, nothing else is touched
-copier copy --trust --defaults --overwrite -d app_name=<Name> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .
+# A new app, in an empty repository
+copier copy --trust -d app_name=<Name> -d app_slug=<name> --vcs-ref <tag> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .
 
-# Take a new template version (the platform-template sync)
+# An existing app joins the family: owned paths are overwritten, nothing else is touched
+copier copy --trust --overwrite -d app_name=<Name> -d app_slug=<name> --vcs-ref <tag> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .
+
+# Take a new template version: the contract's sync.update, run by the weekly template sync
 copier update --trust --defaults --conflict inline
 ```
 
-Both commands leave non-platform files alone. A platform file edited locally comes back with inline `<<<<<<< before updating` / `>>>>>>> after updating` markers, which is the signal that the edit belongs upstream or in an exception.
+None of them touches a file outside `owned`. The `platform-template` workflows template runs `sync.update` weekly or on demand and opens one pull request per template version, which goes through the merge train like any bot pull request. An owned file edited locally comes back with inline `<<<<<<< before updating` / `>>>>>>> after updating` markers, which is the signal that the edit belongs upstream or in an exception.
+
+### Guarded, not only measured
+
+- **The harness** denies agent edits to owned paths, unless an unexpired exception covers them or a template sync is being resolved. `check-diff` fails a diff that changes one (`platform-file`), and warns when a new file is named like a reusable export (`reuse-shadow`). Its "Reuse before you build" block in `AGENTS.md` lists `reuse`, and every plan carries a "What is reused" section.
+- **The conformance guard**, `scripts/check-platform-conformance.mjs` from the `platform-template` workflows template, runs in CI on every pull request: an owned path changes only in a template sync or under an unexpired exception, owned files match `source.url` at the recorded version, and no owned file holds conflict markers.
 
 ### Conformance
 
-A family app **conforms** when every path in its manifest is identical to the template version named in `.copier-answers.yml`, except the paths listed in `.platform/exceptions.yml` whose `expires` date has not passed. An exception without an issue or an expiry date is not an exception. Project-Health measures conformance for every family app, and [`ENGINEERING.md`](ENGINEERING.md) lists it as a family practice.
+A family app **conforms** when every owned path is identical to the template version its contract's `sync.version` records (`_commit` in `.copier-answers.yml`), except the paths covered by an exception whose `expires` date has not passed. An exception without an issue or an expiry date is not an exception. Project-Health's Family tab measures conformance for every family app, and [`ENGINEERING.md`](ENGINEERING.md) lists it as a family practice.
 
 ### Upstream first
 
-A change to platform code is made in Kitchen-Sink first, tested there, released as a template tag, and reaches the other apps through `copier update`. An improvement born in an app moves to Kitchen-Sink before it spreads; until it lands, the app records a dated exception for the path it changed. The `platform-upstream` skill in this repository walks through both routes.
+A change to platform code is made in Kitchen-Sink first, tested there, released as a template tag, and reaches the other apps through the template sync. An improvement born in an app moves to Kitchen-Sink before it spreads; until it lands, the app records a dated exception for the path it changed. The `platform-upstream` skill in this repository walks through both routes.
 
 ### What stays outside the template
 
@@ -292,50 +346,54 @@ Infrastructure is provisioned outside the app repositories: an app's repository 
 
 ## API surfaces
 
-A family API exposes three surfaces over the **same Application services**, so permissions, validation, scoping and audit are identical whichever door a caller uses. Only the authentication and the shape of the surface differ.
+A family API exposes three surfaces over the **same Application services**, so permissions, validation, scoping and audit are identical whichever door a caller uses. Only the authentication and the shape of the surface differ. The three never accept each other's credentials: a session cookie on `/mcp` or a B2B route is refused, and so is an app token on the private API.
 
 ### Private API (BFF)
 
 For the app's own SPA and nothing else, under `/api/v1`.
 
 - **Session cookie.** After the Entra ID sign-in the API issues an HttpOnly, `Secure` session cookie. No token reaches browser JavaScript, and the SPA never sees an Entra token.
-- **CSRF.** Every unsafe method (`POST`, `PUT`, `PATCH`, `DELETE`) carries an anti-forgery token in a header that the API checks against the session. A request without it is refused before it reaches an endpoint.
+- **CSRF.** Every unsafe method (`POST`, `PUT`, `PATCH`, `DELETE`) carries an anti-forgery token in the `X-CSRF-Token` header that the API checks against the session. A request without it is refused before it reaches an endpoint.
 - **Same origin.** The API serves the SPA's static export, so there is no CORS configuration and one content security policy covers both.
 - **Deny by default.** Every endpoint requires an authenticated caller unless it says otherwise, and declares the permission it needs (`module:action`).
+- **Sessions are not resources.** `/auth/*` and the health probes answer plain JSON: they start or end a session, or report on the host. Everything else is a resource (see [REST](#rest)).
 
 ### MCP
 
-For AI agents, at `/mcp`, following the MCP specification revision **2026-07-28**.
+For AI agents, at `/mcp` (Streamable HTTP, stateless), following the MCP specification revision **2026-07-28**.
 
-- **Tokens.** Entra ID access tokens and Forge tokens only. The app runs no OAuth server of its own. It publishes [RFC 9728](https://www.rfc-editor.org/rfc/rfc9728) Protected Resource Metadata at `/.well-known/oauth-protected-resource`, so a client discovers which authorization server to use.
-- **The caller's permissions apply.** A token is mapped to the same principal and permissions the person or application would have in the SPA, and each tool checks the same `module:action` permission as the matching endpoint.
+- **Tokens.** Entra ID access tokens for the app's registration with its MCP scope, or Forge assertions from the configured issuer, and nothing else. The session cookie and the app's own tokens are refused, because a browser session that reached `/mcp` would let any page script act as an agent. The app runs no OAuth server of its own.
+- **Discovery.** [RFC 9728](https://www.rfc-editor.org/rfc/rfc9728) Protected Resource Metadata at `/.well-known/oauth-protected-resource` (and `/.well-known/oauth-protected-resource/mcp`), naming Entra as the authorization server and the scope, and a `401` challenge whose `resource_metadata` points at it.
+- **The caller's permissions apply.** A token is mapped to the app's person, so permissions, audit and revocation are the same as on the web, and each tool checks the same `module:action` permission as the matching endpoint. A Forge caller never provisions a person and is read-only.
 - **Schemas.** Tool input and output schemas are JSON Schema 2020-12. Tools return structured output (`structuredContent` matching the declared `outputSchema`) as well as text.
-- **Annotations.** Every tool declares `readOnlyHint`, `destructiveHint`, `idempotentHint` and `openWorldHint` truthfully, so a client can decide what needs a person's confirmation.
-- **MCP Apps.** Interactive views are served through the `io.modelcontextprotocol/ui` extension as `ui://` resources.
+- **Annotations.** Every tool declares `readOnlyHint`, `destructiveHint`, `idempotentHint` and `openWorldHint` truthfully, so a client can decide what needs a person's confirmation. A tool not annotated read-only counts as a write.
+- **MCP Apps.** The server advertises the `io.modelcontextprotocol/ui` extension. A tool with a view carries `_meta.ui.resourceUri` pointing at a `ui://` resource (never the deprecated flat `ui/resourceUri` key), served with the MIME type `text/html;profile=mcp-app` under the same section and permission rules as a tool.
 - **Flagged sections are never served.** A section with a feature flag is unfinished, and nothing in it is listed, called or read over MCP, whoever the caller is. See [Section feature flags](#section-feature-flags).
 
 ### B2B API
 
-For other systems, under its own versioned route group (for example `/api/b2b/v1`).
+For other organisations' systems, under its own versioned route group, `/api/b2b/v1`.
 
-- **Entra application tokens** (client credentials) with **app roles**. Each app role maps to a set of permissions, and a client with no role configured is refused everything.
-- **Contract.** A published OpenAPI document per version. A breaking change is a new version; the old one keeps working until its clients have moved.
+- **Entra application tokens** (client credentials or a managed identity) with **Entra app roles**. The token becomes an application principal, never a person; a delegated token is refused.
+- **Roles open endpoints, per deployment.** Every endpoint names the app role it needs in code, and the role counts only while the environment's configuration grants it (`B2B:Roles`). With no roles granted, every call is refused (`403`), and so is an endpoint that names no role. A new endpoint is closed until someone opens it, and an environment can close a role without a release.
+- **Contract.** The group publishes its own OpenAPI document, `/api/b2b/v1/openapi.json`. A breaking change is a new version; the old one keeps working until its clients have moved.
 - **Per-client limits.** Rate limits are partitioned by the calling application, so one client cannot starve another.
-- **Audited as the app principal.** Every write records the calling application as the actor.
+- **Audited as the app principal.** Every call is appended to the audit chain with the calling application as the actor, and so is every write it causes.
 
 ## REST
 
 Every family endpoint is REST at [Richardson maturity level 3](https://martinfowler.com/articles/richardsonMaturityModel.html), using [HAL-FORMS](https://rwcbook.github.io/hal-forms/) as the hypermedia format. The point is that the server, which already knows permissions, state and flags, tells the client what it may do, and the client stops recomputing it.
 
-- **`_links`.** Every resource links to itself (`self`) and to the resources a client navigates to from it.
+- **`_links`.** Every resource links to itself (`self`) and to the resources a client navigates to from it. A link to an area the caller may not open now is not written, so a menu built from links never leads to a refusal.
 - **`_templates`.** Every resource lists the actions **this caller may take on it now**, each with its method, target, content type and fields. An action appears only when the caller holds the permission, the resource's state allows it and its section is on. A platform helper builds them, so no endpoint assembles its own.
-- **Verbs mean what HTTP says.** `GET` reads, `POST` creates (`201 Created` with a `Location` header), `PUT` replaces, `PATCH` updates part of a resource, `DELETE` removes (`204 No Content`).
-- **Errors are [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) ProblemDetails** (`application/problem+json`), carrying the stable error `code` the SPA translates and, for validation, the field errors.
-- **Concurrency.** A resource with a row version returns it as an `ETag`. A write to it sends `If-Match`: a stale value answers `412 Precondition Failed` and a missing one `428 Precondition Required`, instead of overwriting someone else's change.
-- **Pagination.** Every list uses the same `page` and `pageSize` parameters, returns the total, and links `first`, `prev`, `next` and `last`.
-- **State transitions are resources.** Approving a claim is `POST /claims/{id}/approvals`, not a `PATCH` of its status, so each transition has its own permission, its own template and its own audit event.
+- **Template keys are action names.** A template's key is `update`, `delete`, `set-roles` and so on, never HAL-FORMS' `default`, even when a resource offers one action, so a client asks for an action by name and never guesses what `default` means for this caller.
+- **Verbs mean what HTTP says.** `GET` reads, `POST` creates (`201 Created` with a `Location` header), `PUT` replaces a document saved as a whole, `PATCH` merges a record with JSON Merge Patch (`application/merge-patch+json`, anything else is `415`), `DELETE` removes (`204 No Content`).
+- **State transitions are noun sub-resources.** A state the resource is in is set with `PUT` on a sub-resource named by a noun (`/users/{id}/active`, `/claims/{id}/status`, `/claims/{id}/sign-offs/{role}`), so repeating it changes nothing. An action that makes a new resource is a `POST` to the collection it lands in (`/claims/{id}/versions`). Anything else is a `POST` to a noun (`/claims/{id}/booking-sync`). A path never holds a verb such as `/approve`; the verb is the template's key.
+- **Errors are [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) problems** (`application/problem+json`) with two extension members: `code`, the stable machine code the SPA translates, and `traceId`, the request's trace id for support. `type` is `urn:problem:<code in kebab case>`. Validation adds the field errors, and a bare error status is completed into a problem, so no error answers with an empty body.
+- **Concurrency.** A resource with a row version sends it as a strong `ETag` and in its body as `version`, so a list can change an item without reading it again. A write sends it back in `If-Match`: a stale value answers `412 Precondition Failed`, and `*` matches whatever is stored. A write that replaces content another person may have changed requires it and answers `428 Precondition Required` without it; one that sets an absolute state (activate, delete) checks it only when sent. A domain counter also called a version is named `versionNumber`.
+- **Pagination.** Every list uses the same `page` and `pageSize` parameters, returns the total, links `first` and `last` and, when they exist, `prev` and `next`, and keeps the request's filters in those links.
 
-**The SPA renders actions from `_templates`.** A button or menu item exists when its template is present and is built from it; the client does not hold a copy of the permission matrix to decide. Route and menu guards remain a convenience for navigation, and the API still refuses what is not allowed.
+**The SPA renders actions from `_templates`.** A button or menu item exists when its template is present and is built from it, and `submit` sends the template with the resource's `version` as `If-Match`; the client does not hold a copy of the permission matrix to decide. Route and menu guards remain a convenience for navigation, and the API still refuses what is not allowed.
 
 ## Backend architecture (.NET)
 
@@ -374,7 +432,7 @@ From `plain-engineering-conventions`:
 What a family app runs. An own design app may choose differently and records why in its own `ARCHITECTURE.md`.
 
 - **Architecture:** a **modular monolith** in Clean Architecture layers. A bounded context is a folder mirrored between Application and Infrastructure. Each context has one or a few **services** that implement its use cases, in Infrastructure behind **ports** (interfaces) declared in Application. Cross-context calls go through those ports, never through another context's classes. There is no mediator and no per-feature handler.
-- **Errors:** a small **domain exception hierarchy** (not found, unauthorized, forbidden, conflict, domain rule) that one global exception handler maps to the error envelope: RFC 9457 ProblemDetails with a stable `code` (see [REST](#rest)). Expected failures are exceptions, so the mapping is in one place and unit tested.
+- **Errors:** a small **domain exception hierarchy** (not found, unauthorized, forbidden, conflict, precondition failed, domain rule) that one global exception handler maps to the error envelope: RFC 9457 ProblemDetails with a stable `code` and the request's `traceId` (see [REST](#rest)). Expected failures are exceptions, so the mapping is in one place and unit tested.
 - **Validation:** FluentValidation, called by the endpoint, answering 422 with the field errors.
 - **Dependency injection:** registered **by hand** in one `DependencyInjection.cs` per layer. Several registrations are not one-to-one (two ports on one class, a stub or a real integration chosen from configuration), and a hand list makes that choice visible. No Scrutor assembly scanning.
 - **Persistence:** **EF Core**, one configuration class per entity, migrations applied by a job, never by the API outside Development.

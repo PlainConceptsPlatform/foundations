@@ -22,11 +22,12 @@ The overview opens on the Engineering scorecard, not on delivery. Delivery numbe
 
 Numa, Odyssey, Hermes and Kitchen-Sink are the Platform app family: their platform code comes from the Kitchen-Sink template and is meant to stay identical (see [Architecture](/docs/reference/architecture#platform-family)). The **Family** tab answers one question about them: how alike are they?
 
-- **Which apps are in it.** A repository is a family app when it has a `.copier-answers.yml`. Its row shows the template version it is on and how far behind the latest tag that is.
-- **Conformance.** Whether every path in the app's `.platform/manifest` is identical to that template version, and which ones are not.
-- **Exceptions.** The entries in `.platform/exceptions.yml`, with their reason, issue and expiry date. An expired exception is flagged rather than quietly counted as conforming.
+- **Which apps are in it.** A project joins with `"family": "member"` in `projects.json`, which `--discover` suggests when the repository has a platform contract. Its row shows the template, the version it is on and how many of the template's version tags are newer.
+- **Where the template comes from.** Health reads each member's platform contract, `.platform/contract.yml`: the template is `source.url`, the applied version is the value `sync.version` points at, and the compared paths are `owned`. A member adopted before the contract existed, with `.copier-answers.yml` and `.platform/manifest`, is read as the same contract. A member with neither is compared with the baseline template set in the configuration (`family.template` in `projects.json`), not with a template named in Health's code.
+- **Conformance.** Whether every owned file is identical to the template at that version, modified, or missing, and which ones. A contract that does not read turns the row red with the file and the field, rather than showing an older comparison.
+- **Exceptions.** The entries in the exceptions file the contract names, with their reason, issue and expiry date. An expired exception is shown in red rather than quietly counted as conforming.
 
-Every other project is listed as **own design**. That is a fact, not a grade: an own design app is measured on the four areas like any project, and it is not compared with a template it never used.
+A project marked `"family": "own-design"` is listed greyed with its reason (`familyReason`). That is a fact, not a grade: an own design app is measured on the four areas like any project, and it is not compared with a template it never used. Health only reads the contract; the format is shared by convention with the harness and the workflows, and none of them is required for the Family tab to work.
 
 ## Where it lives and how fresh it is
 

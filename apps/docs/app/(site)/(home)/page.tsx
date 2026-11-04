@@ -1,5 +1,6 @@
 import { ThemedScreen } from "@/components/themed-screen";
 import { source } from "@/lib/source";
+import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock";
 import {
   Activity,
   AppWindow,
@@ -26,6 +27,10 @@ import Link from "next/link";
  * from the tokens this repo publishes: border + bg-card for elevation (the theme
  * ships no shadows), --radius for corners, and 150ms colour-only transitions.
  */
+
+// Without --skill the CLI offers every skill in the repository, the vendored harness ones included.
+const INSTALL_SKILL =
+  "npx skills add PlainConceptsPlatform/Foundations --skill platform-new-project";
 
 type Destination = {
   slug: string[];
@@ -153,7 +158,7 @@ const PILLARS: Pillar[] = [
     site: "https://health.platform.plainconcepts.dev",
     icon: Gauge,
     description:
-      "Measures the other three in every project: engineering gates, delivery, agentic adoption and the roadmap.",
+      "Measures every project from GitHub: engineering gates, delivery, agentic adoption, the roadmap and template drift.",
   },
 ];
 
@@ -196,6 +201,34 @@ export default function HomePage() {
               Documentation
             </Link>
           </div>
+
+          <div className="mt-10 min-w-0 rounded-lg border border-border bg-card p-5">
+            <h2 className="font-semibold text-card-foreground">Start a new project</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              In an empty repository, install the skill:
+            </p>
+            <CodeBlock className="my-3" aria-label="Install the platform-new-project skill">
+              <Pre className="!w-full whitespace-pre-wrap [overflow-wrap:anywhere]">
+                <code>
+                  <span className="line !pr-10">{INSTALL_SKILL}</span>
+                </code>
+              </Pre>
+            </CodeBlock>
+            <p className="text-sm text-muted-foreground">
+              Then ask your agent:{" "}
+              <span className="font-medium text-card-foreground">
+                create a new Platform project
+              </span>
+              . The steps it takes are on{" "}
+              <Link
+                href="/docs/how-it-fits#a-new-project-step-by-step"
+                className="text-primary hover:underline"
+              >
+                How it fits together
+              </Link>
+              .
+            </p>
+          </div>
         </section>
 
         <nav aria-label="Documentation sections" className="mt-16">
@@ -230,7 +263,13 @@ export default function HomePage() {
             . Foundations sets the conventions, agent-harness puts them into a repository as
             something agents can act on, agentic-workflows runs the agents against it, and
             project-health measures all three: whether the guardrails are in place, whether the
-            agents run the Platform way, and how much of their work merges without a person.
+            agents run the Platform way, and how much of their work merges without a person. Each is
+            an independent tool, coupled to the others only through open file formats, so any one of
+            them can be adopted alone; see{" "}
+            <Link href="/docs/how-it-fits" className="text-primary hover:underline">
+              How it fits together
+            </Link>
+            .
           </p>
 
           <ul className="mt-6 grid gap-4 sm:grid-cols-2">

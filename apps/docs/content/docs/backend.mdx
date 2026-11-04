@@ -60,7 +60,7 @@ Organize by bounded context, not by technical type. A context is a folder mirror
 
 ## Errors
 
-Expected failures are a small exception hierarchy (not found, unauthorized, forbidden, conflict, domain rule), and one global exception handler maps them to the error envelope: RFC 9457 ProblemDetails with a stable `code` the SPA translates.
+Expected failures are a small exception hierarchy (not found, unauthorized, forbidden, conflict, precondition failed, domain rule), and one global exception handler maps them to the error envelope: RFC 9457 ProblemDetails with a stable `code` the SPA translates and the request's `traceId` for support, and a `type` of `urn:problem:<code in kebab case>`.
 
 ```csharp
 public async Task<ClaimDto> GetAsync(string publicId, CancellationToken ct)
@@ -75,7 +75,7 @@ The mapping is one pure function with a unit test, so every endpoint, MCP tool a
 
 ## API surfaces and REST
 
-A family API serves three surfaces over the same Application services: the private BFF for the SPA (session cookie and CSRF), MCP for agents (Entra or Forge tokens), and a versioned B2B API (Entra app tokens with app roles). Every endpoint is REST at Richardson level 3 with HAL-FORMS: `_links` to navigate and `_templates` with the actions the caller may take now. Both are specified in [Architecture](/docs/reference/architecture#api-surfaces); in a family app the code for them is platform code from the template.
+A family API serves three surfaces over the same Application services: the private BFF for the SPA (session cookie and CSRF), MCP for agents (specification 2026-07-28, Entra or Forge tokens only, RFC 9728 discovery, MCP Apps through `_meta.ui.resourceUri`), and the B2B API under `/api/b2b/v1` (Entra app tokens, each endpoint behind an Entra app role that the deployment grants, every call refused while none is). Every endpoint is REST at Richardson level 3 with HAL-FORMS: `_links` to navigate and `_templates` keyed by action name (`update`, `delete`, never `default`) with the actions the caller may take now. The row version travels as an `ETag` and in the body; a stale `If-Match` answers 412 and a missing one, where a write requires it, 428. State transitions are `PUT` on noun sub-resources such as `/users/{id}/active`, never a verb in the path. Both are specified in [Architecture](/docs/reference/architecture#api-surfaces); in a family app the code for them is platform code from the template.
 
 ## When to use what
 
