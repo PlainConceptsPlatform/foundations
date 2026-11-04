@@ -35,5 +35,22 @@
     "lint-staged": "^17.2.0",
     "markdownlint-cli2": "0.23.2",
     "typescript": "^5.6.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "dompurify": "^3.4.17",
+      "image-size": "^2.0.3",
+      "js-yaml@4": "^4.3.2",
+      "js-yaml@5": "^5.4.1",
+      "katex": "^0.18.2",
+      "markdown-it": "^14.3.3",
+      "nanoid@3": "^3.3.18",
+      "postcss": "^8.5.23",
+      "postcss-selector-parser@7": "^7.1.6",
+      "sharp": "^0.35.5",
+      "smol-toml": "^1.9.0",
+      "source-map-js": "^1.2.2",
+      "zod@4": "^4.6.6"
+    }
   }
 }

@@ -1,5 +1,10 @@
 {
   "dependencies": {
     "@opencode/plugin": "2.0.22"
+  },
+  "overrides": {
+    "glob": "^14.0.2",
+    "minimatch": "^11.0.1",
+    "zod": "^4.6.6"
   }
 }
