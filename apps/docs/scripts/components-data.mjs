@@ -513,6 +513,16 @@ export const COMPONENTS = {
     platformNotes:
       "Scrolling only happens if the area has a resolved height (`h-60` in the demo); hand it a percentage or `auto` and it quietly stops clipping. The thumb is `bg-border` on a transparent track, deliberately quiet, so do not make it the only cue that more content exists: leave a row partly visible at the fold. The viewport itself is focusable and shows the `ring` outline, so keep it keyboard reachable instead of setting `tabIndex={-1}`. The mandatory states live around it: `Skeleton` rows while data loads and an `Empty` block when there is nothing, otherwise an empty scroll box reads as a bug.",
   },
+  "segmented-control": {
+    title: "SegmentedControl",
+    description:
+      "A controlled one-of-N segmented selector: one row of buttons where exactly one is selected, with icon or text options.",
+    demo: "SegmentedControlDemo",
+    block: true,
+    source: "package",
+    group: "platform",
+    handwritten: true,
+  },
   select: {
     title: "Select",
     description: "Displays a list of options for the user to pick from, triggered by a button.",
