@@ -6,7 +6,7 @@ Project-Health renders this standard as the **Engineering scorecard**: one row p
 
 ## Practices
 
-Eleven practices, in two phases. The standard mode is what "green" requires.
+Twelve practices, in three phases. The standard mode is what "green" requires.
 
 | # | Practice | Phase | Standard mode | Usual tools | What it guarantees |
 |---|---|---|---|---|---|
@@ -21,6 +21,9 @@ Eleven practices, in two phases. The standard mode is what "green" requires.
 | 9 | DAST | After deploying to a test environment | Threshold | OWASP ZAP baseline (passive) | The deployed instance is scanned for what static tools cannot see: headers, cookies, CSP, endpoints answering without auth. |
 | 10 | Performance | After deploying to a test environment | Threshold | k6, JMeter, Lighthouse CI | Response times or Lighthouse budgets hold. Only when the project requires it. |
 | 11 | Code hygiene (AI slop) | Every build | Threshold | jscpd, Semgrep hygiene rules, IDE0051/IDE0052 | No new copy-pasted block, no exception swallowed without a stated reason, no dead private code. The cheap proxies for the slop AI-assisted change tends to leave behind. |
+| 12 | Restore drill | In operation | Blocking | the Atlas `Ops · Restore drill` workflow (point-in-time restore, in-network verification) | The production database can be restored: a point-in-time copy is created inside the recovery objectives (RPO 1 h, RTO 4 h), verified and dropped, at least every quarter (ISO/IEC 27001 A.8.13). Only for a project that owns a production database. |
+
+**Restore drill** is read from a hub, not from the project's own pipeline. One workflow in the Atlas repository restores every production database listed in its inventory (`infra/backup/databases.json`), quarterly, and names its jobs `Drill <product>/<database>`. A project opts in with `scorecard.restoredrill: true` in Project-Health's `projects.json` and is rated by the newest passing or failing job of its product. A project whose database is not yet in the inventory is red, which is the point: it has no proven restore. A project without a production database leaves it not applicable.
 
 Modes: **Blocking** fails the pipeline. **Threshold** holds a measured value above a committed floor and fails when it drops below. **Policy** produces an artefact that a policy is checked against.
 
@@ -53,9 +56,9 @@ Levels are cumulative, and only **green** practices count towards them. A practi
 | L2 | L1, plus Tests & coverage, Spec and SBOM green. |
 | L3 | L2, plus Mutation, DAST and Complexity green. |
 
-Anything below L1 is **L0**. The **score** is `(green + 0.5 × yellow) / applicable × 100`, the number behind the six-month trend. **Gates** is the count of practices present (green or yellow) over those that apply, in every phase, so a red DAST or Performance shows in the count. Performance and Code hygiene count towards the score and the gates but not towards a level.
+Anything below L1 is **L0**. The **score** is `(green + 0.5 × yellow) / applicable × 100`, the number behind the six-month trend. **Gates** is the count of practices present (green or yellow) over those that apply, in every phase, so a red DAST or Performance shows in the count. Performance, Code hygiene and Restore drill count towards the score and the gates but not towards a level.
 
-A practice is **green** when it is present in its standard mode and its last result on the default branch passed (or its threshold is met). It is **yellow** when it is present but weaker than the standard (report-only where blocking is expected, a test run without coverage), when a threshold is not met, or when there is no recent result (older than 14 days). It is **red** when it applies but is absent, or when a blocking practice fails on the default branch.
+A practice is **green** when it is present in its standard mode and its last result on the default branch passed (or its threshold is met). It is **yellow** when it is present but weaker than the standard (report-only where blocking is expected, a test run without coverage), when a threshold is not met, or when there is no recent result (older than 14 days; 100 days for the quarterly Restore drill). It is **red** when it applies but is absent, or when a blocking practice fails on the default branch.
 
 **Alerts.** "High AI usage, low engineering" fires when AI usage is 4/5 or more and the level is L1 or below: AI-assisted change is landing without the gates that would catch its mistakes. AI usage is the share of the month's default-branch commits that are AI-assisted (co-author trailers from Claude, Copilot, Codex, Cursor, Devin, Gemini, Windsurf, and agent or bot authors other than Dependabot, Renovate and `github-actions[bot]`), bucketed at 10, 25, 50 and 75%. "Engineering declining" fires when the score is 10 points or more below the best score of the two previous months.
 

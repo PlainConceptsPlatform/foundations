@@ -107,6 +107,8 @@ resource backupRetention 'Microsoft.Sql/servers/databases/backupShortTermRetenti
 }
 ```
 
+A declared policy is not a proven one. Every production database also belongs in the restore-drill inventory (`infra/backup/databases.json` in the Atlas repository), which restores it quarterly into a throwaway copy, verifies it and drops it. Project-Health shows the result as the Restore drill practice. The practice is defined in `ai/ENGINEERING.md`.
+
 Wire both values from the environment config (`infra/pro.env`) through the infra workflow, so pro carries them and PRE stays on the platform defaults. Verify after the first apply in the portal under SQL server, Backups, Retention policies.
 
 ## Observability and security
