@@ -1,6 +1,6 @@
 ---
 name: platform-onboard
-description: Bring an existing project onto the Plain Concepts Platform. For a Platform family app, adopt the Kitchen-Sink template with Copier and converge each capability onto it (preflight, adopt, converge, quality gates, template sync); for an own design app, migrate one domain at a time. Use when the user says "onboard this project", "join the family", "adopt the Kitchen-Sink template", "adopt platform standards", "migrate to Platform Foundations", or wants to add pnpm, a Next.js static export, shadcn/ui, FSD with Steiger, inversify-hooks, react-i18next, Biome, or OpenSpec to an existing project. Also use when another skill needs the onboarding sequence or its preflight checks.
+description: Bring an existing project onto the Plain Concepts Platform. For a Platform family app, adopt the Kitchen-Sink template with Copier, guided by its platform contract (.platform/contract.yml), and converge each capability onto it (preflight, adopt, converge, quality gates, template sync); for an own design app, migrate one domain at a time. Use when the user says "onboard this project", "join the family", "adopt the Kitchen-Sink template", "adopt platform standards", "migrate to Platform Foundations", or wants to add pnpm, a Next.js static export, shadcn/ui, FSD with Steiger, inversify-hooks, react-i18next, Biome, or OpenSpec to an existing project. Also use when another skill needs the onboarding sequence or its preflight checks.
 ---
 
 # Platform Onboard
@@ -12,7 +12,15 @@ Bring an existing project onto the Plain Concepts Platform. There are two routes
 
 For a repository with no code yet, use `platform-new-project` instead. For a change to platform code after the app has joined, use `platform-upstream`.
 
-The rules both routes implement are in Foundations `ai/ARCHITECTURE.md`: "Platform family" (ownership, the family files, conformance, upstream first), "API surfaces", "REST", and the frontend and backend sections. Read them before starting.
+The rules both routes implement are in Foundations `ai/ARCHITECTURE.md`: "Platform family" (ownership, the platform contract, conformance, upstream first), "API surfaces", "REST", and the frontend and backend sections. Read them before starting.
+
+On Route A the template's `.platform/contract.yml` is the authority, not a remembered list of paths: `owned` is what the template writes and owns, `reuse` is what the app must read and import instead of keeping its own, `source.changes` is where a change to an owned path is asked for, `exceptions` names the app's exceptions file, and `sync` says how the app takes the next version. Read it at the latest tag before A1:
+
+```bash
+gh api "repos/PlainConceptsPlatform/Kitchen-Sink/contents/.platform/contract.yml?ref=<tag>" -H "Accept: application/vnd.github.raw"
+```
+
+Kitchen-Sink also ships `.platform/manifest`, one owned glob per line. It is a legacy mirror of `owned` for older tool versions; read the contract.
 
 ## Scope
 
@@ -26,10 +34,10 @@ Five steps, in order, each as its own pull request (or a series of them for step
 
 ```text
 A1. PREFLIGHT     binary checks + a capability inventory, nothing changed
-A2. ADOPT         copier copy --overwrite: platform paths in, app untouched, build green
+A2. ADOPT         copier copy --overwrite: owned paths in, app untouched, build green
 A3. CONVERGE      one capability at a time onto the platform code, app copy deleted
-A4. QUALITY GATES workflows add --template quality-gates, floors in quality.config.json
-A5. TEMPLATE SYNC copier update for every new template tag, conformance checked
+A4. QUALITY GATES quality-gates, platform-template and the gates CI, floors in quality.config.json
+A5. TEMPLATE SYNC the contract's sync.update for every new template tag, conformance checked
 ```
 
 ### A1. Preflight
@@ -40,7 +48,7 @@ Scan before touching anything. Each check is binary. Record the results in the O
 |---|---|---|
 | Template access | `git ls-remote https://github.com/PlainConceptsPlatform/Kitchen-Sink.git 'refs/tags/v*'` | Lists tags. If it fails, stop: take Route B or ask for access |
 | Copier | `copier --version` | 9.4 or newer (`pipx install copier`) |
-| Not yet adopted | `.copier-answers.yml` absent | Absent. If present, the app has joined: go to A5 |
+| Not yet adopted | `.platform/contract.yml` and `.copier-answers.yml` absent | Absent. If present, the app has joined: go to A5 |
 | Layout | `apps/api/` holds the .NET solution with `Directory.Packages.props`; `apps/web/` is the pnpm web package | Both present. A different layout is moved first, as its own change |
 | Web shape | `apps/web/next.config.*` has `output: "export"`, the root `app/page.tsx` mounts the SPA, react-router routes it, FSD layers in `apps/web/src/` with `pages/` and an empty root `apps/web/pages/.gitkeep` | All true. Otherwise run Route B domain 4 for the web first |
 | Harness | `.opencode/harness.json` exists | Present (Route B domain 1) |
@@ -53,17 +61,17 @@ Then write the **capability inventory**: one row per family module (auth and ses
 ### A2. Adopt
 
 ```bash
-copier copy --trust --defaults --overwrite -d app_name=<Name> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .
+copier copy --trust --overwrite -d app_name=<Name> -d app_slug=<name> --vcs-ref <latest v* tag> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .
 ```
 
-Copier writes the paths listed in the template's `.platform/manifest` (the neutral platform paths `apps/api/src/Platform/**` and `apps/web/src/shared/platform/**`, `Directory.Packages.Platform.props`, the pnpm `platform` catalog, the deploy workflow, `docs/platform/`, the capability specs) and `.copier-answers.yml`, and nothing else. Check it with `git status`: a changed file outside the manifest means the template is misconfigured, so stop and report it upstream.
+Copier writes the paths the contract lists under `owned` (the contract itself, the neutral platform paths `apps/api/src/Platform/**` and `apps/web/src/shared/platform/**`, `Directory.Packages.Platform.props`, `docs/platform/`, the capability specs, the deploy workflows and the `Dockerfile`) and `.copier-answers.yml`, and nothing else. Check it with `git status`: a changed file outside `owned` means the template is misconfigured, so stop and report it at `source.changes`.
 
 Then make the adoption build, in the same pull request:
 
 1. Import `Directory.Packages.Platform.props` from `Directory.Packages.props`, and make the web package take its platform dependencies from `catalog:platform`. Remove the app's own versions of those packages.
 2. Reference the platform projects from the API and add the app-side pieces the platform code reads through its ports: the permission catalog, the feature catalog, the audit event list. These are app files.
 3. Leave the app's own implementations in place and running. Nothing switches over yet.
-4. If a platform file cannot coexist with the app yet, do **not** edit it. Restore the app's file, and add the path to `.platform/exceptions.yml` with a reason, an issue and an `expires` date.
+4. If an owned file cannot coexist with the app yet, do **not** edit it. Restore the app's file, and add the path to the exceptions file the contract names (`.platform/exceptions.yml`) with a reason, an issue at `source.changes` and an `expires` date.
 
 The pull request is green when the app builds and its existing tests pass with the platform code present but unused.
 
@@ -77,15 +85,17 @@ Each capability is its own OpenSpec change and pull request. A suggested order, 
 4. Security headers, crawler rules and rate limiting.
 5. Section feature flags, settings, email, impersonation, health.
 6. i18n and the web shell (layout, sidebar, theme provider and anti-flash script, tour, changelog).
-7. The API surfaces: MCP (Entra and Forge tokens, no own OAuth server) and B2B (Entra app tokens with app roles).
-8. REST: every endpoint to HAL-FORMS (`_links` and `_templates`, correct verbs, `201` with `Location`, ProblemDetails, `ETag`/`If-Match`, link pagination, transitions as resources), and the SPA rendering its actions from `_templates`.
+7. The API surfaces: MCP (2026-07-28, Entra and Forge tokens only, no session and no own OAuth server) and B2B (`/api/b2b/v1`, Entra app tokens with app roles, closed until `B2B:Roles` grants a role).
+8. REST: every endpoint to HAL-FORMS (`_links` and `_templates` keyed by action name, correct verbs, `201` with `Location`, RFC 9457 problems with `code` and `traceId`, `ETag`/`If-Match` with 412 and 428, link pagination, state transitions as noun sub-resources), and the SPA rendering its actions from `_templates`. The route-by-route method is in the template's `docs/platform/rest-hal-forms.md`.
+
+Before converging a capability, read what the contract's `reuse.docs` say about it, and replace the app's own components with the exports of the `reuse.packages` packages rather than keeping a local copy.
 
 For each capability:
 
 1. Run the characterization tests and keep them as they are; they are the contract.
 2. Move every caller onto the platform code.
 3. Delete the app's own implementation completely: endpoints, ports, implementations, entities and their migration, seeded permissions, web routes and menu items, tests and specs that described the old version. A half-removed copy compiles and misleads the next agent.
-4. Remove the capability's paths from `.platform/exceptions.yml`, if they were there.
+4. Remove the capability's paths from the exceptions file, if they were there.
 5. The tests pass, unchanged except where the platform contract deliberately differs (an error code, a status code); each such difference is listed in the change.
 
 When the platform code lacks something the app needs, that is not a reason to edit it here. Use `platform-upstream`: the change goes to Kitchen-Sink first, or the app carries a dated exception until it does.
@@ -94,27 +104,29 @@ When the platform code lacks something the app needs, that is not a reason to ed
 
 ```bash
 npx @plainconceptsplatform/workflows add --template quality-gates
+npx @plainconceptsplatform/workflows add --template platform-template
+npx @plainconceptsplatform/workflows add --template app-ci-dotnet-next
 ```
 
-This installs the gate scripts, the Semgrep hygiene rules, `.jscpd.json`, the `.zap/` rules and the gates CI, managed by the workflows package. Move the app's coverage and mutation floors out of its own scripts into `quality.config.json`, keep its complexity and duplication baselines and its triaged DAST alerts as app files, and delete the app's own copies of the scripts. The floors do not move down: keep the measured values the app already had.
+`quality-gates` installs the gate scripts, the facet builder, the Semgrep hygiene rules, `.jscpd.json` and the `.zap/` rules, managed by the workflows package. `platform-template` installs the template sync and the conformance guard, both driven by the contract. `app-ci-dotnet-next` is the gates CI with the `Platform conformance` job; it is the app's once installed, so merge it with the app's own CI rather than replacing that blindly. Move the app's coverage and mutation floors out of its own scripts into `quality.config.json`, keep its complexity and duplication baselines and its triaged DAST alerts as app files, and delete the app's own copies of the scripts. The floors do not move down: keep the measured values the app already had.
 
 ### A5. Template sync
 
-For every new Kitchen-Sink tag:
+For every new Kitchen-Sink tag, the `Platform: Template sync` workflow runs the contract's `sync.update` and opens one pull request; by hand it is the same command:
 
 ```bash
 copier update --trust --defaults --conflict inline
 ```
 
-One pull request per tag, through the same gates as any change. A platform file the app had changed comes back with `<<<<<<< before updating` / `>>>>>>> after updating` markers: take the template's side, or, if the app's side is the better code, move it upstream with `platform-upstream`. Then check conformance: every manifest path identical to the tag in `.copier-answers.yml`, except live exceptions.
+One pull request per tag, through the same gates as any change. An owned file the app had changed comes back with `<<<<<<< before updating` / `>>>>>>> after updating` markers: take the template's side, or, if the app's side is the better code, move it upstream with `platform-upstream`. Then check conformance with `node scripts/check-platform-conformance.mjs --compare`: every owned path identical to the version `sync.version` records, except live exceptions.
 
 ### Route A is complete when
 
-- `.copier-answers.yml` names the latest template tag.
-- Every manifest path is identical to that tag, except entries in `.platform/exceptions.yml`, each with a reason, an issue and an `expires` date that has not passed.
+- The version the contract's `sync.version` points at (`_commit` in `.copier-answers.yml`) is the latest template tag.
+- Every owned path is identical to that tag, except entries in the exceptions file, each with a reason, an issue and an `expires` date that has not passed.
 - The capability inventory has no app-owned implementation left.
-- The quality-gates template is installed and the floors live in `quality.config.json`.
-- The app's `ARCHITECTURE.md` describes the app's own domain and links to `docs/platform/` for the platform capabilities.
+- The quality-gates and platform-template templates are installed and the floors live in `quality.config.json`.
+- The app's `ARCHITECTURE.md` describes the app's own domain and links to the `reuse.docs` paths for the platform capabilities, and `AGENTS.md` carries the harness's "Reuse before you build" block (agent-harness 3.8.0 or later).
 - Route B domains 1, 2, 3, 5 and 6 pass (harness, docs, OpenSpec, workflows, .NET guardrails).
 
 ## Route B: own design, one domain at a time
@@ -241,7 +253,7 @@ Each rule comes from a real migration. Skipping one causes rework.
 
 1. Capture characterization tests before migrating anything. Playwright screenshots and integration tests catch regressions that review misses.
 2. Every domain, and every converged capability, is a separate OpenSpec change. Batching makes review impossible.
-3. In a family app, never edit a path listed in `.platform/manifest`. Change it in Kitchen-Sink first, or record a dated exception (`platform-upstream`).
+3. In a family app, never edit a path the contract lists under `owned`. Change it in Kitchen-Sink first, or record a dated exception (`platform-upstream`).
 4. FSD layers use canonical names: `app/`, `pages/`, `widgets/`, `features/`, `entities/`, `shared/`, with canonical segments. No `views/`, no underscore-prefixed layers.
 5. Next.js builds a static export (`output: "export"`) served by the API; react-router decides routes. There are no server components or route handlers in a Platform web app.
 6. inversify-hooks registration passes `cid` as the second argument to `addSingleton`: `container.addSingleton<IContract>(HttpContract, cid.IContract)`. The container is built at module load in a client module, never inside `useEffect`.

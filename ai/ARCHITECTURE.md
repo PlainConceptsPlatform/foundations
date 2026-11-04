@@ -235,6 +235,8 @@ Numa, Odyssey, Hermes and Kitchen-Sink are one family. Their business differs, a
 
 **Kitchen-Sink** (internal: requires access to the PlainConceptsPlatform organisation) is both things at once. It is the reference app, where every platform capability runs for real, and it is the [Copier](https://copier.readthedocs.io/) template that delivers that code to the other members. Template versions are Kitchen-Sink's `v*` tags.
 
+The tools that keep the family together are independent. agent-harness, agentic-workflows and Project Health never name Kitchen-Sink or Copier; each one reads the **platform contract**, `.platform/contract.yml`, an open format any template can write, and the family's choices live in the contract Kitchen-Sink ships.
+
 ### Every family module is mandatory
 
 Auth and session, users, roles and permissions, settings, the audit log, email, impersonation, MCP, the changelog, health, security headers, rate limiting, i18n, the web shell, section feature flags, the guided tour, and the B2B surface. A family app carries all of them, so a fix in one reaches every app the same way.
@@ -246,45 +248,97 @@ Every file in a family app has exactly one owner, and only that owner changes it
 | Owner | Files | How it changes them |
 |---|---|---|
 | **agent-harness** | `.opencode/**`, `.agents/**`, `opencode.jsonc`, `skills-lock.json`, and the `AGENTS.md`, `ARCHITECTURE.md` and `DESIGN.md` it generates | `npx @plainconceptsplatform/agent-harness update` |
-| **agentic-workflows** | Every file with the `Managed by @plainconceptsplatform/workflows` header (router, workers, actions, evidence, `opencode.ci.json`, the compile script), and the `quality-gates` template (gate scripts and rules) | `npx @plainconceptsplatform/workflows update` |
-| **Template** | Only the paths listed in `.platform/manifest`: the platform code, its deploy workflow, the Dockerfile shape, `Directory.Packages.Platform.props`, the pnpm `platform` catalog, the capability specs and `docs/platform/` | `copier update` |
-| **App** | Everything else: the business, the catalogs (permissions, feature catalog, audit events), migrations, baselines, quality floors and environment configuration | the app's own pull requests |
+| **agentic-workflows** | Every file with the `Managed by @plainconceptsplatform/workflows` header (router, workers, actions, evidence, `opencode.ci.json`, the compile script), and the `quality-gates` and `platform-template` bundles (gate scripts and rules, the template sync and the conformance guard) | `npx @plainconceptsplatform/workflows update` |
+| **Template** | Only the paths the contract lists under `owned`: the contract itself, the platform code, `Directory.Packages.Platform.props`, the capability specs, `docs/platform/`, the deploy workflows and the `Dockerfile` | the contract's `sync.update`, which the template sync runs |
+| **App** | Everything else: the business, the catalogs (permissions, feature catalog, audit events), the exceptions file, migrations, baselines, quality floors and environment configuration | the app's own pull requests |
 
-Copier never touches harness or workflows files, and Kitchen-Sink's own CI fails when a manifest path is also managed by the harness or carries the workflows header.
+Copier never touches harness or workflows files, and Kitchen-Sink's own CI fails when an owned path is also managed by the harness or carries the workflows header.
 
-### The family files
+### The platform contract
+
+`.platform/contract.yml` is the source of truth for what the template owns. The template delivers it, so it is an owned file itself, identical in every app. Kitchen-Sink's reads:
+
+```yaml
+version: 1
+source:
+  name: Kitchen-Sink platform template
+  url: https://github.com/PlainConceptsPlatform/Kitchen-Sink
+  changes: https://github.com/PlainConceptsPlatform/Kitchen-Sink/issues/new
+owned:
+  - .platform/contract.yml
+  - .platform/manifest
+  - apps/api/src/Platform/**
+  - apps/api/Directory.Packages.Platform.props
+  - apps/web/src/shared/platform/**
+  - docs/platform/**
+  - openspec/specs/platform-*/**
+  - .github/workflows/app-deploy.yml
+  - .github/workflows/app-deploy-aca.yml
+  - /Dockerfile
+reuse:
+  docs: [docs/platform/]
+  packages: ["@plainconceptsplatform/ui-components", "@plainconceptsplatform/ui-theme"]
+exceptions: .platform/exceptions.yml
+sync:
+  marker: .copier-answers.yml
+  version:
+    file: .copier-answers.yml
+    key: _commit
+  update: copier update --trust --defaults --conflict inline
+```
+
+| Field | Meaning | Who reads it |
+|---|---|---|
+| `version` | The format's major version, `1`. A tool refuses one it does not know. | every reader |
+| `source` | The template's `name`, its `url`, and `changes`, where to ask for a change to an owned path. | the harness's messages, the template sync, Health's Family tab, `platform-upstream` |
+| `owned` | gitwildmatch globs, repository-relative; a leading `/` anchors to the root and `!` excludes. The paths only the template changes. | the harness guard and `check-diff`, the conformance guard, Health, the `platform-*` skills |
+| `reuse` | `docs` to read before building something new, `packages` whose exports are imported rather than re-implemented, and optional extra `names`. | the harness's "Reuse before you build" block in `AGENTS.md` and its `reuse-shadow` warning, `platform-new-project` |
+| `exceptions` | The app's exceptions file, `.platform/exceptions.yml` by default. | every reader |
+| `sync` | The `marker` whose change makes a diff a template sync, the `version` file and key that record the applied template version, and the `update` command that pulls the next one. | the template sync, the conformance guard, `check-diff`, Health |
+
+Each tool has its own small reader, and a contract that does not read gives one error naming the file and the field, never a silent pass. A repository without a contract sees no change in any tool. The field-by-field behaviour of each tool is in its own documentation: [agent-harness](https://harness.platform.plainconcepts.dev/docs/platform-contracts), [agentic-workflows](https://github.com/PlainConceptsPlatform/agentic-workflows/blob/main/docs/platform-contracts.md) and [Project Health](https://github.com/PlainConceptsPlatform/project-health#the-platform-contract).
+
+### The other family files
 
 | File | Owner | Content |
 |---|---|---|
-| `.copier-answers.yml` | Copier (generated) | `_commit` (the template tag), `_src_path`, and the answers such as `app_name`. Its presence is the opt-in marker: harness and workflows features for the family do nothing in a repository without it. |
-| `.platform/manifest` | Template | One gitwildmatch glob per line, relative to the repository root, `#` for comments. The list of platform-owned paths. |
-| `.platform/exceptions.yml` | App | `exceptions: [{ path: <glob>, reason: <text>, issue: <url>, expires: YYYY-MM-DD }]`. The platform paths this app may diverge from, and until when. |
+| `.copier-answers.yml` | Copier (generated) | `_commit` (the template tag), `_src_path`, and the answers such as `app_name` and `app_slug`. The contract's `sync.marker` and `sync.version.file`. |
+| `.platform/exceptions.yml` | App | `exceptions: [{ path: <glob>, reason: <text>, issue: <url>, expires: YYYY-MM-DD }]`. The owned paths this app may diverge from, and until when; `expires` is inclusive. |
+| `.platform/manifest` | Template | The legacy mirror of `owned`, one glob per line, for agent-harness 3.7.0 and workflows 1.11.0, which read only it. Kitchen-Sink's CI fails when it disagrees with the contract, and it goes once every app pins agent-harness 3.8.0 and workflows 1.12.0 or later. Those versions, and Health, still read a repository with `.copier-answers.yml` and a manifest but no contract as an implicit contract. |
 
 ### Neutral platform paths
 
 Platform code lives at paths that carry no app name, so a file is byte-identical in every app: `apps/api/src/Platform/**` for the API and `apps/web/src/shared/platform/**` for the web. App code depends on the platform code; the platform code never imports app code. The catalogs it needs (permissions, feature sections, audit events) are app files it reads through a port.
 
-Platform dependency versions are template files too. `Directory.Packages.Platform.props` holds the NuGet versions the platform code needs and is imported from the app's `Directory.Packages.props` (Central Package Management). The pnpm `platform` catalog in `pnpm-workspace.yaml` does the same for npm, and the web package references those entries as `catalog:platform`. An app bumps its own packages freely and takes platform versions with the template.
+Platform dependency versions travel with the template too. `Directory.Packages.Platform.props` is an owned file that holds the NuGet versions the platform code needs, imported from the app's `Directory.Packages.props` (Central Package Management). The pnpm `platform` catalog in `pnpm-workspace.yaml` does the same for npm, and the web package references those entries as `catalog:platform`. An app bumps its own packages freely and takes platform versions with the template; Dependabot ignores the platform packages, since a bump to an owned file outside a sync fails conformance.
 
 ### Adopting and updating
 
 ```bash
-# An existing app joins the family: platform paths are overwritten, nothing else is touched
-copier copy --trust --defaults --overwrite -d app_name=<Name> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .
+# A new app, in an empty repository
+copier copy --trust -d app_name=<Name> -d app_slug=<name> --vcs-ref <tag> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .
 
-# Take a new template version (the platform-template sync)
+# An existing app joins the family: owned paths are overwritten, nothing else is touched
+copier copy --trust --overwrite -d app_name=<Name> -d app_slug=<name> --vcs-ref <tag> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .
+
+# Take a new template version: the contract's sync.update, run by the weekly template sync
 copier update --trust --defaults --conflict inline
 ```
 
-Both commands leave non-platform files alone. A platform file edited locally comes back with inline `<<<<<<< before updating` / `>>>>>>> after updating` markers, which is the signal that the edit belongs upstream or in an exception.
+None of them touches a file outside `owned`. The `platform-template` workflows template runs `sync.update` weekly or on demand and opens one pull request per template version, which goes through the merge train like any bot pull request. An owned file edited locally comes back with inline `<<<<<<< before updating` / `>>>>>>> after updating` markers, which is the signal that the edit belongs upstream or in an exception.
+
+### Guarded, not only measured
+
+- **The harness** denies agent edits to owned paths, unless an unexpired exception covers them or a template sync is being resolved. `check-diff` fails a diff that changes one (`platform-file`), and warns when a new file is named like a reusable export (`reuse-shadow`). Its "Reuse before you build" block in `AGENTS.md` lists `reuse`, and every plan carries a "What is reused" section.
+- **The conformance guard**, `scripts/check-platform-conformance.mjs` from the `platform-template` workflows template, runs in CI on every pull request: an owned path changes only in a template sync or under an unexpired exception, owned files match `source.url` at the recorded version, and no owned file holds conflict markers.
 
 ### Conformance
 
-A family app **conforms** when every path in its manifest is identical to the template version named in `.copier-answers.yml`, except the paths listed in `.platform/exceptions.yml` whose `expires` date has not passed. An exception without an issue or an expiry date is not an exception. Project-Health measures conformance for every family app, and [`ENGINEERING.md`](ENGINEERING.md) lists it as a family practice.
+A family app **conforms** when every owned path is identical to the template version its contract's `sync.version` records (`_commit` in `.copier-answers.yml`), except the paths covered by an exception whose `expires` date has not passed. An exception without an issue or an expiry date is not an exception. Project-Health's Family tab measures conformance for every family app, and [`ENGINEERING.md`](ENGINEERING.md) lists it as a family practice.
 
 ### Upstream first
 
-A change to platform code is made in Kitchen-Sink first, tested there, released as a template tag, and reaches the other apps through `copier update`. An improvement born in an app moves to Kitchen-Sink before it spreads; until it lands, the app records a dated exception for the path it changed. The `platform-upstream` skill in this repository walks through both routes.
+A change to platform code is made in Kitchen-Sink first, tested there, released as a template tag, and reaches the other apps through the template sync. An improvement born in an app moves to Kitchen-Sink before it spreads; until it lands, the app records a dated exception for the path it changed. The `platform-upstream` skill in this repository walks through both routes.
 
 ### What stays outside the template
 

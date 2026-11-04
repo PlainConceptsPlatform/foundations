@@ -71,7 +71,13 @@ Start with [`AGENTS.md`](AGENTS.md). It points to the [`ai/`](ai/) folder, which
 - [`platform-onboard`](skills/platform-onboard/SKILL.md) brings an existing app in: for a family app it adopts the template with Copier and converges each capability onto it; for an own design app it migrates six domains in dependency order (agentic infrastructure, architecture docs, OpenSpec, frontend stack, agentic workflows, .NET guardrails).
 - [`platform-upstream`](skills/platform-upstream/SKILL.md) moves a change made in an app's platform code into Kitchen-Sink first, or records a dated exception.
 
-Kitchen-Sink is private (internal: requires access to the PlainConceptsPlatform organisation).
+Install one with the skills CLI, always naming it with `--skill`, since the repository also vendors the harness skills:
+
+```bash
+npx skills add PlainConceptsPlatform/Foundations --skill platform-new-project
+```
+
+The three read the platform contract, `.platform/contract.yml`, rather than a fixed list of paths. Kitchen-Sink is private (internal: requires access to the PlainConceptsPlatform organisation).
 
 ### Agentic Workflow migration
 

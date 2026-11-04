@@ -37,14 +37,14 @@ Always pass `--skill`. Without it the CLI offers every skill in this repository,
 
 ### Start from the template
 
-The agent creates the project from [Kitchen-Sink](https://github.com/PlainConceptsPlatform/Kitchen-Sink)<Internal inline />. The [`platform-new-project` skill](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-new-project) reads Kitchen-Sink's `BLUEPRINT.md`, asks for the domain in one message, builds the app's own code in Kitchen-Sink's shape, and takes the platform paths from the template:
+The agent creates the project from [Kitchen-Sink](https://github.com/PlainConceptsPlatform/Kitchen-Sink)<Internal inline />. The [`platform-new-project` skill](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-new-project) reads Kitchen-Sink's `BLUEPRINT.md` and its platform contract, asks for the domain in one message, takes the owned paths from the template, and builds the app's own code in Kitchen-Sink's shape:
 
 ```bash
 pipx install copier
-copier copy --trust --defaults -d app_name=<Name> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .
+copier copy --trust -d app_name=<Name> -d app_slug=<name> --vcs-ref <latest v* tag> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .
 ```
 
-Copier writes only the platform paths listed in the template's `.platform/manifest`, plus `.copier-answers.yml`, which records the template version and is what marks the repository as a family app. The theme and the shared components come with it, pinned in the pnpm `platform` catalog.
+Copier writes only the paths the template's `.platform/contract.yml` lists under `owned`, the contract among them, plus `.copier-answers.yml`, which records the template version. The contract is what marks the repository as a family app, and every tool reads it: the harness keeps agents off the owned paths, the workflows sync the template and check conformance, Health compares the app with its template. It also lists what to reuse before building, `docs/platform/` and the `@plainconceptsplatform/ui-components` and `ui-theme` packages, and the skill reads and imports them before writing anything of its own. The theme and the shared components are pinned in the pnpm `platform` catalog.
 
 **Why this is first.** Everything after this step produces code that has to fit the app's platform: the harness generates architecture documents from it, the workflows' agents build on it, and Health compares it with the template. Starting from the template means the first screen already has the shell, the theme, sign-in and permissions, and the first update of the shared code is a `copier update` rather than a migration. What the family shares, and who owns which file, is in [Architecture](/docs/reference/architecture#platform-family).
 
@@ -60,7 +60,7 @@ npx @plainconceptsplatform/agent-harness@latest
 
 Then open OpenCode in the repository and run `/repo-initialize`.
 
-The wizard wires the agent team, the `pc-*` skills, the slash commands, and an OpenSpec workspace, and the bootstrap generates `ARCHITECTURE.md` and `DESIGN.md`. In a family app, `ARCHITECTURE.md` describes the app's own domain and links to the platform documentation the template delivers in `docs/platform/` rather than restating it.
+The wizard wires the agent team, the `pc-*` skills, the slash commands, and an OpenSpec workspace, and the bootstrap generates `ARCHITECTURE.md` and `DESIGN.md`. In a family app, `ARCHITECTURE.md` describes the app's own domain and links to the platform documentation the template delivers in `docs/platform/` rather than restating it, and `AGENTS.md` gets a "Reuse before you build" block written from the contract's `reuse`.
 
 **Why before the workflows.** Unattended agents are only as good as what they find in the repository. The harness is what turns our conventions from pages on this site into files an agent reads on every run, so installing it first means the very first automated change already follows the rules. Details and the full command set are on [AI x SDLC](/docs/ai) and on the harness's own site, [harness.platform.plainconcepts.dev](https://harness.platform.plainconcepts.dev).
 
@@ -73,9 +73,11 @@ The wizard wires the agent team, the `pc-*` skills, the slash commands, and an O
 ```bash
 npx @plainconceptsplatform/workflows
 npx @plainconceptsplatform/workflows add --template quality-gates
+npx @plainconceptsplatform/workflows add --template platform-template
+npx @plainconceptsplatform/workflows add --template app-ci-dotnet-next
 ```
 
-The first command installs the router, the workers for the routes you pick, the compile script, and the OpenCode CI config. The second installs the engineering gates: the coverage, complexity, duplication and mutation scripts, the facets Health reads, and the gates CI. Then:
+The first command installs the router, the workers for the routes you pick, the compile script, and the OpenCode CI config. `quality-gates` installs the engineering gates: the coverage, complexity, duplication and mutation scripts and the facets Health reads. `platform-template` installs the weekly template sync and the conformance guard, both driven by the contract. `app-ci-dotnet-next` is the gates CI, with the `Platform conformance` job. Then:
 
 - Add the secrets: `FORGE_API_KEY` for the Forge gateway, and `BOT_APP_ID` and `BOT_PRIVATE_KEY` for the Platform App, which every write that has to start another workflow is made with.
 - Set `VERIFY_COMMANDS` in each worker's `env:` to the repository's own verification command. For a pnpm or full-stack repository that is `pnpm verify`, and it should run what CI blocks on.
@@ -126,10 +128,10 @@ Then ask your agent: *onboard this project*. The skill decides between the two r
 **Joining the family** is adopt, then converge. The [`platform-onboard` skill](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-onboard) runs it as a sequence of pull requests:
 
 1. **Preflight.** A binary scan of what the app already has: harness, workflows, gates, frontend stack, .NET guardrails, and which family capabilities exist in some form.
-2. **Adopt.** `copier copy --trust --defaults --overwrite -d app_name=<Name> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .` writes the platform paths and nothing else. The app does not compile against them yet, and that is expected.
+2. **Adopt.** `copier copy --trust --overwrite -d app_name=<Name> -d app_slug=<name> --vcs-ref <tag> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .` writes the paths the template's contract lists under `owned`, the contract among them, and nothing else. The app does not compile against them yet, and that is expected.
 3. **Converge, one capability at a time.** Sign-in and session, permissions, audit, errors, feature flags, the API surfaces, the web shell: for each one, move the app's code onto the platform code and delete its own version, behind the app's tests. A capability the app cannot move yet gets a dated entry in `.platform/exceptions.yml`.
-4. **Quality gates.** `workflows add --template quality-gates`, with the app's floors and baselines kept as its own files.
-5. **Template sync.** From then on each new template tag is a `copier update` pull request.
+4. **Quality gates.** `workflows add --template quality-gates` and `--template platform-template`, with the app's floors and baselines kept as its own files.
+5. **Template sync.** From then on the template sync opens one pull request per template tag, running the contract's `sync.update`, and the conformance guard checks every pull request.
 
 **An own design app** adopts the conventions incrementally, in the order that gives the most value for the least risk: the theme first (the section below), since importing the tokens is the single change that makes an app look like the rest of the Platform; then shadcn components as you next touch each piece of UI; then the [frontend architecture](/docs/frontend) as you split or add features, with new code following the convention while old code migrates gradually; and the harness and workflows once the repository is somewhere an agent can be trusted to work. `platform-onboard` covers that route too, one domain per OpenSpec change, behind Playwright characterization tests so behaviour is pinned before anything moves.
 
@@ -167,7 +169,7 @@ This copies `components.json`, adds the theme import to your global stylesheet, 
 
 ## What not to do
 
-- Do not edit a platform path in a family app to get unblocked. Fix it in Kitchen-Sink first, or record a dated exception; the [`platform-upstream` skill](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-upstream) walks through both.
+- Do not edit a path the contract lists under `owned` to get unblocked. Fix it in Kitchen-Sink first, or record a dated exception; the [`platform-upstream` skill](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-upstream) walks through both.
 - Do not wrap the shadcn components in your own abstractions. That is how proprietary component libraries start, and [principle 2](/docs/principles) exists to prevent them.
 - Do not fork the theme. Bump the package version (or take the template version that bumps it) to pick up changes.
 - Do not move app-specific components into the foundation. The bar is the same need in more than one app; [Contributing](/docs/contributing) covers it.

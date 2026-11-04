@@ -84,11 +84,11 @@ The reference implementation is the `quality-gates` template of [`@plainconcepts
 
 ## Template conformance (family apps)
 
-A practice for the Platform app family only: repositories with a `.copier-answers.yml`, whose platform code comes from the Kitchen-Sink template (see "Platform family" in [`ARCHITECTURE.md`](ARCHITECTURE.md)). Own design apps are not measured against it.
+A practice for the Platform app family only: repositories with a platform contract, `.platform/contract.yml`, whose platform code comes from the Kitchen-Sink template (see "Platform family" in [`ARCHITECTURE.md`](ARCHITECTURE.md)). Own design apps are not measured against it.
 
-- **Conforming** means every path listed in `.platform/manifest` is identical to the template version recorded in `.copier-answers.yml` (`_commit`).
-- **An exception** is an entry in `.platform/exceptions.yml` with the path, the reason, a tracking issue and an `expires` date. A divergent path covered by a live exception conforms; one whose exception has expired, or has no issue, does not.
-- **Version lag** is how many template tags the app is behind. Taking a new tag is a `copier update` in its own pull request, and the gates run on it like on any other change.
+- **Conforming** means every path the contract lists under `owned` is identical to the template version its `sync.version` records (`_commit` in `.copier-answers.yml`). The `platform-template` workflows template checks it in CI with `scripts/check-platform-conformance.mjs`.
+- **An exception** is an entry in the exceptions file the contract names (`.platform/exceptions.yml`) with the path, the reason, a tracking issue and an `expires` date. A divergent path covered by a live exception conforms; one whose exception has expired, or has no issue, does not.
+- **Version lag** is how many template tags the app is behind. Taking a new tag is the contract's `sync.update` in its own pull request, opened by the template sync, and the gates run on it like on any other change.
 - **The fix is upstream first.** A platform change made in an app moves into Kitchen-Sink and comes back with the next tag, or it carries a dated exception until it does. Editing a platform path to make a check pass, without either, is a conformance failure, not a fix.
 
 Project-Health reports conformance, the template version and the open exceptions of every family app.

@@ -609,11 +609,8 @@ Feature: Invoice approval
             code: `import { expect } from "@playwright/test";
 import { Given, Then, When } from "./fixtures";
 
-// features/steps/fixtures.ts:
-// export const test = base.extend<{ last: { response?: APIResponse } }>({
-//   last: async ({}, use) => { await use({}); },
-// });
-// export const { Given, When, Then } = createBdd(test);
+// fixtures.ts extends the Playwright test with a per-scenario "last" holding the latest response,
+// and exports Given, When and Then from createBdd on that test.
 
 const as = (user: string) => ({ "X-Test-User": user });
 
@@ -1409,31 +1406,43 @@ public static class DependencyInjection
     sections: [
       {
         title: "Decide what is platform, and write the list down",
-        body: "A template only stays useful if it is clear which files it owns. List them in one file, one glob per line, relative to the repository root: the shared backend code, the shared web code, the deploy workflow, the documentation of that code. Everything not on the list belongs to the app, and the template never touches it.\n\nPut the shared code at paths that do not carry the app's name, such as apps/api/src/Platform/ and apps/web/src/shared/platform/. A file whose namespace or import path contains the app name is different in every app by construction, so it can never be compared and every update to it is a conflict. The shared code reads app-specific things (the permission catalog, the list of audit events) through an interface the app implements, never by importing app code.\n\nKeep agent and workflow configuration off the list. Those files already have an installer that owns them, and two owners for one file means each update undoes the other.",
+        body: "A template only stays useful if it is clear which files it owns. List them in one file the template ships, as globs relative to the repository root: the shared backend code, the shared web code, the deploy workflow, the documentation of that code. Everything not on the list belongs to the app, and the template never touches it.\n\nWrite it as a platform contract, .platform/contract.yml, an open format: owned is the list, source names the template and where to ask for a change, reuse names the docs and packages an agent should use before building its own, and sync says how an app takes the next version. Tools that read the same file can then guard it without knowing your template: agent-harness keeps agents off owned paths, the workflows' platform-template checks conformance and opens the sync pull requests, and Project Health shows the drift. None of them is required, and none needs the others.\n\nPut the shared code at paths that do not carry the app's name, such as apps/api/src/Platform/ and apps/web/src/shared/platform/. A file whose namespace or import path contains the app name is different in every app by construction, so it can never be compared and every update to it is a conflict. The shared code reads app-specific things (the permission catalog, the list of audit events) through an interface the app implements, never by importing app code.\n\nKeep agent and workflow configuration off the list. Those files already have an installer that owns them, and two owners for one file means each update undoes the other.",
         code: [
           {
-            lang: "text",
-            file: ".platform/manifest",
-            code: `# Platform-owned paths. Only the template changes them.
-apps/api/src/Platform/**
-apps/web/src/shared/platform/**
-apps/api/Directory.Packages.Platform.props
-docs/platform/**
-.github/workflows/app-deploy.yml
-.platform/manifest`,
+            lang: "yaml",
+            file: ".platform/contract.yml",
+            code: `version: 1
+source:
+  name: Acme app template
+  url: https://github.com/acme/reference-app
+  changes: https://github.com/acme/reference-app/issues/new
+owned: # only the template changes these
+  - .platform/contract.yml
+  - apps/api/src/Platform/**
+  - apps/web/src/shared/platform/**
+  - apps/api/Directory.Packages.Platform.props
+  - docs/platform/**
+  - .github/workflows/app-deploy.yml
+reuse:
+  docs: [docs/platform/]
+  packages: ["@acme/ui"]
+sync:
+  marker: .copier-answers.yml
+  version: { file: .copier-answers.yml, key: _commit }
+  update: copier update --trust --defaults --conflict inline`,
           },
         ],
       },
       {
         title: "Turn the reference app into a Copier template",
-        body: 'Copier copies a template into a project and, later, updates the project to a newer template version with a three-way merge, so a local edit is kept or shown as a conflict instead of silently overwritten. The template can be a working application: tag its releases (v1.4.0) and those tags are the template versions.\n\nA working app has far more files than the template owns, so the exclude list is include-only. It excludes everything first, then re-includes each manifest path. The order matters: the "**" line must come first, and a broad re-include such as "!*/" or "!**/" brings every file back. Generate this list from the manifest and add a check that fails when the two disagree, so they cannot drift.\n\nThe answers file is what records which template version an app is on. Copier renders it from a .jinja file at the template root, and its presence in an app is also the simplest marker that the app is opted in.',
+        body: 'Copier copies a template into a project and, later, updates the project to a newer template version with a three-way merge, so a local edit is kept or shown as a conflict instead of silently overwritten. The template can be a working application: tag its releases (v1.4.0) and those tags are the template versions.\n\nA working app has far more files than the template owns, so the exclude list is include-only. It excludes everything first, then re-includes each owned path. The order matters: the "**" line must come first, and a broad re-include such as "!*/" or "!**/" brings every file back. Generate this list from the owned globs of the contract and add a check that fails when the two disagree, so they cannot drift.\n\nThe answers file is what records which template version an app is on, and sync.version in the contract points at its _commit key. Copier renders it from a .jinja file at the template root.',
         code: [
           {
             lang: "yaml",
             file: "copier.yml (at the reference app's root)",
             code: `_min_copier_version: "9.4.0"
 
-# Generated from .platform/manifest. "**" must stay first.
+# Generated from the owned globs of .platform/contract.yml. "**" must stay first.
 _exclude:
   - "**"
   - "!apps/api/src/Platform/**"
@@ -1441,7 +1450,7 @@ _exclude:
   - "!apps/api/Directory.Packages.Platform.props"
   - "!docs/platform/**"
   - "!.github/workflows/app-deploy.yml"
-  - "!.platform/manifest"
+  - "!.platform/contract.yml"
   - "!.copier-answers.yml"
 
 app_name:
@@ -1481,7 +1490,7 @@ copier update --trust --defaults --conflict inline`,
       },
       {
         title: "Check conformance in CI",
-        body: "Conformance is a plain question: are the platform paths identical to the template version the answers file names? git answers it without any extra tool. Fetch that tag from the template repository, then diff the working tree against it, limited to the manifest globs and excluding the paths of live exceptions. An expired exception is simply not excluded, so it fails.\n\nRun it on every pull request. A change that edits a platform path without an exception fails here with the file named, which is when it is cheapest to move the change upstream.",
+        body: "Conformance is a plain question: are the platform paths identical to the template version the answers file names? git answers it without any extra tool. Fetch that tag from the template repository, then diff the working tree against it, limited to the owned globs and excluding the paths of live exceptions. An expired exception is simply not excluded, so it fails.\n\nRun it on every pull request. The script below is the idea in a dozen lines; the platform-template of @plainconceptsplatform/workflows ships a complete guard that reads the same contract, also fails on conflict markers, and lets a template sync through. A change that edits a platform path without an exception fails here with the file named, which is when it is cheapest to move the change upstream.",
         code: [
           {
             lang: "bash",
@@ -1495,7 +1504,7 @@ ref=$(yq -r '._commit' .copier-answers.yml)
 git fetch --quiet --depth 1 "$src" "refs/tags/$ref:refs/tags/template-$ref"
 
 specs=()
-while read -r glob; do specs+=(":(glob)$glob"); done < <(grep -Ev '^\\s*(#|$)' .platform/manifest)
+while read -r glob; do specs+=(":(glob)$glob"); done < <(yq -r '.owned[]' .platform/contract.yml)
 
 today=$(date +%F)
 if [[ -f .platform/exceptions.yml ]]; then
@@ -1510,19 +1519,19 @@ git diff --exit-code --stat "template-$ref" -- "\${specs[@]}"`,
       },
     ],
     verify: [
-      "Run copier copy into an empty folder: it contains only the manifest paths and .copier-answers.yml, and nothing of the reference app's business.",
+      "Run copier copy into an empty folder: it contains only the owned paths and .copier-answers.yml, and nothing of the reference app's business.",
       "Change a line in a platform file and run the conformance check: it fails and names the file. Add an exception dated next month: it passes. Date it yesterday: it fails again.",
-      "Tag a new template version and run copier update in an app: the pull request touches only manifest paths, and the answers file names the new tag.",
+      "Tag a new template version and run copier update in an app: the pull request touches only owned paths, and the answers file names the new tag.",
     ],
     pitfalls: [
       'Putting "**" anywhere but first in _exclude, or re-including with "!*/" or "!**/". Either way Copier copies the whole reference app into every project.',
       "Templating the app's name into shared files. They can never be identical across apps, so conformance is meaningless and every update conflicts.",
       "Editing a platform file in an app to get unblocked and moving on. The next update shows a conflict nobody remembers the reason for; move the fix upstream or record a dated exception.",
-      "Listing harness or workflow files in the manifest. They already have an owner, and the two installers overwrite each other.",
+      "Listing harness or workflow files under owned. They already have an owner, and the two installers overwrite each other.",
       "Treating the template as a starter kit. Copied once and never updated, it is a fork with extra steps; the value is in copier update.",
     ],
     platform:
-      "Kitchen-Sink is the template of the Platform app family: the reference app where every platform capability runs, tagged, with .platform/manifest and the include-only copier.yml generated from it. Numa, Odyssey and Hermes are built from it. The platform-new-project skill creates a new app from its BLUEPRINT.md, platform-onboard adopts an existing one with copier copy --overwrite and converges it one capability at a time, and platform-upstream moves a fix born in an app into Kitchen-Sink first. Project-Health's Family tab shows each app's template version, conformance and exceptions. Kitchen-Sink is private: it requires access to the PlainConceptsPlatform organisation.",
+      "Kitchen-Sink is the template of the Platform app family: the reference app where every platform capability runs, tagged, with .platform/contract.yml and the include-only copier.yml generated from its owned paths. It still ships .platform/manifest, the same list one glob per line, for tool versions older than agent-harness 3.8.0 and workflows 1.12.0. Numa, Odyssey and Hermes are built from it. The platform-new-project skill creates a new app from its BLUEPRINT.md, platform-onboard adopts an existing one with copier copy --overwrite and converges it one capability at a time, and platform-upstream moves a fix born in an app into Kitchen-Sink first. Project-Health's Family tab reads each app's contract and shows its template version, conformance and exceptions. Kitchen-Sink is private: it requires access to the PlainConceptsPlatform organisation.",
     links: [
       {
         label: "Platform family (Foundations)",

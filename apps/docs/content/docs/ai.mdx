@@ -145,11 +145,11 @@ For **brownfield** projects, it generates `ARCHITECTURE.md` and `DESIGN.md` from
 
 ### Platform skills
 
-Three Foundations skills cover an app's life on the Platform. Kitchen-Sink, which two of them read, is private<Internal inline />.
+Three Foundations skills cover an app's life on the Platform. Kitchen-Sink, which two of them read, is private<Internal inline />. Install one with `npx skills add PlainConceptsPlatform/Foundations --skill <name>`; always name it, since the repository also vendors the harness skills. Each reads the platform contract, `.platform/contract.yml`, rather than a fixed list of paths; [How it fits together](/docs/how-it-fits#which-skill-runs-when) shows when each one runs.
 
-- [`platform-new-project`](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-new-project) creates a new family app: it reads Kitchen-Sink's `BLUEPRINT.md`, takes the platform code from the Kitchen-Sink template with `copier copy`, and installs the harness, the workflows and the quality gates. Without access it builds an own design app from the public rules.
+- [`platform-new-project`](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-new-project) creates a new family app: it reads Kitchen-Sink's `BLUEPRINT.md` and platform contract, takes the owned paths from the Kitchen-Sink template with `copier copy`, reuses the docs and packages the contract lists, and installs the harness, the workflows and the quality gates. Without access it builds an own design app from the public rules.
 - [`platform-onboard`](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-onboard) brings an existing repository in. A family app adopts the template (`copier copy --overwrite`) and converges one capability at a time onto it; an own design app runs a binary preflight across six domains and completes one OpenSpec change per failing domain. Both start with characterization tests, so behaviour is pinned before anything moves.
-- [`platform-upstream`](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-upstream) handles a change to platform code in a family app: into Kitchen-Sink first, then every app through the next template tag, or a dated exception until then.
+- [`platform-upstream`](https://github.com/PlainConceptsPlatform/Foundations/tree/main/skills/platform-upstream) handles a change to a path the platform contract lists under `owned`: into Kitchen-Sink first, then every app through the next template tag, or a dated exception until then.
 
 ### Key commands
 

@@ -42,7 +42,7 @@ skills/
 6. **Use pnpm** for all commands.
 7. **Accessibility & all states** (loading/empty/error/success) are required, see DESIGN.md.
 8. **A section still in development is behind a section feature flag**, answered 404 (never 403) when off, and **MCP never serves anything that has a flag**. Use `@plainconceptsplatform/ui-components/feature-flags` on the web, see "Section feature flags" in ARCHITECTURE.md.
-9. **In a family app, platform paths belong to the template.** A path listed in `.platform/manifest` is changed in Kitchen-Sink first and arrives with `copier update`; until then the app records a dated entry in `.platform/exceptions.yml`. Do not propose a shared package for platform code. See "Platform family" in ARCHITECTURE.md.
+9. **In a family app, platform paths belong to the template.** A path `.platform/contract.yml` lists under `owned` is changed in Kitchen-Sink first and arrives with the template sync; until then the app records a dated entry in `.platform/exceptions.yml`. Before building something new, read the contract's `reuse.docs` and import from its `reuse.packages`. Do not propose a shared package for platform code. See "Platform family" in ARCHITECTURE.md.
 
 ## Theme & components setup (consuming apps)
 
@@ -53,9 +53,9 @@ When building a Platform app, read [`/README.md`](../README.md) for the full set
 
 ## Platform skills
 
-- [`platform-new-project`](../skills/platform-new-project/SKILL.md) creates a new Platform app. It reads Kitchen-Sink's `BLUEPRINT.md`, takes the platform code from the template with `copier copy`, and installs the harness, the workflows and the quality gates. Without access to Kitchen-Sink it builds an own design app from the public rules.
-- [`platform-onboard`](../skills/platform-onboard/SKILL.md) brings an existing app onto the Platform. Route A joins the family: preflight, adopt with `copier copy --overwrite`, converge one capability at a time, install the quality gates, then keep in sync with `copier update`. Route B keeps an own design and migrates agentic infrastructure, architecture docs, OpenSpec, frontend stack, agentic workflows and .NET guardrails in dependency order.
-- [`platform-upstream`](../skills/platform-upstream/SKILL.md) handles a change to a platform path in a family app: Kitchen-Sink first and the template carries it, or a dated exception until it does.
+- [`platform-new-project`](../skills/platform-new-project/SKILL.md) creates a new Platform app. It reads Kitchen-Sink's `BLUEPRINT.md` and platform contract, takes the owned paths from the template with `copier copy`, reuses what the contract lists before building, and installs the harness, the workflows and the quality gates. Without access to Kitchen-Sink it builds an own design app from the public rules.
+- [`platform-onboard`](../skills/platform-onboard/SKILL.md) brings an existing app onto the Platform. Route A joins the family: preflight, adopt with `copier copy --overwrite`, converge one capability at a time, install the quality gates and the template sync, then take each template version with the contract's `sync.update`. Route B keeps an own design and migrates agentic infrastructure, architecture docs, OpenSpec, frontend stack, agentic workflows and .NET guardrails in dependency order.
+- [`platform-upstream`](../skills/platform-upstream/SKILL.md) handles a change to a path the contract lists under `owned`: Kitchen-Sink first and the template carries it, or a dated exception until it does.
 
 **Workflow**
 - `platform-new-project`: create a new family app from the Kitchen-Sink blueprint and template
