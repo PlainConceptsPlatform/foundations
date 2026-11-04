@@ -12,9 +12,9 @@
 
 ## 3. Documentation
 
-- [ ] 3.1 Create `apps/docs/components/previews/segmented-control-demo.tsx` showing both shapes: text options as in Capacity's date filter (Before / On date / After) and icon options as in the theme modes (Sun / Moon / Monitor) <!-- agent: fullstack-engineer.build, depends_on: [2.1], touches: [apps/docs/components/previews/segmented-control-demo.tsx] -->
-- [ ] 3.2 Write the handwritten page `apps/docs/content/docs/components/segmented-control.mdx` (When to use, Platform notes, Install, Code), following `app-layout.mdx` <!-- agent: fullstack-engineer.build, depends_on: [3.1], touches: [apps/docs/content/docs/components/segmented-control.mdx] -->
-- [ ] 3.3 Note in `apps/docs/content/docs/components/app-sidebar.mdx` that `AppSidebarThemeToggle` renders the shared `SegmentedControl` from the `segmented-control` sub-path <!-- agent: fullstack-engineer.fast, depends_on: [2.2], touches: [apps/docs/content/docs/components/app-sidebar.mdx] -->
+- [x] 3.1 Create `apps/docs/components/previews/segmented-control-demo.tsx` showing both shapes: text options as in Capacity's date filter (Before / On date / After) and icon options as in the theme modes (Sun / Moon / Monitor) <!-- agent: fullstack-engineer.build, depends_on: [2.1], touches: [apps/docs/components/previews/segmented-control-demo.tsx] -->
+- [x] 3.2 Write the handwritten page `apps/docs/content/docs/components/segmented-control.mdx` (When to use, Platform notes, Install, Code), following `app-layout.mdx` <!-- agent: fullstack-engineer.build, depends_on: [3.1], touches: [apps/docs/content/docs/components/segmented-control.mdx] -->
+- [x] 3.3 Note in `apps/docs/content/docs/components/app-sidebar.mdx` that `AppSidebarThemeToggle` renders the shared `SegmentedControl` from the `segmented-control` sub-path <!-- agent: fullstack-engineer.fast, depends_on: [2.2], touches: [apps/docs/content/docs/components/app-sidebar.mdx] -->
 
 ## 4. Verification
 
