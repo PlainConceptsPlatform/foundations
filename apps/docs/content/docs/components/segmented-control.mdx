@@ -1,0 +1,79 @@
+---
+title: "SegmentedControl"
+description: "A controlled one-of-N segmented selector: one row of buttons where exactly one is selected, with icon or text options."
+---
+
+import { SegmentedControlDemo } from "@/components/previews/segmented-control-demo"
+
+<ComponentPreview block>
+  <SegmentedControlDemo />
+</ComponentPreview>
+
+## When to use
+
+Use SegmentedControl when a person picks one option from a short list shown side by side: a theme mode (Light / Dark / System), a date filter (Before / On date / After), a dense-or-comfortable toggle. For a yes/no choice where one option is the negation of the other, a switch is the smaller answer. For more options than fit comfortably in one row, or options that need a description, use a select or a radio group. The component is controlled: it renders the option you pass in `value` and reports a change through `onChange`, and the state lives in your app.
+
+## Platform notes
+
+Every option is `{ value, label, icon? }`. Pass `icon` to render icons, as the theme picker does; omit it and `label` renders as visible text, as Capacity's date filter does. `label` is the accessible name in both cases, the selected button carries `aria-pressed`, and the wrapping `fieldset` keeps its own reset, so the control renders in apps without Tailwind preflight. One style set on the general tokens (hover `bg-muted`, selected `bg-accent text-accent-foreground`) means it renders on any themed surface, not only inside the sidebar; since 1.8.0 `AppSidebarThemeToggle` is a thin adapter over it, which is why the two look alike.
+
+The component is generic over the option values, so `onChange` hands back your own string union and TypeScript catches a value you did not declare. It ships no icons, no strings and no state of its own beyond the pressed flag; like the DataTable, it takes slots for everything that varies between apps.
+
+## Install
+
+```bash
+pnpm add @plainconceptsplatform/ui-components
+```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/segmented-control`.
+
+## Code
+
+```tsx
+"use client";
+
+import { Monitor, Moon, Sun } from "lucide-react";
+import { useState } from "react";
+
+import { SegmentedControl } from "@plainconceptsplatform/ui-components/segmented-control";
+
+export function SegmentedControlDemo() {
+  const [dateFilter, setDateFilter] = useState<"before" | "on-date" | "after">("before");
+  const [theme, setTheme] = useState<"light" | "dark" | "system">("light");
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="rounded-lg border border-border bg-card p-4">
+        <p className="mb-3 text-sm font-medium text-muted-foreground">Text options</p>
+        <SegmentedControl
+          className="rounded-md bg-muted"
+          value={dateFilter}
+          onChange={setDateFilter}
+          options={[
+            { value: "before", label: "Before" },
+            { value: "on-date", label: "On date" },
+            { value: "after", label: "After" },
+          ]}
+        />
+      </div>
+      <div className="rounded-lg border border-border bg-card p-4">
+        <p className="mb-3 text-sm font-medium text-muted-foreground">Icon options</p>
+        <SegmentedControl
+          className="rounded-md bg-muted"
+          value={theme}
+          onChange={setTheme}
+          options={[
+            { value: "light", label: "Light", icon: <Sun className="size-3.5" /> },
+            { value: "dark", label: "Dark", icon: <Moon className="size-3.5" /> },
+            { value: "system", label: "System", icon: <Monitor className="size-3.5" /> },
+          ]}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+## Full API
+
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)
