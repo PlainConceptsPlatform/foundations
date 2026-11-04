@@ -160,7 +160,7 @@ importers:
   packages/ui-components:
     dependencies:
       '@plainconceptsplatform/ui-theme':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../theme
       clsx:
         specifier: ^2.1.1
