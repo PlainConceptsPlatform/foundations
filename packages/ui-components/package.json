@@ -1,6 +1,6 @@
 {
   "name": "@plainconceptsplatform/ui-components",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Shared React components for Platform frontend apps (Plain logo and more).",
   "type": "module",
   "license": "MIT",
@@ -45,6 +45,11 @@
       "types": "./dist/feature-flags/index.d.ts",
       "import": "./dist/feature-flags/index.js",
       "default": "./src/feature-flags/index.ts"
+    },
+    "./segmented-control": {
+      "types": "./dist/segmented-control/index.d.ts",
+      "import": "./dist/segmented-control/index.js",
+      "default": "./src/segmented-control/index.ts"
     }
   },
   "sideEffects": ["**/*.css", "**/*.ts", "**/*.tsx"],

@@ -1,5 +1,13 @@
 # @plainconceptsplatform/ui-components
 
+## 1.8.0
+
+### Minor Changes
+
+- New `SegmentedControl`, exported from the `@plainconceptsplatform/ui-components/segmented-control` sub-path (not the root barrel, like every other client component). One row of buttons where exactly one is selected: a theme picker, a date filter (Before / On date / After), any choice over a short list. It is controlled and generic over the option values, so `onChange` hands back your own union: pass `options` as an array of `{ value, label, icon? }`, plus `value` and `onChange`. An option renders its `icon` when you pass one and its `label` as visible text otherwise; `label` is the accessible name in both cases, the selected button carries `aria-pressed`, and the `fieldset` keeps the no-preflight reset the sidebar toggle already had. One style set on the general tokens (`hover:bg-muted`, selected `bg-accent text-accent-foreground`), so it renders on any themed surface, not only the sidebar.
+
+  `AppSidebarThemeToggle` is now a thin adapter over it: same name, props and `app-sidebar` sub-path, so sidebar consumers change nothing. Two visual shifts follow from the shared classes: hover is `bg-muted` rather than `bg-sidebar-hover` (one step lighter), and the selected segment is `text-accent-foreground` with no border tint. The surface does not move, because `--accent` and `--sidebar-accent` carry the same values. Migration notes: none for the sidebar; any app with its own local copy of a segmented control can delete it and use the sub-path import.
+
 ## 1.7.0
 
 ### Minor Changes

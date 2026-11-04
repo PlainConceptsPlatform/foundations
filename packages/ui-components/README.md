@@ -49,6 +49,7 @@ The logo fills its parent and swaps: icon under ~190px, wordmark up to ~460px, f
 | `DataTable` | `@plainconceptsplatform/ui-components/data-table` | Sortable, groupable table with column reorder/show-hide |
 | `Tour` | `@plainconceptsplatform/ui-components/tour` | One-time guided tour that spotlights `data-tour` anchors, with themed popover, progress and `requestTour(id)` to retake it |
 | `FeatureFlagsAdmin`, `FeatureProvider`, `useFeature`, `FeatureGate`, `FeatureGuard` | `@plainconceptsplatform/ui-components/feature-flags` | Section feature flags: the provider and hooks that fail closed, a gate and a not-found route guard, and the administration table. No fetching and no i18n: the app passes the list, its not-found page and every string |
+| `SegmentedControl` | `@plainconceptsplatform/ui-components/segmented-control` | Controlled one-of-N segmented selector with icon or text options, generic over your value union |
 
 `DataTable`, `Tour` and the feature flag pieces are client components with hooks, so they are available only from their sub-paths — importing them from the package root would break Next.js server components.
 

@@ -2,6 +2,7 @@
 
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "../lib/utils";
+import { SegmentedControl } from "../segmented-control";
 import { useAppSidebar } from "./app-sidebar-context";
 import { getInitials } from "./get-initials";
 
@@ -153,27 +154,15 @@ export function AppSidebarThemeToggle({
   labels = { light: "Light", dark: "Dark", system: "System" },
   className,
 }: AppSidebarThemeToggleProps) {
-  const options: Array<"light" | "dark" | "system"> = ["light", "dark", "system"];
+  const modes = ["light", "dark", "system"] as const;
+
+  const options = modes.map((mode) => ({
+    value: mode,
+    label: labels[mode],
+    icon: icons?.[mode],
+  }));
 
   return (
-    <fieldset className={cn("flex gap-1 border-none m-0 min-w-0 px-0.5 py-0.5", className)}>
-      {options.map((pref) => (
-        <button
-          key={pref}
-          type="button"
-          className={cn(
-            "flex flex-1 items-center justify-center rounded border border-transparent bg-transparent px-1 py-1.5 text-[11px] text-muted-foreground cursor-pointer transition-colors duration-150",
-            "hover:bg-sidebar-hover hover:text-sidebar-foreground",
-            value === pref && "bg-sidebar-accent text-sidebar-primary border-sidebar-primary/30",
-          )}
-          title={labels[pref]}
-          aria-label={labels[pref]}
-          aria-pressed={value === pref}
-          onClick={() => onChange(pref)}
-        >
-          {icons?.[pref]}
-        </button>
-      ))}
-    </fieldset>
+    <SegmentedControl options={options} value={value} onChange={onChange} className={className} />
   );
 }
