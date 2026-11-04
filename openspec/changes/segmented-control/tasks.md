@@ -18,4 +18,4 @@
 
 ## 4. Verification
 
-- [ ] 4.1 Run `pnpm verify` (lint, typecheck, build), the docs generator up-to-date check (`pnpm --filter @plainconceptsplatform/docs gen` plus `git diff --exit-code`), and confirm the diff passes `node .opencode/scripts/check-diff.mjs` <!-- agent: fullstack-engineer.fast, depends_on: [1.1, 2.1, 2.2, 2.3, 3.1, 3.2, 3.3], touches: [] -->
+- [x] 4.1 Run `pnpm verify` (lint, typecheck, build), the docs generator up-to-date check (`pnpm --filter @plainconceptsplatform/docs gen` plus `git diff --exit-code`), and confirm the diff passes `node .opencode/scripts/check-diff.mjs` <!-- agent: fullstack-engineer.fast, depends_on: [1.1, 2.1, 2.2, 2.3, 3.1, 3.2, 3.3], touches: [] -->
