@@ -52,16 +52,16 @@ The marker sections below name the optimization skills this project selected. Lo
 <!-- PC-GUARDRAILS-MEMORY-END -->
 
 <!-- PC-GUARDRAILS-SIMPLE-ENGLISH-START -->
-## Simple English (optimization skill)
+## Simple English (before writing prose)
 
-- Apply Simplified Technical English to all prose: `skill("simple-english")`. Editing, shell and spawning stay blocked until it is loaded (pc-system-reminders).
+- Before writing prose, read `.agents/skills/simple-english/SKILL.md` and apply Simplified Technical English.
 - Keep code blocks, identifiers, CLI commands, file paths, quoted errors, and product names exact.
 <!-- PC-GUARDRAILS-SIMPLE-ENGLISH-END -->
 
 <!-- PC-GUARDRAILS-HUMANIZER-START -->
-## Humanizer (optimization skill)
+## Humanizer (before writing prose)
 
-- Load `skill("humanizer")` before writing prose (commit messages, PR descriptions, docs, proposals); unhumanized prose reads as machine-written. Editing, shell and spawning stay blocked until it is loaded (pc-system-reminders).
+- Before writing prose (commit messages, PR descriptions, docs, proposals), read `.agents/skills/humanizer/SKILL.md` and apply it; unhumanized prose reads as machine-written.
 - Never apply it to code, config files, or terminal output: prose only.
 <!-- PC-GUARDRAILS-HUMANIZER-END -->
 

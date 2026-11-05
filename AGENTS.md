@@ -16,3 +16,9 @@ In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the re
 
 If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is the user's decision.
 <!-- CODEGRAPH_END -->
+
+## Mandatory skills
+
+<!-- PC-PLATFORM-SKILLS-START -->
+Mandatory, before any edit, shell command or subagent spawn: read `.agents/skills/pc-guardrails-generic/SKILL.md`, then `.agents/skills/pc-guardrails-project/SKILL.md` if present. They are instructions, not references: a loaded skill may name further skills, and those load too before the work they cover.
+<!-- PC-PLATFORM-SKILLS-END -->
