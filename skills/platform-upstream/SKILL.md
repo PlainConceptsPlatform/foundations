@@ -31,10 +31,10 @@ If the change is genuinely specific to this app, it does not belong in an owned 
 ## 3. Upstream route
 
 1. **Clone the template fresh** from `source.url` on a new branch. Kitchen-Sink is private: it requires access to the PlainConceptsPlatform organisation. Without access, take the exception route and ask someone with access to open the issue at `source.changes`.
-2. **Make the change at the same path.** Owned paths are identical in every app, so the file you edit in the template is the one you edited in the app. Keep it generic: no app name, no app business, nothing that only makes sense in one domain.
-3. **Change everything the template owns for it**: the capability's spec, `docs/platform/` when behaviour or configuration changes, and `Directory.Packages.Platform.props` or the pnpm `platform` catalog when a dependency moves.
+2. **Make the change at the same path.** Owned paths are identical in every app, so the file you edit in the template is the one you edited in the app. Keep it generic: no app name, no app business, nothing that only makes sense in one domain. A difference between apps becomes a setting the platform reads (`Platform:AnonymousPages`, `Platform:TrustedProxies`, `Csp:AllowSameOriginFrames`), an argument with a default (`PlatformAuditActions`), a registration (`AddReadinessProbe`) or a slot (the shell's `logo` and tours), never a branch on the app.
+3. **Change everything the template owns for it**: the capability's spec, `docs/platform/` when behaviour or configuration changes, and `Directory.Packages.Platform.props` or the pnpm `platform` catalog when a dependency moves. A change that decides something other apps will rely on (a security default, a seam) gets a decision record in the template's `docs/decisions/`.
 4. **Test it in the template.** Every platform capability runs in Kitchen-Sink for real, so the change is proven against all of them, not only against the app it came from. Add or update the test that shows the fix; do not weaken one.
-5. **Open the pull request in the template**, linking the app's issue or pull request where the need appeared. Once merged, the change ships in the template's next `v*` tag.
+5. **Open the pull request in the template**, linking the app's issue or pull request where the need appeared. Once merged, the change ships in the template's next `v*` tag. When an app must set or change something of its own to take it (a new setting, a changed argument), the release notes say so in a "What apps must do" section, since the template cannot write app files.
 6. **Take the tag in the app** in its own pull request. The `Platform: Template sync` workflow opens it on its weekly run, or on demand; by hand, run the contract's `sync.update`, for the family:
 
    ```bash

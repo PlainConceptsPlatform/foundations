@@ -62,6 +62,9 @@ Follow the blueprint's build steps, with these differences for a family app:
 4. **App files plug into the platform through its ports**: the permission catalog, the feature catalog, the audit event list, the settings. Those are the new project's own files, written for its domain.
 5. **REST from the first endpoint**: HAL-FORMS with `_links` and `_templates`, built by the platform helper, each template keyed by its action name; the SPA renders actions from `_templates` and sends the resource's `version` as `If-Match`. A state transition is a `PUT` on a noun sub-resource, never a verb in the path.
 6. **Platform versions** come from `Directory.Packages.Platform.props` and the pnpm `platform` catalog. Do not pin a platform package in the app's own `Directory.Packages.props` or `package.json`.
+7. **Readiness, not a smoke test.** Register a readiness probe with `AddReadinessProbe` for each read the app cannot work without, a one-row read through its real Application services (the template's own probes are the example). The deploy's readiness gate is the smoke test: there is no `SMOKE_TOKEN_PRE`, no `SMOKE_PATHS` and no Entra smoke role to create. A probe gates every replica, so do not register a dependency another system owns unless the app is no use without it.
+8. **Settings the platform reads from the app's configuration.** Set `Platform:TrustedProxies` and `Platform:ForwardLimit` (for an internal Container Apps instance behind the shared Application Gateway: `0.0.0.0/0,::/0` and `2`; empty in `appsettings.Development.json`), because unset the platform trusts nothing and every caller shares the sign-in rate limit. List any anonymous SPA page in `Platform:AnonymousPages`. Set `Csp:AllowSameOriginFrames=true` only if the SPA frames sandboxed content of its own. Name the platform's audit events differently with `PlatformAuditActions` only when there is history to keep. A new app needs no `Platform:LegacySsoPurposes`.
+9. **Web slots.** Pass the shell the app's `logo` and, when the app has more than one guided tour, a list of tours with a `scope` path prefix each. Wrap the platform's `test-support` helpers in the app's own `test-support` rather than copying them, and list the platform `setup.ts` in Vitest `setupFiles`.
 
 ## 5. Install what is installed, never copy it
 
@@ -77,8 +80,9 @@ Follow the blueprint's build steps, with these differences for a family app:
 - Every owned path is identical to that tag (`node scripts/check-platform-conformance.mjs --compare` passes), and the exceptions file is absent or empty: a new app starts with no exceptions.
 - `AGENTS.md` carries the "Reuse before you build" block, and nothing in the app re-implements an export of a `reuse.packages` package.
 - The quality-gates template is installed and the first CI run is green.
+- `/api/v1/ready` answers 200 with the probes registered, and the deploy has no smoke secret. `Platform:TrustedProxies` is set for every deployed environment.
 
-Hand the person the blueprint's list of what they must create (environments, cloud resources, the app registration, the ruleset, the workflow secrets), filled in for this project, and the `discover.yml` command from Foundations "Adopt in your project" to register the repository in Project-Health.
+Hand the person the blueprint's list of what they must create (environments, cloud resources, the app registration, the ruleset, the workflow secrets), filled in for this project, with the repository variables `PRE_ENVIRONMENT` and `PRO_ENVIRONMENT` if the GitHub environments are not called `pre` and `pro`, and the `discover.yml` command from Foundations "Adopt in your project" to register the repository in Project-Health.
 
 ## Without access: own design from the public rules
 

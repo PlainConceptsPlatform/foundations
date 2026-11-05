@@ -100,6 +100,27 @@ For each capability:
 
 When the platform code lacks something the app needs, that is not a reason to edit it here. Use `platform-upstream`: the change goes to Kitchen-Sink first, or the app carries a dated exception until it does.
 
+#### Capability checks
+
+Run these when a capability is converged and again after every template sync. Each is binary, and a failure is the app's file to fix, never an owned path.
+
+| Capability | Check | Pass condition |
+|---|---|---|
+| Readiness | `GET /api/v1/ready` on a running replica; the `AddReadinessProbe` registrations; `SMOKE_TOKEN_PRE` and `SMOKE_PATHS` in workflows, environments and docs | `200 {"status":"ready"}`, one probe for each read the old smoke covered, and no smoke secret, path list or Entra smoke role left anywhere |
+| Deploy environments | The GitHub environments the deploy uses, and the repository variables `PRE_ENVIRONMENT` and `PRO_ENVIRONMENT` | The variables are unset when the environments are `pre` and `pro`, and name the real ones otherwise, matching the identity's federated credential |
+| Proxies | `Platform:TrustedProxies` and `Platform:ForwardLimit` in `appsettings.json`; `ASPNETCORE_FORWARDEDHEADERS_ENABLED` in the Dockerfile, the workflows and the environment | Set for a deployed app (`0.0.0.0/0,::/0` and `2` for an internal Container Apps instance behind the shared Application Gateway, `1` or an IP restriction for an external ingress), empty in `appsettings.Development.json`, and the ASP.NET Core flag nowhere |
+| Sessions | A test that changes a person's roles; implementations of `ITokenRevocationStore` | The old token answers 401 and a refresh carries the new roles; `IsRevokedAsync` takes the stamp |
+| Transactions | The app's own transaction or retry wrappers | Gone: every business write and its audit event run in `SerializableTransaction`, and a test that fails the first attempt leaves one audit event and a chain that verifies |
+| Anonymous pages | Every SPA route outside `RequireAuth` | Each path prefix is in `Platform:AnonymousPages`, and an anonymous visitor to it does not land on the Entra sign-in |
+| SSO cookies | Whether the app protected its SSO state and login hint under purposes of its own before joining | `Platform:LegacySsoPurposes:State` and `Platform:LegacySsoPurposes:Hint` set once, with a note to remove them after 90 days |
+| Framing | Whether the SPA frames content served from its own origin | `Csp:AllowSameOriginFrames=true` only then, and no middleware ordering trick for the headers |
+| Audit actions | The action names in the app's audit history against the platform's defaults | Where they differ, a `PlatformAuditActions` is passed to `AddPlatformInfrastructure`, so a filter by action finds all the history |
+| MCP sections | Tools and resources of sections behind a flag | Declared with their section; served to the people it is on for, and one that declares no section is not served |
+| Reading everything | Hand-written page loops on the server and the web | `PagedResults.ReadAllAsync` and `allItems`; tests over InMemory that need a 412 add `InMemoryRowVersions.Instance` |
+| Web shell | The app's own mark and tours | `logo` and a list of scoped tours passed to the shell; no copy of the shell |
+| Web tests and lint | Vitest `setupFiles`, `steiger.config.ts`, `biome.json` | The platform `test-support/setup.ts` is listed, `platformSteiger` is imported, no override for the platform folder remains, and the app's `test-support` wraps the platform helpers |
+| Dockerfile | Extra web packages that ship inside the API | Each has a `build:image` script, and the app's `Dockerfile` exception is gone |
+
 ### A4. Quality gates
 
 ```bash
@@ -120,12 +141,20 @@ copier update --trust --defaults --conflict inline
 
 One pull request per tag, through the same gates as any change. An owned file the app had changed comes back with `<<<<<<< before updating` / `>>>>>>> after updating` markers: take the template's side, or, if the app's side is the better code, move it upstream with `platform-upstream`. Then check conformance with `node scripts/check-platform-conformance.mjs --compare`: every owned path identical to the version `sync.version` records, except live exceptions.
 
+#### Known pitfalls
+
+- **Duplicated test-support trips the duplication gate.** An app that copies the platform's fixtures and render helpers into its own `test-support` gives `check-duplication` a clone of an owned file. Delete the copy and wrap the platform helpers (`me`, `renderWithProviders`, `t`, the rest) with the app's fixtures and defaults. A baseline entry or an exception for it is the wrong fix.
+- **The `.sh` executable bit is lost on Windows.** Git on Windows does not keep the mode of a file it did not set, so a script written or restored there is committed as `100644` and fails in CI with `Permission denied`. Check with `git ls-files -s '*.sh'` and fix with `git update-index --chmod=+x <script>`, on the template's scripts and on the app's.
+- **The Copier cache path on Windows.** Copier clones the template into a cache directory under the user's profile, and the template's deep paths can pass the 260-character limit there, so `copier copy` or `copier update` fails on a long path. Turn on `git config --global core.longpaths true`, or point `TEMP` and `TMP` at a short folder such as `C:\t` for the command. Run it from a short checkout path too.
+- **An app behaves differently without `Platform:TrustedProxies` set.** Unset, the platform trusts nothing: the address is the ingress's, so the sign-in rate limit is shared by every caller and one client can lock everyone out, and the scheme stays `http`, which reaches the MCP protected resource metadata when `Mcp:PublicBaseUrl` is unset. It also differs between environments, since development leaves it empty. When a deployed app behaves unlike the local one (429s on sign-in, `http` URLs in metadata), check this setting before anything else.
+
 ### Route A is complete when
 
 - The version the contract's `sync.version` points at (`_commit` in `.copier-answers.yml`) is the latest template tag.
 - Every owned path is identical to that tag, except entries in the exceptions file, each with a reason, an issue and an `expires` date that has not passed.
 - The capability inventory has no app-owned implementation left.
 - The quality-gates and platform-template templates are installed and the floors live in `quality.config.json`.
+- Every capability check above passes, and none of the known pitfalls is present.
 - The app's `ARCHITECTURE.md` describes the app's own domain and links to the `reuse.docs` paths for the platform capabilities, and `AGENTS.md` carries the harness's "Reuse before you build" block (agent-harness 3.8.0 or later).
 - Route B domains 1, 2, 3, 5 and 6 pass (harness, docs, OpenSpec, workflows, .NET guardrails).
 
