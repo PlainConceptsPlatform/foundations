@@ -51,26 +51,29 @@ export function Changelog(props: ChangelogProps) {
   );
 
   const ScrollWrapper = ScrollArea ?? "div";
-  const scrollClassName = ScrollArea
-    ? "max-h-[calc(80vh-8rem)]"
-    : "max-h-[calc(80vh-8rem)] overflow-y-auto pr-1";
+
+  const Header = DialogHeader ?? "div";
+  const Title = DialogTitle ?? "h2";
+  const Description = DialogDescription ?? "p";
 
   return (
     <>
-      <Button variant="ghost" size="sm" onClick={() => setOpen(true)} aria-label={texts.trigger}>
-        <IconSparkles className="size-4" />
-        {texts.trigger}
-      </Button>
+      {Button && (
+        <Button variant="ghost" size="sm" onClick={() => setOpen(true)} aria-label={texts.trigger}>
+          <IconSparkles className="size-4" />
+          {texts.trigger}
+        </Button>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           className="flex max-h-[80vh] max-w-[90vw] flex-col overflow-hidden p-0 sm:max-w-2xl"
           showCloseButton
         >
-          <DialogHeader className="shrink-0 border-b border-border p-6 pb-4">
-            <DialogTitle>{texts.title}</DialogTitle>
-            <DialogDescription>{texts.description}</DialogDescription>
-          </DialogHeader>
+          <Header className="shrink-0 border-b border-border p-6 pb-4">
+            <Title className="text-lg leading-none font-semibold">{texts.title}</Title>
+            <Description className="text-sm text-muted-foreground">{texts.description}</Description>
+          </Header>
 
           <ScrollWrapper className="flex-1 overflow-y-auto p-6 pt-4">
             <div className="flex flex-col gap-4 py-2">
