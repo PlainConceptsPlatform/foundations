@@ -15,11 +15,11 @@ type AnyComponent = ComponentType<any>;
 
 export type ChangelogSlots = {
   Dialog: AnyComponent;
-  DialogContent: AnyComponent;
-  DialogHeader: AnyComponent;
-  DialogTitle: AnyComponent;
-  DialogDescription: AnyComponent;
-  Button: AnyComponent;
+  DialogContent?: AnyComponent;
+  DialogHeader?: AnyComponent;
+  DialogTitle?: AnyComponent;
+  DialogDescription?: AnyComponent;
+  Button?: AnyComponent;
   ScrollArea?: AnyComponent;
 };
 

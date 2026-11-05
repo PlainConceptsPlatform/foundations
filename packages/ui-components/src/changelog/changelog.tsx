@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { cn } from "../lib/utils";
 import data from "./data.json";
 import type { ChangelogEntry, ChangelogEntryType, ChangelogProps } from "./types";
@@ -12,6 +12,19 @@ const TYPE_BADGE_CLASS: Record<ChangelogEntryType, string> = {
   bugfix: "bg-destructive/15 text-destructive border-destructive/30",
   improvement: "bg-info/15 text-info border-info/30",
 };
+
+const DIALOG_TITLE_CLASS = "text-lg leading-none font-semibold";
+const DIALOG_DESCRIPTION_CLASS = "text-sm text-muted-foreground";
+
+const DefaultDialogContent = ({
+  className,
+  children,
+  showCloseButton: _showCloseButton,
+}: {
+  className?: string;
+  children?: ReactNode;
+  showCloseButton?: boolean;
+}) => <div className={className}>{children}</div>;
 
 export function Changelog(props: ChangelogProps) {
   const {
@@ -55,22 +68,29 @@ export function Changelog(props: ChangelogProps) {
     ? "max-h-[calc(80vh-8rem)]"
     : "max-h-[calc(80vh-8rem)] overflow-y-auto pr-1";
 
+  const Content = DialogContent ?? DefaultDialogContent;
+  const Header = DialogHeader ?? "div";
+  const Title = DialogTitle ?? "h2";
+  const Description = DialogDescription ?? "p";
+
   return (
     <>
-      <Button variant="ghost" size="sm" onClick={() => setOpen(true)} aria-label={texts.trigger}>
-        <IconSparkles className="size-4" />
-        {texts.trigger}
-      </Button>
+      {Button && (
+        <Button variant="ghost" size="sm" onClick={() => setOpen(true)} aria-label={texts.trigger}>
+          <IconSparkles className="size-4" />
+          {texts.trigger}
+        </Button>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent
+        <Content
           className="flex max-h-[80vh] max-w-[90vw] flex-col overflow-hidden p-0 sm:max-w-2xl"
           showCloseButton
         >
-          <DialogHeader className="shrink-0 border-b border-border p-6 pb-4">
-            <DialogTitle>{texts.title}</DialogTitle>
-            <DialogDescription>{texts.description}</DialogDescription>
-          </DialogHeader>
+          <Header className="shrink-0 border-b border-border p-6 pb-4">
+            <Title className={DIALOG_TITLE_CLASS}>{texts.title}</Title>
+            <Description className={DIALOG_DESCRIPTION_CLASS}>{texts.description}</Description>
+          </Header>
 
           <ScrollWrapper className="flex-1 overflow-y-auto p-6 pt-4">
             <div className="flex flex-col gap-4 py-2">
@@ -106,7 +126,7 @@ export function Changelog(props: ChangelogProps) {
               )}
             </div>
           </ScrollWrapper>
-        </DialogContent>
+        </Content>
       </Dialog>
     </>
   );

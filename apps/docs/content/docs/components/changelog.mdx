@@ -21,11 +21,13 @@ To add a new entry, edit `packages/ui-components/src/changelog/data.json`, publi
 
 ## Platform notes
 
-Like `DataTable`, this component is **slot-based**: it carries no hard dependency on shadcn, lucide, or any i18n library. The consuming app passes its own `Dialog`, `Button`, and icon components as slots, along with localised strings, a markdown renderer, and a date formatter. This means it works identically across apps that use different UI primitives (e.g. one app uses `@tabler/icons-react` while the docs app uses `lucide-react`).
+Like `DataTable`, this component is **slot-based**: it carries no hard dependency on shadcn, lucide, or any i18n library. The consuming app passes its own `Dialog` (the only required slot, because it owns the dialog behavior: portal, focus management, Escape, backdrop click, scroll lock), optionally its own `Button` and icon components, along with localised strings, a markdown renderer, and a date formatter. This means it works identically across apps that use different UI primitives (e.g. one app uses `@tabler/icons-react` while the docs app uses `lucide-react`).
+
+The component owns the styling of the dialog interior: the content container, header, title and description render the same classes in every app, whether you pass shadcn primitives or nothing at all. The rule is that inert containers inside the dialog get platform-styled defaults, while app-facing affordances never do. Omitting the `Button` slot renders no trigger at all, because the trigger belongs to the app's kit; the close button follows the same rule, which is why `showCloseButton` is a hint passed to `DialogContent` rather than a rendered element.
 
 The `renderMarkdown` slot lets each app decide how rich the entry bodies are: `react-markdown`, a custom MDX pipeline, or a lightweight inline parser. The `formatDate` slot lets each app format dates per its locale and i18n settings.
 
-State is **controllable**: pass `open` + `onOpenChange` for full control (e.g. when wiring to a sidebar button), or leave them unset for uncontrolled internal state driven by the trigger button.
+State is **controllable**: pass `open` + `onOpenChange` for full control (e.g. when wiring to a sidebar button), or leave them unset for uncontrolled internal state driven by the trigger button. An uncontrolled render without a `Button` slot is inert by design.
 
 ## Install
 
@@ -42,16 +44,20 @@ import type { ChangelogEntry } from "@plainconceptsplatform/ui-components/change
 
 ## Slot contract
 
+`Dialog` is the only required slot: it owns the dialog behavior (portal, focus management, Escape, backdrop click, scroll lock), which belongs to the consuming app. Every other slot has a platform-styled default (`DialogContent`, `DialogHeader` and `ScrollArea` fall back to a `div`, `DialogTitle` to an `h2`, `DialogDescription` to a `p`), so `slots={{ Dialog }}` renders a complete, styled dialog.
+
+Full form with shadcn primitives:
+
 ```tsx
 <Changelog
   entries={entries}        // optional: override the bundled data.json
   slots={{
-    Dialog,                 // Radix Dialog root
+    Dialog,                 // required: Radix Dialog root
     DialogContent,          // shadcn DialogContent (supports showCloseButton)
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    Button,                 // shadcn Button (variant, size, asChild)
+    DialogHeader,           // optional: defaults to a styled div
+    DialogTitle,            // optional: defaults to a styled h2
+    DialogDescription,      // optional: defaults to a styled p
+    Button,                 // optional: shadcn Button; omitted = no trigger
     ScrollArea,             // optional: shadcn ScrollArea; falls back to a div
   }}
   texts={{
@@ -65,6 +71,25 @@ import type { ChangelogEntry } from "@plainconceptsplatform/ui-components/change
       improvement: "Improvement",
     },
   }}
+  icons={{ IconSparkles }}
+  renderMarkdown={(md) => <MyMarkdownRenderer source={md} />}
+  formatDate={(d) => format(new Date(d), "MMM d, yyyy")}
+  open={open}
+  onOpenChange={setOpen}
+/>
+```
+
+Minimal form, opened from your own UI (e.g. a sidebar action). No trigger is rendered, and the dialog interior keeps its platform styling:
+
+```tsx
+const [open, setOpen] = useState(false);
+
+// Your own affordance, wherever it belongs in the app shell
+<button onClick={() => setOpen(true)}>What's new</button>
+
+<Changelog
+  slots={{ Dialog }}
+  texts={texts}
   icons={{ IconSparkles }}
   renderMarkdown={(md) => <MyMarkdownRenderer source={md} />}
   formatDate={(d) => format(new Date(d), "MMM d, yyyy")}

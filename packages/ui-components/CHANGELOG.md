@@ -1,5 +1,13 @@
 # @plainconceptsplatform/ui-components
 
+## 1.9.0
+
+### Minor Changes
+
+- `Changelog`'s structural slots (`DialogContent`, `DialogHeader`, `DialogTitle`, `DialogDescription`) are now optional, and `Button` is optional with no default. Previously every consumer passed six one-line passthrough adapters even though none of them carries behavior, and apps that open the dialog from their own shell (a sidebar action, say) passed `Button: () => null` just to suppress the built-in trigger, which rendered unconditionally. Now `slots={{ Dialog }}` renders a complete, styled dialog: the interior containers fall back to a plain `div`, `h2` and `p` carrying the platform classes the component already passed as classNames, and omitting `Button` renders no trigger at all, replacing the `() => null` hack. `Dialog` stays the only required slot, because dialog behavior (portal, focus management, Escape, backdrop click, scroll lock) lives in the app's primitives; a package-owned dialog would be a separate change with its own accessibility review. One consequence to know: an uncontrolled render (no `open` prop) without a `Button` is inert, by design, because the affordance that opens the dialog belongs to the app.
+
+- The dialog title and description classes are now owned by the component: `text-lg leading-none font-semibold` on the title and `text-sm text-muted-foreground` on the description. Before, the component styled the content container and header but not the title and description, so their look depended on the consumer's primitives: shadcn apps got shadcn's baked-in classes while plain-`h2`/`p` apps got browser defaults, and the same component rendered differently per app. The values match shadcn's `DialogTitle`/`DialogDescription` base classes, so shadcn-based consumers pass them through `cn(base, className)` and render byte-identical output. Design principle behind both changes: inert containers inside the dialog get platform-styled defaults; app-facing affordances (the trigger, the close button) never do. `showCloseButton` already models the close button this way, as a hint passed to `DialogContent` rather than a rendered element, and the default `DialogContent` accepts and ignores the hint the same way. Migration notes: none; every slot you pass keeps its exact contract, and the only additions to the rendered tree are the two `className` props on the title and description.
+
 ## 1.8.0
 
 ### Minor Changes
