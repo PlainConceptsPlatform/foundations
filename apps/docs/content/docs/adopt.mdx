@@ -48,6 +48,8 @@ Copier writes only the paths the template's `.platform/contract.yml` lists under
 
 **Why this is first.** Everything after this step produces code that has to fit the app's platform: the harness generates architecture documents from it, the workflows' agents build on it, and Health compares it with the template. Starting from the template means the first screen already has the shell, the theme, sign-in and permissions, and the first update of the shared code is a `copier update` rather than a migration. What the family shares, and who owns which file, is in [Architecture](/docs/reference/architecture#platform-family).
 
+What the new app sets for its deploy comes with the template. The deploy workflows read the GitHub environments from the repository variables `PRE_ENVIRONMENT` and `PRO_ENVIRONMENT`, which default to `pre` and `pro`, so set them only when the environments are named otherwise. There is no smoke secret to create: the app registers readiness probes (`AddReadinessProbe`), and the deploy's readiness gate is the smoke test. Behind the gateway, set `Platform:TrustedProxies` and `Platform:ForwardLimit` as [below](#taking-a-new-template-version).
+
 </Step>
 
 <Step>
@@ -134,6 +136,42 @@ Then ask your agent: *onboard this project*. The skill decides between the two r
 5. **Template sync.** From then on the template sync opens one pull request per template tag, running the contract's `sync.update`, and the conformance guard checks every pull request.
 
 **An own design app** adopts the conventions incrementally, in the order that gives the most value for the least risk: the theme first (the section below), since importing the tokens is the single change that makes an app look like the rest of the Platform; then shadcn components as you next touch each piece of UI; then the [frontend architecture](/docs/frontend) as you split or add features, with new code following the convention while old code migrates gradually; and the harness and workflows once the repository is somewhere an agent can be trusted to work. `platform-onboard` covers that route too, one domain per OpenSpec change, behind Playwright characterization tests so behaviour is pinned before anything moves.
+
+## Taking a new template version
+
+The template sync opens one pull request per Kitchen-Sink tag, and most tags need nothing from the app beyond reviewing it. A few ask for a setting or a small change in an app file, because the template cannot write app files. The release notes of each tag in [Kitchen-Sink](https://github.com/PlainConceptsPlatform/Kitchen-Sink/releases)<Internal inline /> have a "What apps must do" section; this is what the recent ones ask, for the apps that are in the situation.
+
+<Callout type="warn">
+  Set `Platform:TrustedProxies` before merging the pull request that takes v1.2.1. The `Dockerfile` it brings no longer lets ASP.NET Core read the forwarded headers on its own, so an app that has not set it keys its per-address rate limit on the ingress and sees `http` as its scheme.
+</Callout>
+
+**Deploy and readiness (v1.2.0).**
+
+- Delete `SMOKE_TOKEN_PRE` and `SMOKE_PATHS` from the `pre` environment; nothing reads them any more. Register `AddReadinessProbe` for the reads they covered: each probe is a one-row read through an Application service, runs without a person or a permission, and cannot write. `/api/v1/ready` answers only ready or not-ready and logs which probe failed, so look in the replica's log.
+- Set `PRE_ENVIRONMENT` and `PRO_ENVIRONMENT` if the app's GitHub environments are not `pre` and `pro`. The name is part of the deploy identity's federated credential, so renaming an environment would break it.
+
+**Proxies and sessions (v1.2.1).**
+
+- Set `Platform:TrustedProxies` and `Platform:ForwardLimit` in `appsettings.json`. The platform is the only owner of the forwarded headers, and unset, nothing is trusted. For an internal Container Apps instance behind the shared Application Gateway use `0.0.0.0/0,::/0` with a limit of 2, and leave `Platform:TrustedProxies` empty in `appsettings.Development.json`. An external ingress needs a limit of 1.
+- A role change now revokes the person's sessions, using an `rvs` stamp in the token. An app test that expects the old token to keep working after a role change refreshes first. An app that implements or calls `ITokenRevocationStore` adapts to `IsRevokedAsync(…, long? stamp)`. Sessions that exist at the update keep working.
+- A retried serializable transaction restores the change tracker, so the audit chain cannot fork. Nothing to do.
+
+**Settings and seams (v1.3.0).**
+
+| If the app | It does |
+|---|---|
+| Has anonymous SPA pages | Lists them in `Platform:AnonymousPages`, such as `["/review"]`, or `Platform__AnonymousPages__0=/review` |
+| Protected its SSO cookies under its own purposes before joining | Sets `Platform:LegacySsoPurposes:State` and `Platform:LegacySsoPurposes:Hint` once; both can go after 90 days |
+| Frames sandboxed content from its own origin | Sets `Csp:AllowSameOriginFrames=true` |
+| Names a platform audit event differently in its history | Passes `new PlatformAuditActions { … }` as the `auditActions` argument of `AddPlatformInfrastructure` |
+| Keeps a section behind a flag and wants it over MCP | Declares the section's tools, which are served to the people the section is on for |
+| Tests a stale writer over the InMemory provider | Adds `InMemoryRowVersions.Instance` to the context options |
+| Reads a whole collection | Uses `PagedResults.ReadAllAsync` on the server and `allItems` on the web |
+| Has its own logo or several tours | Passes `logo` and a list of scoped tours to the shell |
+| Lints and tests the web platform folder | Lists the platform `test-support/setup.ts` in Vitest `setupFiles`, imports `platformSteiger` in `steiger.config.ts`, and drops its own Biome and Steiger overrides for that folder |
+| Has another web package shipped in the API | Gives it a `build:image` script, which the `Dockerfile` builds, and drops its `Dockerfile` exception |
+
+After a sync, check conformance, and read [How it fits together](/docs/how-it-fits#the-life-of-the-template) for how a change travels.
 
 ## Without the template: install the theme
 

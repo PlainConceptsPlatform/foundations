@@ -44,7 +44,7 @@ apps/web/
 
 Two rules carry most of the value. First, **dependencies point one way**: a layer may import from layers below it, never above, and siblings do not import each other. A `feature` can use an `entity` and `shared`, but an `entity` never reaches up into a `feature`. This is what keeps slices easy to move or delete. Second, **each slice has one public entry** (`index.ts`); import a slice through that, never by reaching into its files. Steiger checks both in CI, so a violation fails the build rather than waiting for review.
 
-Start a new app with only `app`, `pages`, and `shared`. Add the other layers when a real need appears, not before. In a family app, `shared/platform/` is the web code the template delivers (shell, theme provider, auth, flags); treat it as read-only and change it upstream. Full layer rules are in [Architecture](/docs/reference/architecture#reference-app-structure-fsd-on-a-nextjs-static-export).
+Start a new app with only `app`, `pages`, and `shared`. Add the other layers when a real need appears, not before. In a family app, `shared/platform/` is the web code the template delivers (shell, theme provider, auth, flags); treat it as read-only and change it upstream. The shell takes the app's own `logo` and a list of tours, each scoped to a path prefix, `allItems` reads a whole HAL collection, and the folder's test helpers, its nested Biome file and its `platformSteiger` override come with it, so the app carries no setting for it. Full layer rules are in [Architecture](/docs/reference/architecture#reference-app-structure-fsd-on-a-nextjs-static-export).
 
 ## Theming
 

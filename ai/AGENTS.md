@@ -41,7 +41,7 @@ skills/
 5. **Respect the dependency direction and slice public APIs** (see ARCHITECTURE.md).
 6. **Use pnpm** for all commands.
 7. **Accessibility & all states** (loading/empty/error/success) are required, see DESIGN.md.
-8. **A section still in development is behind a section feature flag**, answered 404 (never 403) when off, and **MCP never serves anything that has a flag**. Use `@plainconceptsplatform/ui-components/feature-flags` on the web, see "Section feature flags" in ARCHITECTURE.md.
+8. **A section still in development is behind a section feature flag**, answered 404 (never 403) when off, and **MCP serves a flagged section only to the people it is on for**. Use `@plainconceptsplatform/ui-components/feature-flags` on the web, see "Section feature flags" in ARCHITECTURE.md.
 9. **In a family app, platform paths belong to the template.** A path `.platform/contract.yml` lists under `owned` is changed in Kitchen-Sink first and arrives with the template sync; until then the app records a dated entry in `.platform/exceptions.yml`. Before building something new, read the contract's `reuse.docs` and import from its `reuse.packages`. Do not propose a shared package for platform code. See "Platform family" in ARCHITECTURE.md.
 
 ## Theme & components setup (consuming apps)

@@ -125,7 +125,7 @@ Ask it to *create a new Platform project*. The skill checks access to Kitchen-Si
 copier copy --trust -d app_name=<Name> -d app_slug=<name> --vcs-ref <latest v* tag> https://github.com/PlainConceptsPlatform/Kitchen-Sink.git .
 ```
 
-Copier writes the paths the contract owns and `.copier-answers.yml`, which records the template version. Then the agent reads `docs/platform/`, the contract's `reuse.docs`, and writes the app's own code around the platform, importing the exports of the `reuse.packages` instead of writing its own. The app's catalogs (roles and permissions, sections, audit events) are app files the platform reads through its ports.
+Copier writes the paths the contract owns and `.copier-answers.yml`, which records the template version. Then the agent reads `docs/platform/`, the contract's `reuse.docs`, and writes the app's own code around the platform, importing the exports of the `reuse.packages` instead of writing its own. The app's catalogs (roles and permissions, sections, audit events) are app files the platform reads through its ports. So are its readiness probes, its anonymous pages and the proxies it trusts, which the platform reads from the app's configuration.
 
 </Step>
 
@@ -214,6 +214,7 @@ flowchart TD
 
 - **The template owns its paths.** `owned` in the contract is the list; everything else is the app's. The harness denies agent edits to owned paths, and `check-diff` reports a change to one, unless the diff is a template sync (it changes `sync.marker`) or an unexpired exception covers it.
 - **A version travels down as a pull request.** `platform-template-sync.yml` reads the version from `sync.version`, runs `sync.update` (for us, `copier update --trust --defaults --conflict inline`) and opens one pull request titled with the new version. It is a bot pull request, so the merge train and the merge gate take it like any other.
+- **A tag can ask the app for something.** The template cannot write app files, so a tag that needs a setting says so in a "What apps must do" section of its release notes: a proxy range, the anonymous pages, a readiness probe. The list for the recent tags is on [Adopt in your project](/docs/adopt#taking-a-new-template-version). The deploy is part of the template: its readiness gate is the smoke test, so no secret has to be set up.
 - **Conformance is checked on every pull request.** `scripts/check-platform-conformance.mjs` compares the owned paths with `source.url` at the recorded version and fails on drift, on conflict markers and on an expired exception.
 - **An improvement goes up first.** A fix born in an app moves into Kitchen-Sink with `platform-upstream`, ships in the next tag, and comes back to every app, the one it came from included. When the app cannot wait, it records a dated exception in `.platform/exceptions.yml`; when the exception expires, conformance fails again and someone has to decide.
 - **Health watches the family.** The Family tab reads each member's contract: the template version it is on, how many tags behind the latest it is, and which owned files are identical, modified or excepted.
