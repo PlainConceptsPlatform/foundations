@@ -13,9 +13,6 @@ const TYPE_BADGE_CLASS: Record<ChangelogEntryType, string> = {
   improvement: "bg-info/15 text-info border-info/30",
 };
 
-const DIALOG_TITLE_CLASS = "text-lg leading-none font-semibold";
-const DIALOG_DESCRIPTION_CLASS = "text-sm text-muted-foreground";
-
 export function Changelog(props: ChangelogProps) {
   const {
     entries,
@@ -54,9 +51,6 @@ export function Changelog(props: ChangelogProps) {
   );
 
   const ScrollWrapper = ScrollArea ?? "div";
-  const scrollClassName = ScrollArea
-    ? "max-h-[calc(80vh-8rem)]"
-    : "max-h-[calc(80vh-8rem)] overflow-y-auto pr-1";
 
   const Header = DialogHeader ?? "div";
   const Title = DialogTitle ?? "h2";
@@ -77,8 +71,8 @@ export function Changelog(props: ChangelogProps) {
           showCloseButton
         >
           <Header className="shrink-0 border-b border-border p-6 pb-4">
-            <Title className={DIALOG_TITLE_CLASS}>{texts.title}</Title>
-            <Description className={DIALOG_DESCRIPTION_CLASS}>{texts.description}</Description>
+            <Title className="text-lg leading-none font-semibold">{texts.title}</Title>
+            <Description className="text-sm text-muted-foreground">{texts.description}</Description>
           </Header>
 
           <ScrollWrapper className="flex-1 overflow-y-auto p-6 pt-4">
