@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useState } from "react";
+import { useState } from "react";
 import { cn } from "../lib/utils";
 import data from "./data.json";
 import type { ChangelogEntry, ChangelogEntryType, ChangelogProps } from "./types";
@@ -15,16 +15,6 @@ const TYPE_BADGE_CLASS: Record<ChangelogEntryType, string> = {
 
 const DIALOG_TITLE_CLASS = "text-lg leading-none font-semibold";
 const DIALOG_DESCRIPTION_CLASS = "text-sm text-muted-foreground";
-
-const DefaultDialogContent = ({
-  className,
-  children,
-  showCloseButton: _showCloseButton,
-}: {
-  className?: string;
-  children?: ReactNode;
-  showCloseButton?: boolean;
-}) => <div className={className}>{children}</div>;
 
 export function Changelog(props: ChangelogProps) {
   const {
@@ -68,7 +58,6 @@ export function Changelog(props: ChangelogProps) {
     ? "max-h-[calc(80vh-8rem)]"
     : "max-h-[calc(80vh-8rem)] overflow-y-auto pr-1";
 
-  const Content = DialogContent ?? DefaultDialogContent;
   const Header = DialogHeader ?? "div";
   const Title = DialogTitle ?? "h2";
   const Description = DialogDescription ?? "p";
@@ -83,7 +72,7 @@ export function Changelog(props: ChangelogProps) {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <Content
+        <DialogContent
           className="flex max-h-[80vh] max-w-[90vw] flex-col overflow-hidden p-0 sm:max-w-2xl"
           showCloseButton
         >
@@ -126,7 +115,7 @@ export function Changelog(props: ChangelogProps) {
               )}
             </div>
           </ScrollWrapper>
-        </Content>
+        </DialogContent>
       </Dialog>
     </>
   );

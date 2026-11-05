@@ -15,7 +15,7 @@ type AnyComponent = ComponentType<any>;
 
 export type ChangelogSlots = {
   Dialog: AnyComponent;
-  DialogContent?: AnyComponent;
+  DialogContent: AnyComponent;
   DialogHeader?: AnyComponent;
   DialogTitle?: AnyComponent;
   DialogDescription?: AnyComponent;
@@ -42,6 +42,7 @@ export type ChangelogProps = {
   icons: ChangelogIcons;
   renderMarkdown: (md: string) => ReactNode;
   formatDate: (date: string) => string;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-};
+} & (
+  | { open?: undefined; onOpenChange?: (open: boolean) => void }
+  | { open: boolean; onOpenChange: (open: boolean) => void }
+);
