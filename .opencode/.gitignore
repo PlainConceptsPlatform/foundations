@@ -8,3 +8,5 @@ tmp/
 agents/build.md
 agents/plan.md
 agents/planner.md
+harness-models.json
+agents/planner-sub.md
