@@ -9,8 +9,8 @@
   },
   "models": {
     "plan": "plainconcepts/glm-5-3",
-    "build": "plainconcepts/quasar-438b",
-    "fast": "plainconcepts/carina-60b"
+    "build": "plainconcepts/glm-5-2",
+    "fast": "plainconcepts/glm-5-2"
   },
   "agents": {
     "maxConcurrent": 4
