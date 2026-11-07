@@ -1,0 +1,186 @@
+name: Npm Publish
+
+# Publishes the two packages in this monorepo (@plainconceptsplatform/ui-theme and
+# @plainconceptsplatform/ui-components) to npm automatically when their version is bumped on
+# main. Authentication uses npm Trusted Publishing (GitHub OIDC): no shared tokens, no OTP, no
+# secrets in the repo. The Trusted Publisher on npmjs.com must match this workflow's filename
+# (npm-publish.yml) and the npm-publish environment exactly, for EACH of the two packages.
+#
+# Triggers:
+#   - push to main that touches packages/theme/package.json or packages/ui-components/package.json:
+#     publishes the bumped package with the `latest` dist-tag. Versioning is independent per
+#     package (each has its own version field). Only the package whose version actually moved is
+#     published; the other one is skipped via the rerun-safe check.
+#   - workflow_dispatch: manual. Publishes an alpha (auto-numbered) WITH a package selector, so
+#     you can publish an alpha of either package to validate OIDC end-to-end.
+#
+# Requires Node >= 22.14.0 and npm >= 11.5.1 for Trusted Publishing. Node 24 satisfies both.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/theme/package.json'
+      - 'packages/ui-components/package.json'
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Which package to publish an alpha of
+        required: true
+        type: choice
+        default: '@plainconceptsplatform/ui-components'
+        options:
+          - '@plainconceptsplatform/ui-theme'
+          - '@plainconceptsplatform/ui-components'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm-publish
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # On push, compare against the previous commit to know which package.json changed.
+          fetch-depth: 2
+      - uses: pnpm/action-setup@ea17c68df8912ef54335278610c181273ba90b1 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+
+      # Same gate CI runs: lint (Biome), typecheck, build. Fails fast before OIDC is negotiated.
+      # The build also exercises the generated-content checks that CI verifies.
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
+
+      # Determine, on a push, which of the two package.json files changed in this commit.
+      # On workflow_dispatch, only the user-selected package is published.
+      - name: Determine target package and version
+        id: target
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            pkg="${{ inputs.package }}"
+          else
+            changed=$(git diff --name-only HEAD~1 HEAD -- 'packages/*/package.json' || true)
+            pkg=""
+            if echo "$changed" | grep -q '^packages/theme/package.json$'; then
+              pkg="@plainconceptsplatform/ui-theme"
+            elif echo "$changed" | grep -q '^packages/ui-components/package.json$'; then
+              pkg="@plainconceptsplatform/ui-components"
+            fi
+            if [ -z "$pkg" ]; then
+              echo "No publishable package.json changed in this push; skipping."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "package=" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+          dir="packages/$(echo "$pkg" | sed 's|@plainconceptsplatform/||')"
+          version=$(node -p "require('./$dir/package.json').version")
+          echo "package=$pkg" >> "$GITHUB_OUTPUT"
+          echo "dir=$dir" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      # ui-components declares ui-theme as peerDependencies.workspace:^. npm publish rejects the
+      # `workspace:` protocol in a registry package, so resolve it to the real version range the
+      # manifest would have if published normally. Done in-memory; nothing is committed.
+      - name: Resolve workspace: protocol (ui-components)
+        if: ${{ steps.target.outputs.skip != 'true' && steps.target.outputs.package == '@plainconceptsplatform/ui-components' }}
+        working-directory: ${{ steps.target.outputs.dir }}
+        run: |
+          set -euo pipefail
+          theme_version=$(node -p "require('../../theme/package.json').version")
+          node -e "
+            const fs = require('node:fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json','utf8'));
+            if (pkg.peerDependencies && pkg.peerDependencies['@plainconceptsplatform/ui-theme']) {
+              pkg.peerDependencies['@plainconceptsplatform/ui-theme'] = '^' + process.argv[1];
+              fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+              console.log('Resolved ui-theme peerDep to ^' + process.argv[1] + ' (in-memory only).');
+            }
+          " "$theme_version"
+
+      # Rerun-safe: if this version is already on npm, nothing to do. Handles workflow reruns
+      # and dependency bumps that touched a package.json without changing its version.
+      - name: Skip if already published
+        id: skip
+        if: ${{ steps.target.outputs.skip != 'true' }}
+        run: |
+          set -euo pipefail
+          if npm view "${{ steps.target.outputs.package }}@${{ steps.target.outputs.version }}" version >/dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "${{ steps.target.outputs.package }}@${{ steps.target.outputs.version }} is already on npm; nothing to publish."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "${{ steps.target.outputs.package }}@${{ steps.target.outputs.version }} is not on npm yet; will publish."
+          fi
+
+      # Build ui-components before publish (its prepublishOnly does this, but be explicit so the
+      # dist/ that ships is the one we just built from the verified source, not whatever was left).
+      - name: Build target package
+        if: ${{ steps.target.outputs.skip != 'true' && steps.skip.outputs.skip != 'true' && steps.target.outputs.package == '@plainconceptsplatform/ui-components' }}
+        working-directory: ${{ steps.target.outputs.dir }}
+        run: pnpm build
+
+      - name: Publish stable
+        if: ${{ github.event_name == 'push' && steps.skip.outputs.skip != 'true' }}
+        working-directory: ${{ steps.target.outputs.dir }}
+        run: |
+          set -euo pipefail
+          # prepublishOnly in ui-components rebuilds; in theme it is a no-op. Both run here.
+          npm publish --access public --tag latest
+          echo "Published ${{ steps.target.outputs.package }}@${{ steps.target.outputs.version }} with dist-tag latest."
+
+      # Manual path: derive the next unused alpha number from npm and stamp it. The branch's own
+      # manifest version is the base. package.json is stamped for this run only, not committed.
+      - name: Publish alpha
+        if: ${{ github.event_name == 'workflow_dispatch' && steps.skip.outputs.skip == 'true' }}
+        working-directory: ${{ steps.target.outputs.dir }}
+        run: |
+          set -euo pipefail
+          base="${{ steps.target.outputs.version }}"
+          base="${base%%-*}"
+          next=1
+          for published in $(npm view "${{ steps.target.outputs.package }}" versions --json | tr -d ' ",[]' | grep -E "^${base}-alpha\.[0-9]+$" || true); do
+            n="${published##*-alpha.}"
+            if [ "$n" -ge "$next" ]; then
+              next=$((n + 1))
+            fi
+          done
+          version="$base-alpha.$next"
+          if npm view "${{ steps.target.outputs.package }}@$version" version >/dev/null 2>&1; then
+            echo "::error::$version is already on npm; alpha versions are never reused."
+            exit 1
+          fi
+          node -e "const fs = require('node:fs'); const pkg = JSON.parse(fs.readFileSync('package.json','utf8')); pkg.version = process.argv[1]; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');" "$version"
+          if [ "${{ steps.target.outputs.package }}" = "@plainconceptsplatform/ui-components" ]; then
+            pnpm build
+          fi
+          npm publish --access public --tag alpha
+          # The registry can lag a few seconds behind a publish; retry before calling it wrong.
+          published_tag=""
+          for attempt in 1 2 3 4 5; do
+            published_tag=$(npm view "${{ steps.target.outputs.package }}" dist-tags.alpha 2>/dev/null || true)
+            if [ "$published_tag" = "$version" ]; then
+              break
+            fi
+            sleep 6
+          done
+          if [ "$published_tag" != "$version" ]; then
+            echo "::error::npm dist-tag alpha points at '$published_tag', expected '$version'. Check: npm view ${{ steps.target.outputs.package }} dist-tags"
+            exit 1
+          fi
+          echo "Published ${{ steps.target.outputs.package }}@$version with dist-tag alpha."
