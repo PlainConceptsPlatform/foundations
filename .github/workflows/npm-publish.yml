@@ -114,7 +114,7 @@ jobs:
         working-directory: ${{ steps.target.outputs.dir }}
         run: |
           set -euo pipefail
-          theme_version=$(node -p "require('../../theme/package.json').version")
+          theme_version=$(node -p "require('../theme/package.json').version")
           node -e "
             const fs = require('node:fs');
             const pkg = JSON.parse(fs.readFileSync('package.json','utf8'));
