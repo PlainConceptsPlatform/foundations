@@ -172,12 +172,12 @@ jobs:
           npm publish --access public --tag alpha
           # The registry can lag a few seconds behind a publish; retry before calling it wrong.
           published_tag=""
-          for attempt in 1 2 3 4 5; do
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
             published_tag=$(npm view "${{ steps.target.outputs.package }}" dist-tags.alpha 2>/dev/null || true)
             if [ "$published_tag" = "$version" ]; then
               break
             fi
-            sleep 6
+            sleep 12
           done
           if [ "$published_tag" != "$version" ]; then
             echo "::error::npm dist-tag alpha points at '$published_tag', expected '$version'. Check: npm view ${{ steps.target.outputs.package }} dist-tags"
