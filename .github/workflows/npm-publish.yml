@@ -97,7 +97,7 @@ jobs:
       # ui-components declares ui-theme as peerDependencies.workspace:^. npm publish rejects the
       # `workspace:` protocol in a registry package, so resolve it to the real version range the
       # manifest would have if published normally. Done in-memory; nothing is committed.
-      - name: Resolve workspace: protocol (ui-components)
+      - name: "Resolve workspace: protocol (ui-components)"
         if: ${{ steps.target.outputs.skip != 'true' && steps.target.outputs.package == '@plainconceptsplatform/ui-components' }}
         working-directory: ${{ steps.target.outputs.dir }}
         run: |
