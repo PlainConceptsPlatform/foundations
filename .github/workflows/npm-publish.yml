@@ -74,20 +74,32 @@ jobs:
             pkg="${{ inputs.package }}"
           else
             changed=$(git diff --name-only HEAD~1 HEAD -- 'packages/*/package.json' || true)
-            pkg=""
-            if echo "$changed" | grep -q '^packages/theme/package.json$'; then
-              pkg="@plainconceptsplatform/ui-theme"
-            elif echo "$changed" | grep -q '^packages/ui-components/package.json$'; then
-              pkg="@plainconceptsplatform/ui-components"
+            theme_changed=no
+            comp_changed=no
+            echo "$changed" | grep -q '^packages/theme/package.json$' && theme_changed=yes
+            echo "$changed" | grep -q '^packages/ui-components/package.json$' && comp_changed=yes
+            if [ "$theme_changed" = yes ] && [ "$comp_changed" = yes ]; then
+              echo "::error::Both packages/theme/package.json and packages/ui-components/package.json changed in this commit. This workflow publishes one package per run; split the version bump into separate commits so each triggers its own publish."
+              exit 1
             fi
-            if [ -z "$pkg" ]; then
+            if [ "$theme_changed" = yes ]; then
+              pkg="@plainconceptsplatform/ui-theme"
+            elif [ "$comp_changed" = yes ]; then
+              pkg="@plainconceptsplatform/ui-components"
+            else
               echo "No publishable package.json changed in this push; skipping."
               echo "skip=true" >> "$GITHUB_OUTPUT"
               echo "package=" >> "$GITHUB_OUTPUT"
               exit 0
             fi
           fi
-          dir="packages/$(echo "$pkg" | sed 's|@plainconceptsplatform/||')"
+          # Map package name -> directory. The dir is NOT derivable from the name: the
+          # ui-theme package lives in packages/theme (name has the 'ui-' prefix, dir does not).
+          case "$pkg" in
+            @plainconceptsplatform/ui-theme) dir="packages/theme" ;;
+            @plainconceptsplatform/ui-components) dir="packages/ui-components" ;;
+            *) echo "::error::Unknown package '$pkg'"; exit 1 ;;
+          esac
           version=$(node -p "require('./$dir/package.json').version")
           echo "package=$pkg" >> "$GITHUB_OUTPUT"
           echo "dir=$dir" >> "$GITHUB_OUTPUT"
