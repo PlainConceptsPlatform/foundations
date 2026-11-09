@@ -11,6 +11,11 @@ coverage/
 .env
 .env*.local
 .turbo/
+.tmp/
+
+# podcast pipeline intermediates: raw NotebookLM downloads and whisper parts
+apps/docs/scripts/podcast/incoming/
+apps/docs/scripts/podcast/.case-parts/
 
 # generated: docs site reference pages synced from repo markdown
 apps/docs/content/docs/reference/

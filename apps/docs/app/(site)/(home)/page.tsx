@@ -189,7 +189,7 @@ export default function HomePage() {
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
-              href="/start"
+              href="/case-studies/add-ai-to-a-project"
               className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-[var(--pc-blue-600)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               Add AI to a project

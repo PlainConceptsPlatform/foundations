@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { motion, useReducedMotion } from "motion/react";
 import { type JourneyState, litIn } from "./journey";
 import { PILLARS } from "./steps";
 
@@ -25,6 +26,7 @@ type TowerProps = {
 
 export function Tower({ state, shown, speaking = false, onPick }: TowerProps) {
   const running = state.phase === "run";
+  const reduce = useReducedMotion();
 
   // The stage is drawn at 720×620 and scaled to the column it sits in, so the column's
   // width, not the viewport's, decides the size. The heights follow the same steps. Below
@@ -43,6 +45,18 @@ export function Tower({ state, shown, speaking = false, onPick }: TowerProps) {
               transformStyle: "preserve-3d",
             }}
           >
+            {running && state.built > 0 && (
+              <motion.div
+                key={state.built}
+                aria-hidden
+                initial={reduce ? false : { opacity: 0, scale: 0.82 }}
+                animate={
+                  reduce ? { opacity: 0 } : { opacity: [0, 0.45, 0], scale: [0.82, 1.18, 1.32] }
+                }
+                transition={{ duration: 1.25, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute -top-[150px] -left-[150px] size-[300px] rounded-[14px] border-2 border-primary"
+              />
+            )}
             <div className="absolute -top-[150px] -left-[150px] size-[300px] rounded-[14px] border border-[var(--pc-neutral-300)] bg-muted dark:border-[var(--pc-neutral-700)] dark:bg-secondary/40" />
 
             {PILLARS.map((pillar, p) => {

@@ -1,8 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { PlainLogo } from "@plainconceptsplatform/ui-components";
-import { ThemeToggle } from "fumadocs-ui/components/layout/theme-toggle";
 import { Headphones } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useReducer, useRef, useState } from "react";
@@ -137,22 +135,11 @@ export function StartExperience() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <header className="flex flex-wrap items-center gap-x-4 gap-y-2 border-border border-b px-4 py-4 sm:px-6 lg:px-12">
-        <Link
-          href="/"
-          className="flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <span className="block w-8 shrink-0">
-            <PlainLogo />
-          </span>
-          <span className="font-semibold">Platform</span>
-        </Link>
-        <span className="text-muted-foreground">/ Start</span>
-        <span className="flex-1" />
         <span className="text-muted-foreground text-sm">
           {levelText} · <span className="font-semibold text-foreground">{lit}</span> of{" "}
           {TOTAL_STEPS} pieces
         </span>
-        <ThemeToggle />
+        <span className="flex-1" />
         {HAS_PODCAST && listening === null && (
           <Button variant="outline" size="sm" onClick={() => listen()}>
             <Headphones aria-hidden />

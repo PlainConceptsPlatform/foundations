@@ -1,0 +1,350 @@
+{
+ "ai-gateway": {
+  "en": {
+   "1": {
+    "src": "/case-studies/ai-gateway/podcast/en/1.m4a",
+    "transcript": "/case-studies/ai-gateway/podcast/en/1.json",
+    "duration": 1202.0,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "2": {
+    "src": "/case-studies/ai-gateway/podcast/en/2.m4a",
+    "transcript": "/case-studies/ai-gateway/podcast/en/2.json",
+    "duration": 1326.53,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "3": {
+    "src": "/case-studies/ai-gateway/podcast/en/3.m4a",
+    "transcript": "/case-studies/ai-gateway/podcast/en/3.json",
+    "duration": 1209.41,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "4": {
+    "src": "/case-studies/ai-gateway/podcast/en/4.m4a",
+    "transcript": "/case-studies/ai-gateway/podcast/en/4.json",
+    "duration": 1380.77,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "5": {
+    "src": "/case-studies/ai-gateway/podcast/en/5.m4a",
+    "transcript": "/case-studies/ai-gateway/podcast/en/5.json",
+    "duration": 1344.32,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   }
+  },
+  "es": {
+   "1": {
+    "src": "/case-studies/ai-gateway/podcast/es/1.m4a",
+    "transcript": "/case-studies/ai-gateway/podcast/es/1.json",
+    "duration": 1374.97,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "2": {
+    "src": "/case-studies/ai-gateway/podcast/es/2.m4a",
+    "transcript": "/case-studies/ai-gateway/podcast/es/2.json",
+    "duration": 1181.29,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "3": {
+    "src": "/case-studies/ai-gateway/podcast/es/3.m4a",
+    "transcript": "/case-studies/ai-gateway/podcast/es/3.json",
+    "duration": 1176.32,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "4": {
+    "src": "/case-studies/ai-gateway/podcast/es/4.m4a",
+    "transcript": "/case-studies/ai-gateway/podcast/es/4.json",
+    "duration": 1085.88,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "5": {
+    "src": "/case-studies/ai-gateway/podcast/es/5.m4a",
+    "transcript": "/case-studies/ai-gateway/podcast/es/5.json",
+    "duration": 1360.85,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   }
+  }
+ },
+ "enterprise-bots": {
+  "en": {
+   "1": {
+    "src": "/case-studies/plain-bots/podcast/en/1.m4a",
+    "transcript": "/case-studies/plain-bots/podcast/en/1.json",
+    "duration": 1281.21,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "2": {
+    "src": "/case-studies/plain-bots/podcast/en/2.m4a",
+    "transcript": "/case-studies/plain-bots/podcast/en/2.json",
+    "duration": 1430.09,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "3": {
+    "src": "/case-studies/plain-bots/podcast/en/3.m4a",
+    "transcript": "/case-studies/plain-bots/podcast/en/3.json",
+    "duration": 1165.97,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "4": {
+    "src": "/case-studies/plain-bots/podcast/en/4.m4a",
+    "transcript": "/case-studies/plain-bots/podcast/en/4.json",
+    "duration": 1282.86,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "5": {
+    "src": "/case-studies/plain-bots/podcast/en/5.m4a",
+    "transcript": "/case-studies/plain-bots/podcast/en/5.json",
+    "duration": 1203.0,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   }
+  },
+  "es": {
+   "1": {
+    "src": "/case-studies/plain-bots/podcast/es/1.m4a",
+    "transcript": "/case-studies/plain-bots/podcast/es/1.json",
+    "duration": 1488.77,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "2": {
+    "src": "/case-studies/plain-bots/podcast/es/2.m4a",
+    "transcript": "/case-studies/plain-bots/podcast/es/2.json",
+    "duration": 1083.88,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "3": {
+    "src": "/case-studies/plain-bots/podcast/es/3.m4a",
+    "transcript": "/case-studies/plain-bots/podcast/es/3.json",
+    "duration": 1003.66,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "4": {
+    "src": "/case-studies/plain-bots/podcast/es/4.m4a",
+    "transcript": "/case-studies/plain-bots/podcast/es/4.json",
+    "duration": 811.17,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "5": {
+    "src": "/case-studies/plain-bots/podcast/es/5.m4a",
+    "transcript": "/case-studies/plain-bots/podcast/es/5.json",
+    "duration": 823.84,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   }
+  }
+ },
+ "growth-map": {
+  "en": {
+   "1": {
+    "src": "/case-studies/growth-map/podcast/en/1.m4a",
+    "transcript": "/case-studies/growth-map/podcast/en/1.json",
+    "duration": 1304.73,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "2": {
+    "src": "/case-studies/growth-map/podcast/en/2.m4a",
+    "transcript": "/case-studies/growth-map/podcast/en/2.json",
+    "duration": 1311.21,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "3": {
+    "src": "/case-studies/growth-map/podcast/en/3.m4a",
+    "transcript": "/case-studies/growth-map/podcast/en/3.json",
+    "duration": 1290.08,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "4": {
+    "src": "/case-studies/growth-map/podcast/en/4.m4a",
+    "transcript": "/case-studies/growth-map/podcast/en/4.json",
+    "duration": 1140.17,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "5": {
+    "src": "/case-studies/growth-map/podcast/en/5.m4a",
+    "transcript": "/case-studies/growth-map/podcast/en/5.json",
+    "duration": 1272.24,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   }
+  },
+  "es": {
+   "1": {
+    "src": "/case-studies/growth-map/podcast/es/1.m4a",
+    "transcript": "/case-studies/growth-map/podcast/es/1.json",
+    "duration": 912.22,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "2": {
+    "src": "/case-studies/growth-map/podcast/es/2.m4a",
+    "transcript": "/case-studies/growth-map/podcast/es/2.json",
+    "duration": 779.56,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "3": {
+    "src": "/case-studies/growth-map/podcast/es/3.m4a",
+    "transcript": "/case-studies/growth-map/podcast/es/3.json",
+    "duration": 926.36,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "4": {
+    "src": "/case-studies/growth-map/podcast/es/4.m4a",
+    "transcript": "/case-studies/growth-map/podcast/es/4.json",
+    "duration": 522.4,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   },
+   "5": {
+    "src": "/case-studies/growth-map/podcast/es/5.m4a",
+    "transcript": "/case-studies/growth-map/podcast/es/5.json",
+    "duration": 907.81,
+    "pieces": [
+     {
+      "piece": 0,
+      "start": 0
+     }
+    ]
+   }
+  }
+ }
+}
