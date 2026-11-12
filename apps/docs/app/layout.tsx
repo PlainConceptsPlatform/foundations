@@ -1,7 +1,11 @@
 import { siteDescription, siteName, siteUrl } from "@/lib/site";
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Outfit } from "next/font/google";
 import type { ReactNode } from "react";
+
+/** Google Tag Manager container for the public Platform sites. */
+const GTM_ID = "GTM-T2QXWRBW";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 
@@ -30,7 +34,15 @@ export const metadata: Metadata = {
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={outfit.variable} suppressHydrationWarning>
-      <body className="flex min-h-screen flex-col">{children}</body>
+      <body className="flex min-h-screen flex-col">
+        {children}
+        <Script src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`} strategy="afterInteractive" />
+        <Script id="gtm-init" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());`}
+        </Script>
+      </body>
     </html>
   );
 }
