@@ -1,7 +1,11 @@
 import { siteDescription, siteName, siteUrl } from "@/lib/site";
+import {
+  CookieConsent,
+  consentHeadScript,
+  gtmNoScriptSrc,
+} from "@plainconceptsplatform/ui-components/cookie-consent";
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
-import Script from "next/script";
 import type { ReactNode } from "react";
 
 /** Google Tag Manager container for the public Platform sites. */
@@ -34,17 +38,22 @@ export const metadata: Metadata = {
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={outfit.variable} suppressHydrationWarning>
+      <head>
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: a constant built from GTM_ID; consent defaults must be set before GTM loads */}
+        <script dangerouslySetInnerHTML={{ __html: consentHeadScript(GTM_ID) }} />
+      </head>
       <body className="flex min-h-screen flex-col">
+        <noscript>
+          <iframe
+            src={gtmNoScriptSrc(GTM_ID)}
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+            title="Google Tag Manager"
+          />
+        </noscript>
         {children}
-        <Script
-          src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`}
-          strategy="afterInteractive"
-        />
-        <Script id="gtm-init" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());`}
-        </Script>
+        <CookieConsent />
       </body>
     </html>
   );

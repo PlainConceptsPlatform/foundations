@@ -523,6 +523,16 @@ export const COMPONENTS = {
     group: "platform",
     handwritten: true,
   },
+  "cookie-consent": {
+    title: "CookieConsent",
+    description:
+      "A consent banner and Google Consent Mode v2 defaults for public Platform sites that load Google Tag Manager.",
+    demo: "CookieConsentDemo",
+    block: true,
+    source: "package",
+    group: "platform",
+    handwritten: true,
+  },
   select: {
     title: "Select",
     description: "Displays a list of options for the user to pick from, triggered by a button.",
