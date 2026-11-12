@@ -1,7 +1,7 @@
 import { siteDescription, siteName, siteUrl } from "@/lib/site";
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Outfit } from "next/font/google";
+import Script from "next/script";
 import type { ReactNode } from "react";
 
 /** Google Tag Manager container for the public Platform sites. */
@@ -36,7 +36,10 @@ export default function Layout({ children }: { children: ReactNode }) {
     <html lang="en" className={outfit.variable} suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
         {children}
-        <Script src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`} strategy="afterInteractive" />
+        <Script
+          src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`}
+          strategy="afterInteractive"
+        />
         <Script id="gtm-init" strategy="afterInteractive">
           {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
