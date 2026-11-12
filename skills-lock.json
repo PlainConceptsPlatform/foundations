@@ -30,6 +30,12 @@
       "sourceType": "github",
       "skillPath": "skills/user-story/SKILL.md",
       "computedHash": "ca8f8869c1597af5f979130b9b2805c32e6e985e04cdeefe4c99a9a537360b79"
+    },
+    "html-prototype": {
+      "source": "plannotator/effective-html",
+      "sourceType": "github",
+      "skillPath": "skills/html-prototype/SKILL.md",
+      "computedHash": "7f82fd83b81f853e3b3f973073be4e82f93875b190f4a3f4a35b9801ace825cd"
     }
   }
 }
