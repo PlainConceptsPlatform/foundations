@@ -38,14 +38,15 @@
         },
         "disabled": false
       },
-      "agent-browser": {
+      "browse": {
         "type": "local",
         "command": [
-          "agent-browser",
-          "mcp",
-          "--tools",
-          "core"
+          "browse",
+          "mcp"
         ],
+        "environment": {
+          "OPENCODE_BROWSER_RUNTIME": "auto-update"
+        },
         "disabled": false
       }
     },
