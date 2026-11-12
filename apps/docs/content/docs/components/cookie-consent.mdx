@@ -1,0 +1,60 @@
+---
+title: "CookieConsent"
+description: "A consent banner and Google Consent Mode v2 defaults for public Platform sites that load Google Tag Manager."
+---
+
+import { CookieConsentDemo } from "@/components/previews/cookie-consent-demo"
+
+<ComponentPreview block>
+  <CookieConsentDemo />
+</ComponentPreview>
+
+## When to use
+
+Use it on a public site that loads Google Tag Manager. EU visitors have to agree before analytics or advertising tags store anything on their device, and the banner is where they agree or refuse. An internal app behind sign-in that loads no third-party tags does not need it.
+
+## Platform notes
+
+There are two pieces, and both are needed.
+
+- **`consentHeadScript(gtmId)`** is the one inline script for the page `<head>`, placed before anything else that talks to Google. It sets Consent Mode v2 defaults with analytics and advertising storage denied, re-applies the choice a visitor made on an earlier visit, and loads the container with the standard GTM snippet. GTM always loads, so tags that work without storage keep working; tags that need storage wait for consent.
+- **`<CookieConsent />`** is the banner. It shows until the visitor chooses, and again whenever `openCookieSettings()` is called, which is what a "Cookie settings" link should do. Accept and Reject have equal weight. Pass `policyHref` to link your cookie or privacy policy, and `texts` to translate it.
+
+The choice is stored in `localStorage` under `pc-cookie-consent` and sent to Google tags at once, without a reload. `gtmNoScriptSrc(gtmId)` gives the standard `<noscript>` iframe URL for visitors without JavaScript.
+
+## Install
+
+```bash
+pnpm add @plainconceptsplatform/ui-components
+```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/cookie-consent`. Add the package to Tailwind's sources so the banner's classes are generated: `@source "../node_modules/@plainconceptsplatform/ui-components/dist/**/*.js";`.
+
+## Code
+
+```tsx
+import { CookieConsent, consentHeadScript, gtmNoScriptSrc } from "@plainconceptsplatform/ui-components/cookie-consent";
+
+const GTM_ID = "GTM-XXXXXXX";
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: consentHeadScript(GTM_ID) }} />
+      </head>
+      <body>
+        <noscript>
+          <iframe src={gtmNoScriptSrc(GTM_ID)} height="0" width="0" style={{ display: "none", visibility: "hidden" }} title="Google Tag Manager" />
+        </noscript>
+        {children}
+        <CookieConsent />
+      </body>
+    </html>
+  );
+}
+```
+
+## Full API
+
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

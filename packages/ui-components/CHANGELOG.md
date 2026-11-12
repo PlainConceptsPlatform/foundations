@@ -1,5 +1,11 @@
 # @plainconceptsplatform/ui-components
 
+## 1.11.0
+
+### Minor Changes
+
+- New `cookie-consent` sub-path for the public Platform sites that load Google Tag Manager. `consentHeadScript(gtmId)` is the one inline script for `<head>`: it sets Google Consent Mode v2 defaults with analytics and advertising storage denied, re-applies a choice the visitor made on an earlier visit, and loads the container with the standard GTM snippet. `<CookieConsent />` is the banner, with Accept and Reject of equal weight and an optional `policyHref`; it shows until the visitor chooses and again whenever `openCookieSettings()` is called, so a "Cookie settings" link can reopen it. `gtmNoScriptSrc(gtmId)` gives the standard `<noscript>` iframe URL. GTM still loads before consent, but no tag that needs storage fires until the visitor accepts. The choice is kept in localStorage under `pc-cookie-consent`.
+
 ## 1.9.0
 
 ### Minor Changes

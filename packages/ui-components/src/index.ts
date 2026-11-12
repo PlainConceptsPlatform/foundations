@@ -5,3 +5,4 @@ export { PlainLogo } from "./plain-logo/plain-logo";
 //   import { DataTable } from "@plainconceptsplatform/ui-components/data-table";
 //   import { Changelog }  from "@plainconceptsplatform/ui-components/changelog";
 //   import { FeatureProvider, FeatureFlagsAdmin } from "@plainconceptsplatform/ui-components/feature-flags";
+//   import { CookieConsent, consentHeadScript } from "@plainconceptsplatform/ui-components/cookie-consent";
