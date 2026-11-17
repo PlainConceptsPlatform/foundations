@@ -57,6 +57,7 @@ export function readConsent(): ConsentChoice | null {
 
 /** Stores the choice and tells Google tags about it straight away, without a reload. */
 export function writeConsent(choice: ConsentChoice): void {
+  // nosemgrep: platform-hygiene-ts-empty-catch -- blocked storage still applies the choice to this page view below
   try {
     window.localStorage.setItem(CONSENT_STORAGE_KEY, choice);
   } catch {

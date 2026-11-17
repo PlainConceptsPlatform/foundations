@@ -154,6 +154,7 @@ export function loadProgress(): Pick<JourneyState, "phase" | "built" | "done"> |
 }
 
 export function saveProgress(state: JourneyState) {
+  // nosemgrep: platform-hygiene-ts-empty-catch -- blocked storage only means the journey starts over next time
   try {
     const { phase, built, done } = state;
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ phase, built, done }));

@@ -184,6 +184,7 @@ function usePersistedState<S>(key: string, initial: S) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    // nosemgrep: platform-hygiene-ts-empty-catch -- unavailable storage or invalid JSON keeps the initial state
     try {
       const raw = localStorage.getItem(key);
       if (raw != null) setState(JSON.parse(raw) as S);
@@ -198,6 +199,7 @@ function usePersistedState<S>(key: string, initial: S) {
     // has landed. Without the gate it fires on the first commit, when `state` is
     // still `initial`, and overwrites the value we were about to read back.
     if (!hydrated) return;
+    // nosemgrep: platform-hygiene-ts-empty-catch -- best-effort storage: blocked or private-mode storage only loses the remembered choice
     try {
       localStorage.setItem(key, JSON.stringify(state));
     } catch {

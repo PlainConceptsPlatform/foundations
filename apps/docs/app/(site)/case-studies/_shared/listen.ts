@@ -16,6 +16,7 @@ export function useCaseListen(podcast: Podcast, sections: { id: string }[]) {
   const [lang, setLang] = useState<Lang>("en");
 
   useEffect(() => {
+    // nosemgrep: platform-hygiene-ts-empty-catch -- unreadable storage falls back to the browser language below
     try {
       const saved = localStorage.getItem(LANG_KEY);
       if (saved === "en" || saved === "es") {
@@ -28,6 +29,7 @@ export function useCaseListen(podcast: Podcast, sections: { id: string }[]) {
 
   const chooseLang = useCallback((to: Lang) => {
     setLang(to);
+    // nosemgrep: platform-hygiene-ts-empty-catch -- best-effort storage: blocked or private-mode storage only loses the remembered choice
     try {
       localStorage.setItem(LANG_KEY, to);
     } catch {}

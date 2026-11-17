@@ -35,6 +35,7 @@ export function StartExperience() {
   // The podcast speaks the reader's language when it can: Spanish for a Spanish
   // browser, English otherwise, and whatever they last picked after that.
   useEffect(() => {
+    // nosemgrep: platform-hygiene-ts-empty-catch -- unreadable storage falls back to the browser language below
     try {
       const saved = localStorage.getItem(LANG_KEY);
       if (saved === "en" || saved === "es") return setLang(saved);
@@ -44,6 +45,7 @@ export function StartExperience() {
 
   function chooseLang(next: Lang) {
     setLang(next);
+    // nosemgrep: platform-hygiene-ts-empty-catch -- best-effort storage: blocked or private-mode storage only loses the remembered choice
     try {
       localStorage.setItem(LANG_KEY, next);
     } catch {}

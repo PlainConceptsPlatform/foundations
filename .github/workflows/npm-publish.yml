@@ -68,10 +68,14 @@ jobs:
       # On workflow_dispatch, only the user-selected package is published.
       - name: Determine target package and version
         id: target
+        # Inputs reach the shell as environment variables, never interpolated into the script.
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PACKAGE: ${{ inputs.package }}
         run: |
           set -euo pipefail
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            pkg="${{ inputs.package }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            pkg="$INPUT_PACKAGE"
           else
             changed=$(git diff --name-only HEAD~1 HEAD -- 'packages/*/package.json' || true)
             theme_changed=no
