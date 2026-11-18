@@ -1,0 +1,7 @@
+# Complexity baseline for the lizard gate in .github/workflows/ci.yml: a function in the packages
+# or the docs app with a cyclomatic complexity above 15 fails. These functions were already over
+# the limit when the gate was added, so they do not block; any other function that crosses it does.
+# The list only shrinks: when one of these is simplified below the limit, delete its line. Never
+# add a line to turn the job green.
+apps/docs/app/(site)/start/journey.ts:journeyReducer
+packages/ui-components/src/app-sidebar/app-sidebar-user-card.tsx:AppSidebarUserCard

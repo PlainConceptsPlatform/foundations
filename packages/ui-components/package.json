@@ -72,11 +72,14 @@
   "devDependencies": {
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "typescript": "^5.6.3"
+    "@vitest/coverage-v8": "4.1.12",
+    "typescript": "^5.6.3",
+    "vitest": "4.1.12"
   },
   "scripts": {
     "build": "tsc --build --force",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "prepublishOnly": "tsc --build --force"
   },
   "repository": {

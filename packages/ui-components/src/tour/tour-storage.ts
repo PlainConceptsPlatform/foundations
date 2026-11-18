@@ -33,6 +33,7 @@ export function markTourSeen(
   storage: TourStorage | undefined = defaultStorage(),
   now: Date = new Date(),
 ): void {
+  // nosemgrep: platform-hygiene-ts-empty-catch -- best effort: the only cost of a storage failure is seeing the tour again
   try {
     storage?.setItem?.(tourStorageKey(id), now.toISOString());
   } catch {
@@ -42,6 +43,7 @@ export function markTourSeen(
 
 /** Forgets that the tour was seen, so it can be taken again. Best effort, like recording it. */
 export function forgetTour(id: string, storage: TourStorage | undefined = defaultStorage()): void {
+  // nosemgrep: platform-hygiene-ts-empty-catch -- best effort: the tour still starts for this page load
   try {
     storage?.removeItem?.(tourStorageKey(id));
   } catch {

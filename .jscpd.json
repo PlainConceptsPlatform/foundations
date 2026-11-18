@@ -1,0 +1,25 @@
+{
+  "path": [
+    "packages/ui-components/src",
+    "packages/theme",
+    "apps/docs/app",
+    "apps/docs/components",
+    "apps/docs/hooks",
+    "apps/docs/lib",
+    "apps/docs/scripts"
+  ],
+  "format": ["typescript", "tsx", "javascript"],
+  "minLines": 10,
+  "minTokens": 70,
+  "mode": "mild",
+  "reporters": ["console"],
+  "gitignore": true,
+  "noTips": true,
+  "ignore": [
+    "**/node_modules/**",
+    "**/*.generated.ts",
+    "**/.source/**",
+    "**/scripts/components-data.mjs"
+  ],
+  "threshold": 1.5
+}

@@ -15,6 +15,10 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  TRUFFLEHOG_IMAGE: "ghcr.io/trufflesecurity/trufflehog:3.99.7"
+  SEMGREP_IMAGE: "semgrep/semgrep:1.168.0"
+
 jobs:
   check:
     name: Lint, typecheck, build (node ${{ matrix.node }})
@@ -41,6 +45,10 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      # BLOCKING: fails under the coverage floors in packages/ui-components/vitest.config.ts.
+      - name: Tests with coverage
+        run: pnpm --filter @plainconceptsplatform/ui-components run test --coverage
+
       # The build was never gated, so a broken build could reach main and was
       # only caught by the deploy. It also exercises sync-docs and gen-tokens.
       - name: Build
@@ -54,3 +62,126 @@ jobs:
           pnpm --filter @plainconceptsplatform/docs gen
           git diff --exit-code -- apps/docs/content/docs/components apps/docs/lib/tokens.generated.ts \
             || { echo "::error::Generated files are stale. Run 'pnpm --filter @plainconceptsplatform/docs gen' and commit the result."; exit 1; }
+
+  # The other engineering gates the scorecard expects, one job each.
+
+  secret-scan:
+    name: Secret scan (TruffleHog, verified only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: TruffleHog filesystem scan
+        env:
+          WORKSPACE: ${{ github.workspace }}
+        run: |
+          docker run --rm -v "$WORKSPACE:/repo" "$TRUFFLEHOG_IMAGE" \
+            filesystem /repo --only-verified --fail --no-update
+
+  # vuln: pnpm-lock.yaml and .opencode/package-lock.json. secret: the whole tree. CRITICAL/HIGH
+  # only, unfixed advisories ignored so an unpatched upstream CVE cannot block every PR. Fixed
+  # versions of transitive dependencies are forced through `pnpm.overrides` in package.json.
+  deps-and-iac-scan:
+    name: Dependencies & IaC (Trivy, blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scanners: vuln,misconfig,secret
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          format: table
+
+  # The rule sets the platform apps run, plus .semgrep/ (the TypeScript empty-catch hygiene rule).
+  # Excluded rules:
+  #   github-actions-mutable-action-tag: first-party actions/* keep @vN in the older jobs; every
+  #     third-party action is pinned by SHA.
+  #   pnpm-block-exotic-sub-dependencies, pnpm-minimum-release-age, pnpm-trust-policy: settings
+  #     from pnpm 10.16+. This repository is on pnpm 9.12 (packageManager), which has none of them;
+  #     drop these exclusions when it moves to pnpm 10.
+  sast-scan:
+    name: SAST (Semgrep OSS, blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Semgrep scan (blocking)
+        env:
+          WORKSPACE: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$WORKSPACE:/src" -w /src "$SEMGREP_IMAGE" \
+            semgrep scan --error --metrics=off --oss-only --disable-version-check \
+              --config p/default --config p/security-audit --config p/secrets \
+              --config p/typescript --config p/react --config .semgrep/ \
+              --exclude-rule yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag \
+              --exclude-rule package_managers.pnpm.pnpm-block-exotic-sub-dependencies.pnpm-block-exotic-sub-dependencies \
+              --exclude-rule package_managers.pnpm.pnpm-missing-minimum-release-age.pnpm-minimum-release-age \
+              --exclude-rule package_managers.pnpm.pnpm-trust-policy.pnpm-trust-policy
+
+  sbom:
+    name: SBOM (Syft, CycloneDX)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The action downloads the syft binary with a single non-retried GET, so a transient release
+      # CDN error fails it for no code reason. The first attempt may fail; the retry below runs only
+      # then, and if both fail the job fails.
+      - name: Generate SBOM
+        id: sbom
+        uses: anchore/sbom-action@fffec3d851af758d56fee099cf3fbf8aa8779843 # v0.24.3
+        continue-on-error: true
+        with:
+          format: cyclonedx-json
+          artifact-name: foundations-sbom.cyclonedx.json
+          syft-version: v1.57.0
+          upload-release-assets: false
+      - name: Retry SBOM on a transient download error
+        if: ${{ steps.sbom.outcome == 'failure' }}
+        uses: anchore/sbom-action@fffec3d851af758d56fee099cf3fbf8aa8779843 # v0.24.3
+        with:
+          format: cyclonedx-json
+          artifact-name: foundations-sbom.cyclonedx.json
+          syft-version: v1.57.0
+          upload-release-assets: false
+
+  # BLOCKING, over the packages and the docs app. Complexity: a function with a cyclomatic
+  # complexity above 15 fails unless it is in whitelizard.txt, the backlog that predates the gate
+  # and only shrinks. Duplication (practice 11): jscpd fails when duplicated lines exceed the
+  # ceiling in .jscpd.json (`threshold`, percent), set just above the 1.45% measured when the gate
+  # was added (20 clones, most of them between the start and case-study podcast players).
+  complexity-and-duplication:
+    name: Complexity (lizard) and duplication (jscpd)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CODE_PATHS: >-
+        packages/ui-components/src packages/theme apps/docs/app apps/docs/components
+        apps/docs/hooks apps/docs/lib apps/docs/scripts
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Complexity gate (lizard)
+        run: |
+          set -euo pipefail
+          pip install --disable-pip-version-check lizard==1.24.3
+          # shellcheck disable=SC2086 # CODE_PATHS is a list of directories.
+          lizard -l typescript -l tsx -l javascript -C 15 -w -W whitelizard.txt \
+            -x '*/node_modules/*' -x '*.generated.ts' \
+            $CODE_PATHS
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Duplication gate (jscpd)
+        run: pnpm exec jscpd -c .jscpd.json
