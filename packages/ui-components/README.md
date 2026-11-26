@@ -51,6 +51,31 @@ The logo fills its parent and swaps: icon under ~190px, wordmark up to ~460px, f
 | `FeatureFlagsAdmin`, `FeatureProvider`, `useFeature`, `FeatureGate`, `FeatureGuard` | `@plainconceptsplatform/ui-components/feature-flags` | Section feature flags: the provider and hooks that fail closed, a gate and a not-found route guard, and the administration table. No fetching and no i18n: the app passes the list, its not-found page and every string |
 | `SegmentedControl` | `@plainconceptsplatform/ui-components/segmented-control` | Controlled one-of-N segmented selector with icon or text options, generic over your value union |
 
+### Sort a `DataTable` on the server
+
+If the list is paged, sort on the server. Keep the sort in the page, send it with the page request, and tell the table that the rows arrive sorted. Set `sortable: true` on each column that the API can sort. The header arrows are the only sort control, so do not add a "Sort by" select above the table.
+
+```tsx
+const [sort, setSort] = useState<SortState | null>({ by: "name", order: "asc" });
+const projects = useQuery({
+  queryKey: ["projects", page, sort],
+  queryFn: () => api.listProjects({ page, sortBy: sort?.by, sortOrder: sort?.order }),
+});
+
+<DataTable
+  tableId="projects"
+  rows={projects.data?.items ?? []}
+  rowKey={(p) => p.id}
+  columns={[{ key: "name", label: "Name", render: (p) => p.name, sortable: true }]}
+  manualSorting
+  sort={sort}
+  onSortChange={(next) => {
+    setSort(next);
+    setPage(1);
+  }}
+/>;
+```
+
 `DataTable`, `Tour` and the feature flag pieces are client components with hooks, so they are available only from their sub-paths — importing them from the package root would break Next.js server components.
 
 ## Peer dependencies

@@ -1,5 +1,15 @@
 # @plainconceptsplatform/ui-components
 
+## 1.12.0
+
+### Minor Changes
+
+- `DataTable` sorts from the column headers in the same way as the Capacity tool. Every sortable header now shows an arrow. The arrow is muted while the column is not sorted. While the column sorts, the arrow is in the primary color and points up for ascending and down for descending. Before, an unsorted column showed no icon at all, so nothing told the user that the header was clickable.
+
+- `DataTable` can sort on the server. Three new props control this. `sort` and `onSortChange` let the page keep the sort state, and `manualSorting` tells the table that the rows arrive sorted, so the table does not reorder them. With `manualSorting`, a column is sortable only when it has `sortable: true`, because the API decides which fields it can sort. A click cycles ascending, descending and off, and `onSortChange` receives `null` for off. Use this for paged lists instead of a "Sort by" select above the table. Without `manualSorting` the table sorts on the client as before.
+
+- `IconArrowsSort` is now optional and deprecated, because the table no longer renders it. Migration notes: none are required. To match the Capacity look, pass a plain up arrow as `IconSortAscending` and a plain down arrow as `IconSortDescending` (for example Tabler `IconArrowNarrowUp` and `IconArrowNarrowDown`, or Lucide `ArrowUp` and `ArrowDown`).
+
 ## 1.11.0
 
 ### Minor Changes

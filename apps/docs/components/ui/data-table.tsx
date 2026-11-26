@@ -7,15 +7,7 @@ import {
   type DataTableTexts,
   DataTable as PackageDataTable,
 } from "@plainconceptsplatform/ui-components/data-table";
-import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  ChevronDown,
-  ChevronRight,
-  Columns3,
-  X,
-} from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Columns3, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -72,7 +64,6 @@ const texts: DataTableTexts = {
 const icons: DataTableIcons = {
   IconSortAscending: ({ className }) => <ArrowUp className={className} />,
   IconSortDescending: ({ className }) => <ArrowDown className={className} />,
-  IconArrowsSort: ({ className }) => <ArrowUpDown className={className} />,
   IconChevronRight: ({ size }) => <ChevronRight size={size} />,
   IconChevronDown: ({ size }) => <ChevronDown size={size} />,
   IconColumns: ({ className }) => <Columns3 className={className} />,

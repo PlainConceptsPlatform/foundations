@@ -3,25 +3,9 @@
 import type { ComponentType, DragEvent, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "../lib/utils";
+import { type SortState, isColumnSortable, nextSort } from "./sort-state";
 
-// ---------------------------------------------------------------------------
-// Rich, generic data table with three headline behaviours:
-//   1. Click-to-sort per column
-//   2. Drag-to-group (collapsible sections with counts + aggregates)
-//   3. Column reorder + show/hide
-//
-// This component is framework-agnostic: instead of importing shadcn, i18n, or
-// icon libraries directly, it accepts *slots* (render delegates) for every
-// piece of UI that varies between apps.  The consuming app passes its own
-// Button, Table, icons, and translated strings.  The package owns the logic
-// (sorting, grouping, persistence, drag-and-drop) and the DOM structure;
-// the consumer owns the look and feel.
-// ---------------------------------------------------------------------------
-
-// --- public types -----------------------------------------------------------
-
-export type SortOrder = "asc" | "desc";
-export type SortState = { by: string; order: SortOrder };
+export type { SortOrder, SortState } from "./sort-state";
 
 /** A value the table can order and group by. */
 type CellValue = string | number | null | undefined;
@@ -40,7 +24,7 @@ export type DataTableColumn<T> = {
   /** Extra class(es) for both the header and body cells (e.g. `num`, `nowrap`). */
   className?: string;
   width?: number | string;
-  /** Click-to-sort on the header. Default true. */
+  /** Click-to-sort on the header. Client-side: default true when `sortValue` is set. With `manualSorting`: only when true. */
   sortable?: boolean;
   /** Allow dropping this column onto the grouping bar. Default true. */
   groupable?: boolean;
@@ -54,24 +38,19 @@ export type DataTableColumn<T> = {
 export type DataTableSlots = {
   /** Wrapper <table> component. */
   Table: ComponentType<{ children?: ReactNode; className?: string }>;
-  /** <thead> component. */
   TableHeader: ComponentType<{ children?: ReactNode; className?: string }>;
-  /** <tbody> component. */
   TableBody: ComponentType<{ children?: ReactNode; className?: string }>;
-  /** <tr> component. */
   TableRow: ComponentType<{
     children?: ReactNode;
     className?: string;
     onClick?: () => void;
     style?: React.CSSProperties;
   }>;
-  /** <th> component. */
   TableHead: ComponentType<{
     children?: ReactNode;
     className?: string;
     style?: React.CSSProperties;
   }>;
-  /** <td> component. */
   TableCell: ComponentType<{
     children?: ReactNode;
     className?: string;
@@ -92,13 +71,9 @@ export type DataTableSlots = {
   DropdownMenu: ComponentType<{ children?: ReactNode }>;
   /** Dropdown menu trigger. Must support `asChild`. */
   DropdownMenuTrigger: ComponentType<{ children?: ReactNode; asChild?: boolean }>;
-  /** Dropdown menu content. */
   DropdownMenuContent: ComponentType<{ children?: ReactNode; align?: string; className?: string }>;
-  /** Dropdown menu label. */
   DropdownMenuLabel: ComponentType<{ children?: ReactNode }>;
-  /** Dropdown menu separator. */
   DropdownMenuSeparator: ComponentType<Record<string, never>>;
-  /** Dropdown menu checkbox item. */
   DropdownMenuCheckboxItem: ComponentType<{
     children?: ReactNode;
     checked: boolean;
@@ -135,12 +110,11 @@ export type DataTableTexts = {
 
 /** Icon components the consumer must provide. */
 export type DataTableIcons = {
-  /** Sort ascending chevron. */
   IconSortAscending: ComponentType<{ className?: string }>;
-  /** Sort descending chevron. */
+  /** Arrow down: the active column sorts descending, and every other sortable column shows it muted. */
   IconSortDescending: ComponentType<{ className?: string }>;
-  /** Unsorted / neutral sort icon. */
-  IconArrowsSort: ComponentType<{ className?: string }>;
+  /** @deprecated No longer rendered: unsorted columns show `IconSortDescending` muted. */
+  IconArrowsSort?: ComponentType<{ className?: string }>;
   /** Chevron pointing right (collapsed group). */
   IconChevronRight: ComponentType<{ size?: number }>;
   /** Chevron pointing down (expanded group). */
@@ -161,6 +135,12 @@ export type DataTableProps<T> = {
   rowClassName?: (row: T) => string | undefined;
   emptyMessage?: ReactNode;
   defaultSort?: SortState;
+  /** Controlled sort. Pass it with `onSortChange` when the parent owns the sort, for example to send it to the server. */
+  sort?: SortState | null;
+  /** Called on every header click with the next sort: asc, then desc, then none. */
+  onSortChange?: (sort: SortState | null) => void;
+  /** The rows arrive sorted by the server, so the table never reorders them. */
+  manualSorting?: boolean;
   defaultGroupBy?: string[];
   /** Show the drag-to-group bar. Default true. */
   enableGrouping?: boolean;
@@ -169,11 +149,8 @@ export type DataTableProps<T> = {
   slots: DataTableSlots;
   /** Localised strings. */
   texts: DataTableTexts;
-  /** Icon components. */
   icons: DataTableIcons;
 };
-
-// --- persisted-state helper (localStorage-backed useState) -------------------
 
 function usePersistedState<S>(key: string, initial: S) {
   // Start from `initial` so the server-rendered HTML and the client's first render
@@ -210,8 +187,6 @@ function usePersistedState<S>(key: string, initial: S) {
   return [state, setState] as const;
 }
 
-// --- pure column-order helpers (ported from Atlas datatable-columns.ts) ------
-
 function applyColumnOrder<C extends { key: string }>(columns: C[], order: string[]): C[] {
   if (order.length === 0) return columns;
   const byKey = new Map(columns.map((c) => [c.key, c]));
@@ -244,8 +219,6 @@ function compareValues(a: CellValue, b: CellValue): number {
   return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: "base" });
 }
 
-// --- main component ---------------------------------------------------------
-
 export function DataTable<T>(props: DataTableProps<T>) {
   const {
     tableId,
@@ -256,6 +229,9 @@ export function DataTable<T>(props: DataTableProps<T>) {
     rowClassName,
     emptyMessage,
     defaultSort,
+    sort: controlledSort,
+    onSortChange,
+    manualSorting = false,
     defaultGroupBy,
     enableGrouping = true,
     slots,
@@ -281,7 +257,6 @@ export function DataTable<T>(props: DataTableProps<T>) {
   const {
     IconSortAscending,
     IconSortDescending,
-    IconArrowsSort,
     IconChevronRight,
     IconChevronDown,
     IconColumns,
@@ -302,7 +277,8 @@ export function DataTable<T>(props: DataTableProps<T>) {
   );
   const [widths, setWidths] = usePersistedState<Record<string, number>>(`dt:${tableId}:widths`, {});
 
-  const [sort, setSort] = useState<SortState | null>(defaultSort ?? null);
+  const [uncontrolledSort, setUncontrolledSort] = useState<SortState | null>(defaultSort ?? null);
+  const sort = controlledSort === undefined ? uncontrolledSort : controlledSort;
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [dragKey, setDragKey] = useState<string | null>(null);
   const [dragOverKey, setDragOverKey] = useState<string | null>(null);
@@ -334,27 +310,23 @@ export function DataTable<T>(props: DataTableProps<T>) {
     return v == null ? "" : String(v);
   }, []);
 
-  // --- sorting (client-side) ---------------------------------------------------
   const sortedRows = useMemo(() => {
-    if (!sort) return rows;
+    if (!sort || manualSorting) return rows;
     const col = colByKey.get(sort.by);
     if (!col?.sortValue) return rows;
     const accessor = col.sortValue;
     const dir = sort.order === "asc" ? 1 : -1;
     // Array.prototype.sort is stable, so equal rows keep the incoming order.
     return [...rows].sort((a, b) => compareValues(accessor(a), accessor(b)) * dir);
-  }, [rows, sort, colByKey]);
+  }, [rows, sort, colByKey, manualSorting]);
 
   const onHeaderSortClick = (col: DataTableColumn<T>) => {
-    if (col.sortable === false || !col.sortValue) return;
-    setSort((prev) => {
-      if (!prev || prev.by !== col.key) return { by: col.key, order: "asc" };
-      if (prev.order === "asc") return { by: col.key, order: "desc" };
-      return null; // asc -> desc -> off
-    });
+    if (!isColumnSortable(col, manualSorting)) return;
+    const next = nextSort(sort, col.key);
+    if (controlledSort === undefined) setUncontrolledSort(next);
+    onSortChange?.(next);
   };
 
-  // --- grouping (client-side, over the already-sorted rows) --------------------
   const toggleGroup = (path: string) =>
     setCollapsed((prev) => {
       const n = new Set(prev);
@@ -413,7 +385,6 @@ export function DataTable<T>(props: DataTableProps<T>) {
     return out;
   }, [sortedRows, grouped, activeGroupBy, collapsed, colByKey, sort, groupValueOf]);
 
-  // --- column drag-to-reorder + drop-onto-grouping-bar -------------------------
   const thDragProps = (c: DataTableColumn<T>) => ({
     // Suspend native drag-to-reorder while any column is being resized.
     draggable: resizingKey == null,
@@ -454,7 +425,6 @@ export function DataTable<T>(props: DataTableProps<T>) {
 
   const fullColSpan = Math.max(1, visibleColumns.length);
 
-  // --- column drag-to-resize ---------------------------------------------------
   const MIN_COLUMN_WIDTH = 60;
   const DEFAULT_COLUMN_WIDTH = 160;
   // Resolve every column to a concrete pixel width. A user-set width wins over the
@@ -597,7 +567,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             {visibleColumns.map((c) => {
-              const sortable = c.sortable !== false && !!c.sortValue;
+              const sortable = isColumnSortable(c, manualSorting);
               const active = sort?.by === c.key;
               // Last column flexes to fill leftover space, so it has no fixed
               // width and no resize handle.
@@ -635,21 +605,22 @@ export function DataTable<T>(props: DataTableProps<T>) {
                   {sortable ? (
                     <button
                       type="button"
-                      className={cn(
-                        "inline-flex max-w-full items-center gap-1 truncate bg-transparent border-0 p-0 font-medium text-inherit hover:text-foreground",
-                      )}
+                      className="group/sort inline-flex max-w-full items-center gap-1 truncate border-0 bg-transparent p-0 font-medium text-inherit hover:text-foreground"
                       style={{ textAlign: c.align ?? "left" }}
                       onClick={() => onHeaderSortClick(c)}
                     >
                       <span className="truncate">{c.label}</span>
-                      {active ? (
-                        sort.order === "asc" ? (
-                          <IconSortAscending className="size-3.5 shrink-0" />
-                        ) : (
-                          <IconSortDescending className="size-3.5 shrink-0" />
-                        )
+                      {active && sort.order === "asc" ? (
+                        <IconSortAscending className="size-4 shrink-0 text-primary" />
                       ) : (
-                        <IconArrowsSort className="size-3.5 shrink-0 opacity-0 group-hover:opacity-50" />
+                        <IconSortDescending
+                          className={cn(
+                            "size-4 shrink-0 transition-colors motion-reduce:transition-none",
+                            active
+                              ? "text-primary"
+                              : "text-muted-foreground/50 group-hover/sort:text-muted-foreground",
+                          )}
+                        />
                       )}
                     </button>
                   ) : (
