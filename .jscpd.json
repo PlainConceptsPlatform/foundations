@@ -4,7 +4,6 @@
     "packages/theme",
     "apps/docs/app",
     "apps/docs/components",
-    "apps/docs/hooks",
     "apps/docs/lib",
     "apps/docs/scripts"
   ],
