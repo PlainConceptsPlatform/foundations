@@ -15,13 +15,15 @@ import { BreadcrumbDemo } from "@/components/previews/breadcrumb-demo"
 
 ## Platform notes
 
-The final crumb is `BreadcrumbPage`, which carries `aria-current="page"` and is deliberately not a link; turning it into one breaks the pattern for screen reader users. Separators are `aria-hidden`, so assistive tech hears just the trail, but the vendored `BreadcrumbEllipsis` contains a hardcoded sr-only `More` that has to be replaced with a react-i18next message. Crumb labels come from the entity's translated display name, never from the URL slug. Links render at `--muted-foreground` with the current page at `--foreground`; that pairing already clears AA, so do not lighten it further to make the trail recede.
+The final crumb is `BreadcrumbPage`, which carries `aria-current="page"` and is deliberately not a link; turning it into one breaks the pattern for screen reader users. Separators are `aria-hidden`, so assistive tech hears just the trail, but the `BreadcrumbEllipsis` in `@plainconceptsplatform/ui-components` contains a hardcoded sr-only `More`. To replace it with a react-i18next message, copy the component into `shared/ui` and change it there. Crumb labels come from the entity's translated display name, never from the URL slug. Links render at `--muted-foreground` with the current page at `--foreground`; that pairing already clears AA, so do not lighten it further to make the trail recede.
 
 ## Install
 
 ```bash
-npx shadcn@latest add breadcrumb
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/breadcrumb`.
 
 ## Code
 
@@ -33,7 +35,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from "@plainconceptsplatform/ui-components/breadcrumb";
 
 export function BreadcrumbDemo() {
   return (
@@ -58,4 +60,4 @@ export function BreadcrumbDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/breadcrumb](https://ui.shadcn.com/docs/components/breadcrumb)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

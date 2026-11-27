@@ -1,6 +1,11 @@
 "use client";
 
-import { Bubble, BubbleContent, BubbleGroup, BubbleReactions } from "@/components/ui/bubble";
+import {
+  Bubble,
+  BubbleContent,
+  BubbleGroup,
+  BubbleReactions,
+} from "@plainconceptsplatform/ui-components/bubble";
 import { Frown, SmilePlus, ThumbsUp } from "lucide-react";
 
 export function BubbleDemo() {

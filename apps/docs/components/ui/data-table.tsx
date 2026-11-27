@@ -9,7 +9,7 @@ import {
 } from "@plainconceptsplatform/ui-components/data-table";
 import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Columns3, X } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@plainconceptsplatform/ui-components/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -17,7 +17,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@plainconceptsplatform/ui-components/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -25,7 +25,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@plainconceptsplatform/ui-components/table";
 
 // Pre-wired slots for the Foundations docs app.
 // Cast is safe: shadcn components accept a superset of the minimal prop types.

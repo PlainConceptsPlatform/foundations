@@ -20,8 +20,10 @@ The trigger has to look like a target, which is why the demo gives it a dashed `
 ## Install
 
 ```bash
-npx shadcn@latest add context-menu
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/context-menu`.
 
 ## Code
 
@@ -33,7 +35,7 @@ import {
   ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+} from "@plainconceptsplatform/ui-components/context-menu";
 
 export function ContextMenuDemo() {
   return (
@@ -66,4 +68,4 @@ export function ContextMenuDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/context-menu](https://ui.shadcn.com/docs/components/context-menu)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

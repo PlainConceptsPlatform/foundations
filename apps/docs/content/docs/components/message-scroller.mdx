@@ -20,17 +20,24 @@ It needs the full nesting (`Provider`, `Root`, `Viewport`, `Content`, `Item`) in
 ## Install
 
 ```bash
-npx shadcn@latest add message-scroller
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/message-scroller`.
 
 ## Code
 
 ```tsx
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bubble, BubbleContent } from "@/components/ui/bubble";
-import { Message, MessageAvatar, MessageContent, MessageGroup } from "@/components/ui/message";
+import { Avatar, AvatarFallback } from "@plainconceptsplatform/ui-components/avatar";
+import { Bubble, BubbleContent } from "@plainconceptsplatform/ui-components/bubble";
+import {
+  Message,
+  MessageAvatar,
+  MessageContent,
+  MessageGroup,
+} from "@plainconceptsplatform/ui-components/message";
 import {
   MessageScroller,
   MessageScrollerButton,
@@ -38,7 +45,7 @@ import {
   MessageScrollerItem,
   MessageScrollerProvider,
   MessageScrollerViewport,
-} from "@/components/ui/message-scroller";
+} from "@plainconceptsplatform/ui-components/message-scroller";
 import { Bot } from "lucide-react";
 
 const messages = [
@@ -89,4 +96,4 @@ export function MessageScrollerDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/message-scroller](https://ui.shadcn.com/docs/components/message-scroller)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

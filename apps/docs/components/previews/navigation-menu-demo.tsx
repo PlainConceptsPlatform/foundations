@@ -8,7 +8,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+} from "@plainconceptsplatform/ui-components/navigation-menu";
 
 export function NavigationMenuDemo() {
   return (

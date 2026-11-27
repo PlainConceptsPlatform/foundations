@@ -1,5 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@plainconceptsplatform/ui-components/hover-card";
 
 export function HoverCardDemo() {
   return (

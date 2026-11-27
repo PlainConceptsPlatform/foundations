@@ -15,22 +15,29 @@ Use a toast to confirm that an action the user already left behind has finished,
 
 ## Platform notes
 
-sonner is the mandated toast library for Platform apps per ARCHITECTURE.md; the copy previewed in this catalog is the Radix based `Toast` with a `use-toast` hook, so follow whichever one your app installed and do not run both. Mount the toaster exactly once, in the providers module under `app/`, never inside a view. Title, description and action label are all react-i18next messages, and the action needs an `altText` for screen readers as the demo shows. Because shadows paint nothing, a toast is separated from the page by its border and surface: the destructive variant switches to `--destructive`, so check the contrast of any action button you place inside it.
+sonner is the mandated toast library for Platform apps per ARCHITECTURE.md; the copy in `@plainconceptsplatform/ui-components`, previewed in this catalog, is the Radix based `Toast` with a `use-toast` hook, so follow whichever one your app installed and do not run both. Mount the toaster exactly once, in the providers module under `app/`, never inside a view. Title, description and action label are all react-i18next messages, and the action needs an `altText` for screen readers as the demo shows. Because shadows paint nothing, a toast is separated from the page by its border and surface: the destructive variant switches to `--destructive`, so check the contrast of any action button you place inside it.
 
 ## Install
 
 ```bash
-npx shadcn@latest add toast
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/toast`.
 
 ## Code
 
 ```tsx
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Toast, ToastAction, ToastDescription, ToastTitle } from "@/components/ui/toast";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import {
+  Toast,
+  ToastAction,
+  ToastDescription,
+  ToastTitle,
+} from "@plainconceptsplatform/ui-components/toast";
+import { useToast } from "@plainconceptsplatform/ui-components/use-toast";
 
 export function ToastDemo() {
   const { toast } = useToast();
@@ -68,4 +75,4 @@ export function ToastDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/toast](https://ui.shadcn.com/docs/components/toast)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

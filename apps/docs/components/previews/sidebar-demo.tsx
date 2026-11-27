@@ -2,7 +2,7 @@
 
 import { Frame, LifeBuoy, Map as MapIcon, Send } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@plainconceptsplatform/ui-components/button";
 import {
   Sidebar,
   SidebarContent,
@@ -18,7 +18,7 @@ import {
   SidebarProvider,
   SidebarSeparator,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
+} from "@plainconceptsplatform/ui-components/sidebar";
 
 const items = [
   { title: "Overview", icon: Frame },

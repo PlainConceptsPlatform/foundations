@@ -15,21 +15,27 @@ Reach for `ButtonGroup` when two or three related actions belong together as one
 
 ## Platform notes
 
-`ButtonGroupSeparator` paints `bg-input` rather than `--border`, one step darker, so the divider stays visible between two `outline` buttons that already have borders. Focus inside the group is raised with `z-index` on `focus-visible` instead of a shadow, which keeps the ring unclipped under the border plus `bg-card` elevation rule. `ButtonGroupText` (the `$ 99` slot in the demo) is a non-interactive label: it is not focusable and must not hold the action or a value users need to change. The group itself is `shared/ui`; which actions get grouped is a decision for the feature composing them, so that arrangement lives in the slice, not in the shared component.
+`ButtonGroupSeparator` paints `bg-input` rather than `--border`, one step darker, so the divider stays visible between two `outline` buttons that already have borders. Focus inside the group is raised with `z-index` on `focus-visible` instead of a shadow, which keeps the ring unclipped under the border plus `bg-card` elevation rule. `ButtonGroupText` (the `$ 99` slot in the demo) is a non-interactive label: it is not focusable and must not hold the action or a value users need to change. The group itself comes from `@plainconceptsplatform/ui-components`. Which actions get grouped is a decision for the feature composing them, so that arrangement lives in the slice, not in the package.
 
 ## Install
 
 ```bash
-npx shadcn@latest add button-group
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/button-group`.
 
 ## Code
 
 ```tsx
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@/components/ui/button-group";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
+} from "@plainconceptsplatform/ui-components/button-group";
 import { Check, ChevronRight, Copy } from "lucide-react";
 
 export function ButtonGroupDemo() {
@@ -58,4 +64,4 @@ export function ButtonGroupDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/button-group](https://ui.shadcn.com/docs/components/button-group)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

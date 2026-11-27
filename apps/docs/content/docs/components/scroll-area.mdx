@@ -20,13 +20,15 @@ Scrolling only happens if the area has a resolved height (`h-60` in the demo); h
 ## Install
 
 ```bash
-npx shadcn@latest add scroll-area
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/scroll-area`.
 
 ## Code
 
 ```tsx
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@plainconceptsplatform/ui-components/scroll-area";
 
 const tags = Array.from({ length: 24 }).map((_, i) => `Item ${i + 1}`);
 
@@ -48,4 +50,4 @@ export function ScrollAreaDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/scroll-area](https://ui.shadcn.com/docs/components/scroll-area)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

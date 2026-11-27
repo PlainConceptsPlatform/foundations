@@ -20,15 +20,17 @@ One pitfall from the source: the base class sets `border-dashed` but no border w
 ## Install
 
 ```bash
-npx shadcn@latest add empty
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/empty`.
 
 ## Code
 
 ```tsx
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@plainconceptsplatform/ui-components/button";
 import {
   Empty,
   EmptyContent,
@@ -36,7 +38,7 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty";
+} from "@plainconceptsplatform/ui-components/empty";
 import { PackageOpen } from "lucide-react";
 
 export function EmptyDemo() {
@@ -62,4 +64,4 @@ export function EmptyDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/empty](https://ui.shadcn.com/docs/components/empty)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

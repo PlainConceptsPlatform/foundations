@@ -1,8 +1,11 @@
 "use client";
 
-import { Field } from "@/components/ui/field";
-import { Label } from "@/components/ui/label";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Field } from "@plainconceptsplatform/ui-components/field";
+import { Label } from "@plainconceptsplatform/ui-components/label";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@plainconceptsplatform/ui-components/native-select";
 
 export function NativeSelectDemo() {
   return (

@@ -15,18 +15,20 @@ Good for imprecise, continuous values where the visual position is the point: op
 
 ## Platform notes
 
-A gotcha in this copy: the thumb is `bg-white` with `border-primary`, hardcoded rather than tokenised, so it does not follow dark mode; switch it to `bg-background` if you re-vendor the file. The track is `--muted` and the filled range is `--primary`, a colour-only signal, so the current value has to be rendered as text near the control as well. It renders no label of its own, so supply an `aria-label` or an `aria-labelledby` pointing at a `FieldLabel`, and check that the hover-to-`ring-4` growth still reads as focus rather than decoration. Thumbs are keyed by their value, so a range slider whose two handles land on the same number produces a duplicate React key.
+The thumb uses `bg-background`, so it follows dark mode. The track is `--muted` and the filled range is `--primary`, a colour-only signal, so the current value has to be rendered as text near the control as well. It renders no label of its own, so supply an `aria-label` or an `aria-labelledby` pointing at a `FieldLabel`, and check that the hover-to-`ring-4` growth still reads as focus rather than decoration. Thumbs are keyed by their value, so a range slider whose two handles land on the same number produces a duplicate React key.
 
 ## Install
 
 ```bash
-npx shadcn@latest add slider
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/slider`.
 
 ## Code
 
 ```tsx
-import { Slider } from "@/components/ui/slider";
+import { Slider } from "@plainconceptsplatform/ui-components/slider";
 
 export function SliderDemo() {
   return <Slider defaultValue={[50]} max={100} step={1} className="w-full max-w-sm" />;
@@ -35,4 +37,4 @@ export function SliderDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/slider](https://ui.shadcn.com/docs/components/slider)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

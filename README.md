@@ -55,11 +55,13 @@ npx @plainconceptsplatform/ui-theme@latest init
 
 This copies `components.json`, adds the theme import to your global stylesheet, and shows you how to wire the Outfit font in your root layout.
 
-### 3. Add shadcn components
+### 3. Use the shadcn components
 
 ```bash
-npx shadcn@latest add button card dialog ...
+pnpm add @plainconceptsplatform/ui-components radix-ui lucide-react
 ```
+
+Import each component from its sub-path, for example `import { Button } from "@plainconceptsplatform/ui-components/button"`. Copy one into your app only when you must change it.
 
 Full details in [`packages/theme/README.md`](packages/theme/README.md).
 

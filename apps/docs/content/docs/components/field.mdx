@@ -20,8 +20,10 @@ The layout and semantics wrapper for every form in a Platform app: label, contro
 ## Install
 
 ```bash
-npx shadcn@latest add field
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/field`.
 
 ## Code
 
@@ -35,8 +37,8 @@ import {
   FieldLabel,
   FieldLegend,
   FieldSet,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "@plainconceptsplatform/ui-components/field";
+import { Input } from "@plainconceptsplatform/ui-components/input";
 
 export function FieldDemo() {
   return (
@@ -60,4 +62,4 @@ export function FieldDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/field](https://ui.shadcn.com/docs/components/field)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

@@ -1,7 +1,7 @@
 "use client";
 
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { Progress } from "@plainconceptsplatform/ui-components/progress";
 import { type JourneyState, litIn } from "./journey";
 import { PILLARS } from "./steps";
 

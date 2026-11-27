@@ -6,7 +6,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command";
+} from "@plainconceptsplatform/ui-components/command";
 
 export function CommandDemo() {
   return (

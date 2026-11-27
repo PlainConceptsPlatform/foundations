@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@plainconceptsplatform/ui-components/calendar";
 import * as React from "react";
 
 export function CalendarDemo() {

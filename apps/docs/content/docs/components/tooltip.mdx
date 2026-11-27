@@ -15,19 +15,26 @@ Use a Tooltip to name an icon-only control or add a short hint next to a label. 
 
 ## Platform notes
 
-Alone among these overlays, tooltip content is an inverted surface (`bg-foreground` with `text-background`) rather than `--popover`, so it needs no border to stand out and the arrow is already included in `TooltipContent`. Mount a single `TooltipProvider` in the providers module under `app/` rather than per component as the preview does for isolation, and note that `delayDuration` defaults to `0` in the vendored copy, so tooltips appear immediately unless you raise it. An icon-only button still needs its own accessible name (an `sr-only` span or `aria-label`); a tooltip is not a substitute for a label, and both strings are separate react-i18next messages.
+Alone among these overlays, tooltip content is an inverted surface (`bg-foreground` with `text-background`) rather than `--popover`, so it needs no border to stand out and the arrow is already included in `TooltipContent`. Mount a single `TooltipProvider` in the providers module under `app/` rather than per component as the preview does for isolation, and note that `delayDuration` defaults to `0` in the package's copy, so tooltips appear immediately unless you raise it. An icon-only button still needs its own accessible name (an `sr-only` span or `aria-label`); a tooltip is not a substitute for a label, and both strings are separate react-i18next messages.
 
 ## Install
 
 ```bash
-npx shadcn@latest add tooltip
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/tooltip`.
 
 ## Code
 
 ```tsx
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@plainconceptsplatform/ui-components/tooltip";
 
 export function TooltipDemo() {
   return (
@@ -47,4 +54,4 @@ export function TooltipDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/tooltip](https://ui.shadcn.com/docs/components/tooltip)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

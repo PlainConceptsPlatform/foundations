@@ -20,8 +20,10 @@ The demo runs it controlled (`open` plus `onOpenChange`) because the trigger lab
 ## Install
 
 ```bash
-npx shadcn@latest add collapsible
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/collapsible`.
 
 ## Code
 
@@ -30,8 +32,12 @@ npx shadcn@latest add collapsible
 
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@plainconceptsplatform/ui-components/collapsible";
 
 export function CollapsibleDemo() {
   const [isOpen, setIsOpen] = useState(false);
@@ -60,4 +66,4 @@ export function CollapsibleDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/collapsible](https://ui.shadcn.com/docs/components/collapsible)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

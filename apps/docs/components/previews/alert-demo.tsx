@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@plainconceptsplatform/ui-components/alert";
 import { Info } from "lucide-react";
 
 export function AlertDemo() {

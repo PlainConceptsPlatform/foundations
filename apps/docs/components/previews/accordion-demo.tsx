@@ -3,7 +3,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@plainconceptsplatform/ui-components/accordion";
 
 export function AccordionDemo() {
   return (

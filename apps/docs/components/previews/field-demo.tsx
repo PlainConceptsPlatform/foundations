@@ -7,8 +7,8 @@ import {
   FieldLabel,
   FieldLegend,
   FieldSet,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "@plainconceptsplatform/ui-components/field";
+import { Input } from "@plainconceptsplatform/ui-components/input";
 
 export function FieldDemo() {
   return (

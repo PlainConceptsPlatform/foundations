@@ -15,13 +15,15 @@ Use `Pagination` for server-paged lists where the page belongs in the URL and us
 
 ## Platform notes
 
-It renders anchors, so every page must be a real URL; give `PaginationLink` a `next/link` through `asChild` or you lose client-side navigation on each page change. The vendored source hardcodes `Previous`, `Next`, and the sr-only `More pages`, three user-facing strings that must be routed through react-i18next before the component ships in an app. `isActive` already sets `aria-current="page"` and switches the link to the `outline` button style, so do not add a second current-page marker. The list it pages needs both required states wired up: skeleton rows while the next page loads (never an emptied table) and an empty state when a filter returns nothing.
+It renders anchors, so every page must be a real URL; give `PaginationLink` a `next/link` through `asChild` or you lose client-side navigation on each page change. The source in `@plainconceptsplatform/ui-components` hardcodes `Previous`, `Next`, and the sr-only `More pages`, three user-facing strings. Before the component ships in an app, copy it into `shared/ui` and route them through react-i18next. `isActive` already sets `aria-current="page"` and switches the link to the `outline` button style, so do not add a second current-page marker. The list it pages needs both required states wired up: skeleton rows while the next page loads (never an emptied table) and an empty state when a filter returns nothing.
 
 ## Install
 
 ```bash
-npx shadcn@latest add pagination
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/pagination`.
 
 ## Code
 
@@ -34,7 +36,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
+} from "@plainconceptsplatform/ui-components/pagination";
 
 export function PaginationDemo() {
   return (
@@ -65,4 +67,4 @@ export function PaginationDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/pagination](https://ui.shadcn.com/docs/components/pagination)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

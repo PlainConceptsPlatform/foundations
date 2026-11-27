@@ -1,5 +1,5 @@
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Checkbox } from "@plainconceptsplatform/ui-components/checkbox";
+import { Label } from "@plainconceptsplatform/ui-components/label";
 
 export function CheckboxDemo() {
   return (

@@ -9,7 +9,7 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
+} from "@plainconceptsplatform/ui-components/chart";
 
 const data = [
   { month: "Jan", theme: 186, components: 80 },

@@ -20,8 +20,10 @@ Series colour comes from the shared ramp `--chart-1` through `--chart-5` and nev
 ## Install
 
 ```bash
-npx shadcn@latest add chart
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/chart`.
 
 ## Code
 
@@ -37,7 +39,7 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
+} from "@plainconceptsplatform/ui-components/chart";
 
 const data = [
   { month: "Jan", theme: 186, components: 80 },
@@ -73,4 +75,4 @@ export function ChartDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/chart](https://ui.shadcn.com/docs/components/chart)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

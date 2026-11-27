@@ -1,5 +1,5 @@
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Input } from "@plainconceptsplatform/ui-components/input";
+import { Label } from "@plainconceptsplatform/ui-components/label";
 
 export function InputDemo() {
   return (

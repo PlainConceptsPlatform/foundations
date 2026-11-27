@@ -5,7 +5,7 @@ import {
   ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+} from "@plainconceptsplatform/ui-components/context-menu";
 
 export function ContextMenuDemo() {
   return (

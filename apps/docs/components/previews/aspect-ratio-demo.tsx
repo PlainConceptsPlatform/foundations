@@ -1,4 +1,4 @@
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { AspectRatio } from "@plainconceptsplatform/ui-components/aspect-ratio";
 
 export function AspectRatioDemo() {
   return (

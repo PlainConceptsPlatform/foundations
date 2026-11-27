@@ -15,19 +15,21 @@ The default single-line control for any short scalar value in a form: names, ema
 
 ## Platform notes
 
-The control is `bg-transparent` with `border-input`, so `--input` is the entire affordance; `shadow-xs` sits in the class list but paints nothing, because the theme flattens the whole shadow scale to a transparent value. Validation styling hangs off `aria-invalid`, so a zod failure has to reach the DOM as `aria-invalid` (which the shadcn `Field` and `Form` wiring sets for you) rather than as a hand-added red border class. A placeholder is not a label: pair every `Input` with a `Label` or `FieldLabel`, and route the label, the placeholder and the error message through react-i18next `t()` calls. It lives in `shared/ui`; the form that composes it belongs to the feature or entity that owns the data.
+The control is `bg-transparent` with `border-input`, so `--input` is the entire affordance; `shadow-xs` sits in the class list but paints nothing, because the theme flattens the whole shadow scale to a transparent value. Validation styling hangs off `aria-invalid`, so a zod failure has to reach the DOM as `aria-invalid` (which the shadcn `Field` and `Form` wiring sets for you) rather than as a hand-added red border class. A placeholder is not a label: pair every `Input` with a `Label` or `FieldLabel`, and route the label, the placeholder and the error message through react-i18next `t()` calls. It comes from `@plainconceptsplatform/ui-components`, and the form that composes it belongs to the feature or entity that owns the data.
 
 ## Install
 
 ```bash
-npx shadcn@latest add input
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/input`.
 
 ## Code
 
 ```tsx
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Input } from "@plainconceptsplatform/ui-components/input";
+import { Label } from "@plainconceptsplatform/ui-components/label";
 
 export function InputDemo() {
   return (
@@ -41,4 +43,4 @@ export function InputDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/input](https://ui.shadcn.com/docs/components/input)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

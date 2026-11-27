@@ -4,26 +4,30 @@ description: shadcn/ui components with the shared theme, plus our custom compone
 ---
 
 Components come from **shadcn/ui** (Radix + Tailwind), themed by the shared tokens
-(`@plainconceptsplatform/ui-theme`). Each page shows installation, usage, and a live preview
-with our theme applied. For the full API, variants, and accessibility notes, see
-[ui.shadcn.com](https://ui.shadcn.com).
+(`@plainconceptsplatform/ui-theme`) and published by `@plainconceptsplatform/ui-components`.
+Each page shows installation, usage, and a live preview with our theme applied. For the full
+API, variants, and accessibility notes, see [ui.shadcn.com](https://ui.shadcn.com).
 
 ## Adding components
 
 ```bash
 npx @plainconceptsplatform/ui-theme@latest init   # run once: copies components.json, wires theme
-npx shadcn@latest add button card dialog ...       # add any component
+pnpm add @plainconceptsplatform/ui-components radix-ui lucide-react
 ```
 
-Components use [Lucide](https://lucide.dev) icons, the shadcn default.
+Import each component from its sub-path, which is the shadcn name in kebab-case:
+
+```tsx
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import { Slider } from "@plainconceptsplatform/ui-components/slider";
+```
+
+Copy a component into your app's `shared/ui` only when you must change it. Components use
+[Lucide](https://lucide.dev) icons, the shadcn default.
 
 ## Custom components
 
-From `@plainconceptsplatform/ui-components`:
-
-```bash
-pnpm add @plainconceptsplatform/ui-components
-```
+From the same package:
 
 - [Plain logo](/docs/components/plain-logo): responsive brand logo.
 - [AppSidebar](/docs/components/app-sidebar): composable, collapsible sidebar with nav, user card, and brand header.

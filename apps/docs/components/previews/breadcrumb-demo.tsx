@@ -5,7 +5,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from "@plainconceptsplatform/ui-components/breadcrumb";
 
 export function BreadcrumbDemo() {
   return (

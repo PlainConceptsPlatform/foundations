@@ -20,13 +20,15 @@ Only two variants ship, `default` and `destructive`, and both sit on `bg-card`, 
 ## Install
 
 ```bash
-npx shadcn@latest add alert
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/alert`.
 
 ## Code
 
 ```tsx
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@plainconceptsplatform/ui-components/alert";
 import { Info } from "lucide-react";
 
 export function AlertDemo() {
@@ -42,4 +44,4 @@ export function AlertDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/alert](https://ui.shadcn.com/docs/components/alert)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

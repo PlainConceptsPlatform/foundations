@@ -6,14 +6,14 @@ import { format } from "date-fns";
 import { Sparkles } from "lucide-react";
 import * as React from "react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@plainconceptsplatform/ui-components/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@plainconceptsplatform/ui-components/dialog";
 
 const DEMO_ENTRIES: ChangelogEntry[] = [
   {

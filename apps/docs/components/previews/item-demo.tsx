@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@plainconceptsplatform/ui-components/button";
 import {
   Item,
   ItemContent,
@@ -9,7 +9,7 @@ import {
   ItemMedia,
   ItemSeparator,
   ItemTitle,
-} from "@/components/ui/item";
+} from "@plainconceptsplatform/ui-components/item";
 import { Bell, Check, MoreHorizontal } from "lucide-react";
 
 export function ItemDemo() {

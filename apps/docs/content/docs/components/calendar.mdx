@@ -15,20 +15,22 @@ Use Calendar when the month itself is the interface: an availability grid, a boo
 
 ## Platform notes
 
-Selected days and range endpoints paint with `--primary` / `--primary-foreground`, while `today` and the middle of a range use `--accent` / `--accent-foreground`, the same tint the theme uses for hover, so today and a hovered day read alike and a single `--accent` change moves both states: check light and dark after a theme bump. Month, weekday and caption text is formatted by react-day-picker (en-US by default) and the vendored month dropdown formatter calls `toLocaleString("default")`, which follows the browser locale rather than the active i18next language, so pass the matching `date-fns` locale on the `locale` prop and keep legends, hints and captions as translation messages. Focus renders on the day button itself (`--ring`, via `group-data-[focused=true]/day`), so leave that ring intact; the `disabled` day style is `text-muted-foreground` at 50% opacity, too faint to be the only signal that a day is unavailable, so pair it with a legend or helper text and show a `Skeleton` while the unavailable set is still loading. The `shadow-xs` on the caption dropdown compiles to nothing under the theme, so when a standalone month has to read as a raised surface, give it `border bg-card` (the demo settles for `rounded-md border`).
+Selected days and range endpoints paint with `--primary` / `--primary-foreground`, while `today` and the middle of a range use `--accent` / `--accent-foreground`, the same tint the theme uses for hover, so today and a hovered day read alike and a single `--accent` change moves both states: check light and dark after a theme bump. Month, weekday and caption text is formatted by react-day-picker (en-US by default) and the package's month dropdown formatter calls `toLocaleString("default")`, which follows the browser locale rather than the active i18next language, so pass the matching `date-fns` locale on the `locale` prop and keep legends, hints and captions as translation messages. Focus renders on the day button itself (`--ring`, via `group-data-[focused=true]/day`), so leave that ring intact; the `disabled` day style is `text-muted-foreground` at 50% opacity, too faint to be the only signal that a day is unavailable, so pair it with a legend or helper text and show a `Skeleton` while the unavailable set is still loading. The `shadow-xs` on the caption dropdown compiles to nothing under the theme, so when a standalone month has to read as a raised surface, give it `border bg-card` (the demo settles for `rounded-md border`).
 
 ## Install
 
 ```bash
-npx shadcn@latest add calendar
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/calendar`.
 
 ## Code
 
 ```tsx
 "use client";
 
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@plainconceptsplatform/ui-components/calendar";
 import * as React from "react";
 
 export function CalendarDemo() {
@@ -41,4 +43,4 @@ export function CalendarDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/calendar](https://ui.shadcn.com/docs/components/calendar)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

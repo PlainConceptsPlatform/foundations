@@ -20,15 +20,17 @@ Item composes a row out of media, title, description and actions, which is what 
 ## Install
 
 ```bash
-npx shadcn@latest add item
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/item`.
 
 ## Code
 
 ```tsx
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@plainconceptsplatform/ui-components/button";
 import {
   Item,
   ItemContent,
@@ -37,7 +39,7 @@ import {
   ItemMedia,
   ItemSeparator,
   ItemTitle,
-} from "@/components/ui/item";
+} from "@plainconceptsplatform/ui-components/item";
 import { Bell, Check, MoreHorizontal } from "lucide-react";
 
 export function ItemDemo() {
@@ -74,4 +76,4 @@ export function ItemDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/item](https://ui.shadcn.com/docs/components/item)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

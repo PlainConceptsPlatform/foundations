@@ -1,5 +1,5 @@
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Label } from "@plainconceptsplatform/ui-components/label";
+import { Switch } from "@plainconceptsplatform/ui-components/switch";
 
 export function SwitchDemo() {
   return (

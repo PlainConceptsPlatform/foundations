@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@plainconceptsplatform/ui-components/collapsible";
 
 export function CollapsibleDemo() {
   const [isOpen, setIsOpen] = useState(false);

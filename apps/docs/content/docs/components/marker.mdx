@@ -20,15 +20,17 @@ All three variants draw only on `--muted-foreground` and `--border`, and the `se
 ## Install
 
 ```bash
-npx shadcn@latest add marker
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/marker`.
 
 ## Code
 
 ```tsx
 "use client";
 
-import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
+import { Marker, MarkerContent, MarkerIcon } from "@plainconceptsplatform/ui-components/marker";
 import { Calendar } from "lucide-react";
 
 export function MarkerDemo() {
@@ -53,4 +55,4 @@ export function MarkerDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/marker](https://ui.shadcn.com/docs/components/marker)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

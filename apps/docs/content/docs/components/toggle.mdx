@@ -20,15 +20,17 @@ The pressed state paints `--accent` with `--accent-foreground`, which is also th
 ## Install
 
 ```bash
-npx shadcn@latest add toggle
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/toggle`.
 
 ## Code
 
 ```tsx
 import { Underline } from "lucide-react";
 
-import { Toggle } from "@/components/ui/toggle";
+import { Toggle } from "@plainconceptsplatform/ui-components/toggle";
 
 export function ToggleDemo() {
   return (
@@ -50,4 +52,4 @@ export function ToggleDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/toggle](https://ui.shadcn.com/docs/components/toggle)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

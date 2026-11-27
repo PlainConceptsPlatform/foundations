@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@plainconceptsplatform/ui-components/badge";
 
 export function BadgeDemo() {
   return (

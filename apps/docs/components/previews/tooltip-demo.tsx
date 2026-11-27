@@ -1,5 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@plainconceptsplatform/ui-components/tooltip";
 
 export function TooltipDemo() {
   return (

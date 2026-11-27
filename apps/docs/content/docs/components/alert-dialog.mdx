@@ -15,13 +15,15 @@ Reach for AlertDialog when the user must confirm something consequential before 
 
 ## Platform notes
 
-The Platform copy diverges from upstream in a way worth knowing: `AlertDialogAction` and `AlertDialogCancel` render through the `Button` component, so they accept `variant` and `size` directly (`variant="destructive"` on the action for a delete, which pulls `--destructive`), and there is an extra `AlertDialogMedia` slot plus `size="sm"` on the content. Nothing dismisses it by outside click and there is no close icon, which is the point, so the two button labels carry the whole decision: make them specific verbs, and make them i18next messages, not `t("ok")`. Enter and exit come from tw-animate-css and the theme's base layer already collapses them under `prefers-reduced-motion: reduce`, so do not layer a transition on top.
+The package's copy diverges from upstream in a way worth knowing: `AlertDialogAction` and `AlertDialogCancel` render through the `Button` component, so they accept `variant` and `size` directly (`variant="destructive"` on the action for a delete, which pulls `--destructive`), and there is an extra `AlertDialogMedia` slot plus `size="sm"` on the content. Nothing dismisses it by outside click and there is no close icon, which is the point, so the two button labels carry the whole decision: make them specific verbs, and make them i18next messages, not `t("ok")`. Enter and exit come from tw-animate-css and the theme's base layer already collapses them under `prefers-reduced-motion: reduce`, so do not layer a transition on top.
 
 ## Install
 
 ```bash
-npx shadcn@latest add alert-dialog
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/alert-dialog`.
 
 ## Code
 
@@ -36,8 +38,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from "@plainconceptsplatform/ui-components/alert-dialog";
+import { Button } from "@plainconceptsplatform/ui-components/button";
 
 export function AlertDialogDemo() {
   return (
@@ -64,4 +66,4 @@ export function AlertDialogDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/alert-dialog](https://ui.shadcn.com/docs/components/alert-dialog)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

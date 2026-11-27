@@ -4,7 +4,7 @@ import { Tour, requestTour, tourAnchor } from "@plainconceptsplatform/ui-compone
 import type { TourStep } from "@plainconceptsplatform/ui-components/tour";
 import { ChartLine, PanelsTopLeft, Sparkles } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@plainconceptsplatform/ui-components/button";
 
 const TOUR_ID = "docs-demo-v1";
 

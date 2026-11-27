@@ -34,7 +34,7 @@ skills/
 
 ## Rules
 
-1. **Prefer shadcn/ui and the `ARCHITECTURE.md` libraries.** Use components directly.
+1. **Prefer shadcn/ui and the `ARCHITECTURE.md` libraries.** Import the shadcn components from `@plainconceptsplatform/ui-components` and use them directly.
 2. **Do not recreate existing components** or wrap third-party components without a real reason.
 3. **Never hardcode design values.** Use semantic theme tokens (`bg-primary`, `text-muted-foreground`, `rounded-lg`), never raw hex/px.
 4. **Application-specific components stay in the app** (in the slice that owns them). A component is shared only after the same need appears in **multiple** apps.
@@ -49,7 +49,7 @@ skills/
 When building a Platform app, read [`/README.md`](../README.md) for the full setup, then install:
 
 - `@plainconceptsplatform/ui-theme` for design tokens (CSS import, Outfit font, shadcn config)
-- `@plainconceptsplatform/ui-components` for shared React components (Plain logo, ...)
+- `@plainconceptsplatform/ui-components` for the themed shadcn/ui components and the shared Platform components (Plain logo, data table, ...)
 
 ## Platform skills
 

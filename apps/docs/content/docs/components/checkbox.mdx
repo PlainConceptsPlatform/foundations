@@ -20,14 +20,16 @@ Radix renders a `button`, not a native `input`, so it takes no part in native fo
 ## Install
 
 ```bash
-npx shadcn@latest add checkbox
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/checkbox`.
 
 ## Code
 
 ```tsx
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Checkbox } from "@plainconceptsplatform/ui-components/checkbox";
+import { Label } from "@plainconceptsplatform/ui-components/label";
 
 export function CheckboxDemo() {
   return (
@@ -41,4 +43,4 @@ export function CheckboxDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/checkbox](https://ui.shadcn.com/docs/components/checkbox)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

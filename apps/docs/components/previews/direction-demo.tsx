@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { DirectionProvider } from "@/components/ui/direction";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import { DirectionProvider } from "@plainconceptsplatform/ui-components/direction";
 
 export function DirectionDemo() {
   return (

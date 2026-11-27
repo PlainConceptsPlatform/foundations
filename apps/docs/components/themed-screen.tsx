@@ -3,7 +3,6 @@
 import { ChangelogSidebarItem } from "@/components/previews/changelog-demo";
 import { ChartDemo } from "@/components/previews/chart-demo";
 import { DataTableDemo } from "@/components/previews/data-table-demo";
-import { Badge } from "@/components/ui/badge";
 import {
   AppSidebar,
   AppSidebarActions,
@@ -24,6 +23,7 @@ import {
   AppSidebarUserMenuDivider,
   AppSidebarUserMenuItem,
 } from "@plainconceptsplatform/ui-components/app-sidebar";
+import { Badge } from "@plainconceptsplatform/ui-components/badge";
 import {
   FolderKanban,
   LayoutDashboard,

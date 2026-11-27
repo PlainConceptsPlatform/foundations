@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
+import { Badge } from "@plainconceptsplatform/ui-components/badge";
 import type { DataTableColumn } from "@plainconceptsplatform/ui-components/data-table";
 
 type App = {

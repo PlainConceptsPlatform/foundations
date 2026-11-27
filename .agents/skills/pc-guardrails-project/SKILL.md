@@ -21,8 +21,9 @@ license: MIT
 
 ## File Organization
 
-- Never wrap a third-party component "just in case"; use shadcn/ui and the ARCHITECTURE.md libraries directly. A wrapper with no added behaviour is a maintenance surface with no benefit.
-- Never promote a component to `@plainconceptsplatform/ui-components` before the same real requirement appears in multiple apps; the shared layer owns tokens and conventions, not a component catalog.
+- Never wrap a third-party component "just in case"; import the shadcn/ui components from `@plainconceptsplatform/ui-components/<name>` and use them directly. A wrapper with no added behaviour is a maintenance surface with no benefit.
+- Never copy a shadcn component into an app's `shared/ui` unless the app must change it; the package publishes the themed set, and an unchanged copy drifts from it.
+- Never promote an app-specific component to `@plainconceptsplatform/ui-components` before the same real requirement appears in multiple apps; the package holds the shadcn/ui set and the shared Platform components, not each app's components.
 
 ## Naming Conventions
 

@@ -1,4 +1,4 @@
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { Kbd, KbdGroup } from "@plainconceptsplatform/ui-components/kbd";
 
 export function KbdDemo() {
   return (

@@ -20,13 +20,15 @@ Kbd only displays a shortcut, it never registers one: the handler belongs to the
 ## Install
 
 ```bash
-npx shadcn@latest add kbd
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/kbd`.
 
 ## Code
 
 ```tsx
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { Kbd, KbdGroup } from "@plainconceptsplatform/ui-components/kbd";
 
 export function KbdDemo() {
   return (
@@ -51,4 +53,4 @@ export function KbdDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/kbd](https://ui.shadcn.com/docs/components/kbd)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

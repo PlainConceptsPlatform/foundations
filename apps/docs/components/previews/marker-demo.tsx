@@ -1,6 +1,6 @@
 "use client";
 
-import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
+import { Marker, MarkerContent, MarkerIcon } from "@plainconceptsplatform/ui-components/marker";
 import { Calendar } from "lucide-react";
 
 export function MarkerDemo() {

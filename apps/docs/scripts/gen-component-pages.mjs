@@ -42,7 +42,7 @@ function provenance(slug, meta) {
 
   if (meta.source === "recipe") {
     return {
-      install: `${meta.composedFrom}\n\nThere is no \`shadcn add ${slug}\`: it is a pattern you assemble, not a registry item.`,
+      install: `${meta.composedFrom}\n\nThere is no \`${slug}\` sub-path: it is a pattern you assemble from those components.`,
       api: `[ui.shadcn.com/docs/components/${slug}](${shadcnDocs})`,
     };
   }

@@ -6,7 +6,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
+} from "@plainconceptsplatform/ui-components/pagination";
 
 export function PaginationDemo() {
   return (

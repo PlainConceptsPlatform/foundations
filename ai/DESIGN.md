@@ -72,7 +72,7 @@ Status is communicated through the **functional palette**, red for destructive/e
 
 ## Working rules
 
-- **Check the library first.** Before building a component, look for it in shadcn/ui and the companion libraries in `ARCHITECTURE.md`. Do not recreate what exists.
+- **Check the library first.** Before building a component, look for it in `@plainconceptsplatform/ui-components` (which publishes the shadcn/ui set) and the companion libraries in `ARCHITECTURE.md`. Do not recreate what exists.
 - **Use semantic tokens, never hardcoded values.** `bg-primary`, `text-muted-foreground`, `border`, `rounded-lg`, not raw hex or pixel values.
 - **Accessibility is a baseline, not a feature.** Meet WCAG 2.2 AA contrast; every interactive element is keyboard reachable with a visible focus ring (`ring`); label all inputs; respect `prefers-reduced-motion`.
 - **Design every state.** Loading (skeletons), empty, success, and error states are required, not optional. Validate forms inline with clear messages.

@@ -3,7 +3,7 @@ import {
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
-} from "@/components/ui/input-otp";
+} from "@plainconceptsplatform/ui-components/input-otp";
 
 export function InputOtpDemo() {
   return (

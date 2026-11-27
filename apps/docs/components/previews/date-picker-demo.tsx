@@ -3,9 +3,13 @@
 import { format } from "date-fns";
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import { Calendar } from "@plainconceptsplatform/ui-components/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@plainconceptsplatform/ui-components/popover";
 import { CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";

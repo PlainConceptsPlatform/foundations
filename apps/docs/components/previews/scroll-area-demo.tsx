@@ -1,4 +1,4 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@plainconceptsplatform/ui-components/scroll-area";
 
 const tags = Array.from({ length: 24 }).map((_, i) => `Item ${i + 1}`);
 

@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@plainconceptsplatform/ui-components/skeleton";
 
 export function SkeletonDemo() {
   return (

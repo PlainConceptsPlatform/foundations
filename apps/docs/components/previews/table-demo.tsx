@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@plainconceptsplatform/ui-components/badge";
 import {
   Table,
   TableBody,
@@ -6,7 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@plainconceptsplatform/ui-components/table";
 
 const rows = [
   { app: "Studio", stack: "React", status: "Active" },

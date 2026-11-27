@@ -20,15 +20,22 @@ Variants resolve to semantic tokens, `default` to `--primary`, `secondary` and `
 ## Install
 
 ```bash
-npx shadcn@latest add bubble
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/bubble`.
 
 ## Code
 
 ```tsx
 "use client";
 
-import { Bubble, BubbleContent, BubbleGroup, BubbleReactions } from "@/components/ui/bubble";
+import {
+  Bubble,
+  BubbleContent,
+  BubbleGroup,
+  BubbleReactions,
+} from "@plainconceptsplatform/ui-components/bubble";
 import { Frown, SmilePlus, ThumbsUp } from "lucide-react";
 
 export function BubbleDemo() {
@@ -63,4 +70,4 @@ export function BubbleDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/bubble](https://ui.shadcn.com/docs/components/bubble)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

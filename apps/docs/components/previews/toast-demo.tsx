@@ -1,8 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Toast, ToastAction, ToastDescription, ToastTitle } from "@/components/ui/toast";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import {
+  Toast,
+  ToastAction,
+  ToastDescription,
+  ToastTitle,
+} from "@plainconceptsplatform/ui-components/toast";
+import { useToast } from "@plainconceptsplatform/ui-components/use-toast";
 
 export function ToastDemo() {
   const { toast } = useToast();

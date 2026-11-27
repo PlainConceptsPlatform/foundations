@@ -10,8 +10,8 @@
  * undercut it.
  */
 
-import { useToast } from "@/hooks/use-toast";
 import { type SemanticSlot, tokens } from "@/lib/tokens.generated";
+import { useToast } from "@plainconceptsplatform/ui-components/use-toast";
 
 const RAMP_LABELS: Record<string, string> = {
   blue: "Brand blue",

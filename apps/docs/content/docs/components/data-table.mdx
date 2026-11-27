@@ -15,7 +15,7 @@ Reach for this when a Platform screen needs a working grid: sort from the column
 
 ## Platform notes
 
-The package carries no shadcn, i18n or icon dependency: you supply `slots` (Table, Button, DropdownMenu), `icons` and `texts`, so the wired wrapper lives in `shared/ui` and `texts` is fed from `useTranslation`, including the function entries (`stopGrouping`, `columnsCount`). Every sortable header shows an arrow: muted while the column is not sorted, and in the primary colour, pointing up or down, while it sorts ascending or descending. A click cycles ascending, descending and off. By default the table sorts the `rows` you pass on the client, which under server-side paging orders only the current page. For a paged list, set `manualSorting`, keep the sort in the page with `sort` and `onSortChange`, send it to the API with the page request, and set `sortable: true` on each column the API can sort. The header arrows are the sort control, so do not add a separate "Sort by" select above the table. Grouping is always computed client-side over the `rows` you pass. Column order, visibility and grouping persist in `localStorage` under `dt:<tableId>:*`, which makes `tableId` a stable contract (reusing one across two grids crosses their state, and renaming a column key orphans the saved entry). On keyboard, header sorting is a real button, but column reorder and adding a group are HTML5 drag only and group rows toggle on row click, so give keyboard users another route to those if the grid is a primary workflow.
+The package carries no shadcn, i18n or icon dependency: you supply `slots` (Table, Button, DropdownMenu), `icons` and `texts`, so the wired wrapper lives in `shared/ui` (the slots can be the package's own `Table`, `Button` and `DropdownMenu`) and `texts` is fed from `useTranslation`, including the function entries (`stopGrouping`, `columnsCount`). Every sortable header shows an arrow: muted while the column is not sorted, and in the primary colour, pointing up or down, while it sorts ascending or descending. A click cycles ascending, descending and off. By default the table sorts the `rows` you pass on the client, which under server-side paging orders only the current page. For a paged list, set `manualSorting`, keep the sort in the page with `sort` and `onSortChange`, send it to the API with the page request, and set `sortable: true` on each column the API can sort. The header arrows are the sort control, so do not add a separate "Sort by" select above the table. Grouping is always computed client-side over the `rows` you pass. Column order, visibility and grouping persist in `localStorage` under `dt:<tableId>:*`, which makes `tableId` a stable contract (reusing one across two grids crosses their state, and renaming a column key orphans the saved entry). On keyboard, header sorting is a real button, but column reorder and adding a group are HTML5 drag only and group rows toggle on row click, so give keyboard users another route to those if the grid is a primary workflow.
 
 ## Install
 
@@ -30,8 +30,8 @@ Import from the sub-path: `@plainconceptsplatform/ui-components/data-table`.
 ```tsx
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
+import { Badge } from "@plainconceptsplatform/ui-components/badge";
 import type { DataTableColumn } from "@plainconceptsplatform/ui-components/data-table";
 
 type App = {

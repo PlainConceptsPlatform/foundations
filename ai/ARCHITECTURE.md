@@ -7,7 +7,7 @@ The rules here describe what the family apps actually run. Kitchen-Sink is the r
 ## Architecture Overview
 
 - **Foundation repo** (`PlainConceptsPlatform/Foundations`): a pnpm monorepo holding the shared theme package, the shared components package, the docs/showcase site, and the conventions in `ai/`. It ships tokens, shared components and docs, and it defines the family's platform contract. It does **not** ship the platform code itself.
-- **Platform frontend apps** (separate repos): a **React** single-page app in **TypeScript**, built by **Next.js as a static export** and routed client-side by **react-router**. The API serves the export, so the browser talks to one origin. Components are **shadcn/ui** copied in and themed by `@plainconceptsplatform/ui-theme`. Code is organised by **Feature-Sliced Design (FSD)** with the canonical `pages/` layer, and **Steiger** enforces the boundaries.
+- **Platform frontend apps** (separate repos): a **React** single-page app in **TypeScript**, built by **Next.js as a static export** and routed client-side by **react-router**. The API serves the export, so the browser talks to one origin. Components are **shadcn/ui**, imported from `@plainconceptsplatform/ui-components` and themed by `@plainconceptsplatform/ui-theme`. Code is organised by **Feature-Sliced Design (FSD)** with the canonical `pages/` layer, and **Steiger** enforces the boundaries.
 - **Platform backend apps** (.NET): a modular monolith in Clean Architecture layers. Each bounded context has services behind Application ports, domain exceptions map to one error envelope, services are registered by hand, **Aspire** composes the system locally and **Azure Container Apps** runs it. See [Backend architecture](#backend-architecture-net).
 - **The Platform app family**: Numa, Odyssey, Hermes and Kitchen-Sink share their platform code (session and auth, permissions, audit, feature flags, errors, security headers, the API surfaces, the web shell) and keep it identical. Kitchen-Sink is the reference app **and** the Copier template that distributes that code. See [Platform family](#platform-family).
 
@@ -22,7 +22,7 @@ Every app picks the **same** library for the same job, so codebases (and AI agen
 | Language | **TypeScript (strict)** | extends `tsconfig.base.json` | same |
 | Framework | **Next.js** + **React** | `output: "export"`: Next is the build shell, one page mounts the SPA, and **react-router** decides every route | same; the API serves the export from `wwwroot` |
 | Package manager | **pnpm** | used everywhere, incl. this repo | platform versions in a pnpm `platform` catalog |
-| Components | **shadcn/ui** | copied into the app, on Radix + Tailwind | same |
+| Components | **shadcn/ui** | imported from `@plainconceptsplatform/ui-components`, one sub-path per component, on Radix + Tailwind; copy one into `shared/ui` only to change it | same |
 | Primitives | **Radix UI** | comes with shadcn | same |
 | Styling | **Tailwind CSS v4** | tokens from `@plainconceptsplatform/ui-theme` | same |
 | Theme | **@plainconceptsplatform/ui-theme** | the Platform styleguide; tokens only | same, plus the platform `ThemeProvider` and anti-flash script from the template |
@@ -148,7 +148,7 @@ apps/web/
     ├── features/     # (earn it) user interactions / use-cases
     ├── entities/     # (earn it) business domain models + their UI/api
     └── shared/
-        ├── ui/       # shadcn components (Radix + Tailwind)
+        ├── ui/       # app-wired wrappers (DataTable slots) and shadcn components the app had to change
         ├── lib/      # cn(), formatters, pure helpers
         ├── api/      # API contracts and their HTTP implementations
         ├── i18n/     # i18next setup and the locale files
@@ -183,7 +183,7 @@ Every slice exposes a single `index.ts` (barrel). Import a slice **only** throug
 - **App initialization / providers**: `src/app` (composition root, query client, router and a `providers` module).
 - **Routing**: react-router, configured in `src/app`; each route renders a screen from `pages/`. The Next.js `app/` folder only mounts the SPA.
 - **Reusable domain logic**: `entities/` (models, domain rules) and `features/` (use-cases).
-- **UI components**: third-party components in `shared/ui` (shadcn); app-specific components in the slice that owns them. Do **not** wrap third-party components "just in case".
+- **UI components**: shadcn components come from `@plainconceptsplatform/ui-components` (`import { Slider } from "@plainconceptsplatform/ui-components/slider"`). An app copies a component into `shared/ui` only when it must change it, and then owns that copy. App-specific components live in the slice that owns them. Do **not** wrap third-party components "just in case".
 - **API clients**: `shared/api` (or per-entity `api/`), behind small typed interfaces.
 - **Hooks**: cross-cutting in `shared/lib`; feature-specific inside the feature.
 - **Platform code** (family apps): `shared/platform/` on the web and `apps/api/src/Platform/` on the API, owned by the template.

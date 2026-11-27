@@ -203,7 +203,7 @@ Then initialize it:
 npx @plainconceptsplatform/ui-theme@latest init
 ```
 
-This copies `components.json`, adds the theme import to your global stylesheet, and shows you how to wire the Outfit font in your root layout. Both packages are public npm packages; there is no registry configuration and no access token. From here on, `npx shadcn@latest add button card dialog` gives you components that already look like a Platform app, unmodified. The stack and the patterns are on [Frontend](/docs/frontend); the .NET side is on [Backend](/docs/backend).
+This copies `components.json`, adds the theme import to your global stylesheet, and shows you how to wire the Outfit font in your root layout. Both packages are public npm packages; there is no registry configuration and no access token. From here on, `import { Button } from "@plainconceptsplatform/ui-components/button"` gives you components that already look like a Platform app, one sub-path per shadcn component. The stack and the patterns are on [Frontend](/docs/frontend); the .NET side is on [Backend](/docs/backend).
 
 ## What not to do
 

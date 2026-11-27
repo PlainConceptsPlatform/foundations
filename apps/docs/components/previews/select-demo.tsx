@@ -4,7 +4,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@plainconceptsplatform/ui-components/select";
 
 export function SelectDemo() {
   return (

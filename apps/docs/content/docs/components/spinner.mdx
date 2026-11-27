@@ -20,16 +20,18 @@ Under the hood this is a Lucide `Loader2Icon` with `role="status"` and a hardcod
 ## Install
 
 ```bash
-npx shadcn@latest add spinner
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/spinner`.
 
 ## Code
 
 ```tsx
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import { Spinner } from "@plainconceptsplatform/ui-components/spinner";
 
 export function SpinnerDemo() {
   return (
@@ -48,4 +50,4 @@ export function SpinnerDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/spinner](https://ui.shadcn.com/docs/components/spinner)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

@@ -6,7 +6,7 @@ import {
   MenubarSeparator,
   MenubarShortcut,
   MenubarTrigger,
-} from "@/components/ui/menubar";
+} from "@plainconceptsplatform/ui-components/menubar";
 
 export function MenubarDemo() {
   return (

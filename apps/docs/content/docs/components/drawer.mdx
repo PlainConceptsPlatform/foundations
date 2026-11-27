@@ -20,13 +20,15 @@ This is the one overlay in the family built on vaul rather than Radix, so its mo
 ## Install
 
 ```bash
-npx shadcn@latest add drawer
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/drawer`.
 
 ## Code
 
 ```tsx
-import { Button } from "@/components/ui/button";
+import { Button } from "@plainconceptsplatform/ui-components/button";
 import {
   Drawer,
   DrawerClose,
@@ -36,7 +38,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer";
+} from "@plainconceptsplatform/ui-components/drawer";
 
 export function DrawerDemo() {
   return (
@@ -65,4 +67,4 @@ export function DrawerDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/drawer](https://ui.shadcn.com/docs/components/drawer)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

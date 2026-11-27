@@ -1,6 +1,6 @@
 import { Underline } from "lucide-react";
 
-import { Toggle } from "@/components/ui/toggle";
+import { Toggle } from "@plainconceptsplatform/ui-components/toggle";
 
 export function ToggleDemo() {
   return (

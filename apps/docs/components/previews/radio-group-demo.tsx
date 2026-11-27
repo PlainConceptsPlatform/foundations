@@ -1,5 +1,5 @@
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@plainconceptsplatform/ui-components/label";
+import { RadioGroup, RadioGroupItem } from "@plainconceptsplatform/ui-components/radio-group";
 
 export function RadioGroupDemo() {
   return (

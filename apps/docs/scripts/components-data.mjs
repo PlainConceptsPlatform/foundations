@@ -6,8 +6,8 @@
 //
 // `source` controls the Install and Full API blocks:
 //   omitted    a shadcn registry item, installed with `shadcn add <slug>`
-//   "package"  ships from @plainconceptsplatform/ui-components
-//   "recipe"   assembled from other registry items; there is no `add <slug>`
+//   "package"  published by @plainconceptsplatform/ui-components, one sub-path per component
+//   "recipe"   assembled from other components; there is no `add <slug>`
 //   "none"     not an installable component (a docs concept)
 
 export const COMPONENTS = {
@@ -16,15 +16,17 @@ export const COMPONENTS = {
     description:
       "A vertically stacked set of interactive headings that each reveal a section of content.",
     demo: "AccordionDemo",
+    source: "package",
     whenToUse:
       "Use an accordion to collapse a long screen into labelled sections a user opens one at a time: FAQ blocks, grouped settings, the steps of a long form. When there is only one region to show or hide, `Collapsible` is the smaller tool; when the sections are peers a user switches between rather than reads through, use `Tabs`.",
     platformNotes:
-      "The only tokens in play are `border` on each item and `ring` on the trigger's focus outline, so an accordion sits straight on the page surface with no `bg-card` and nothing to lift it (the theme compiles `shadow-*` to a transparent value in any case). The open and close height animation comes from the `animate-accordion-down` / `animate-accordion-up` keyframes in `tw-animate-css`, imported once in `app/global.css`, and `base.css` already flattens it to 1ms under `prefers-reduced-motion`, so do not layer a transition of your own on top. Trigger labels and panel copy are user-facing text, which means react-i18next keys and no literals in JSX. The component lives in `shared/ui`; the list of sections and the content inside them belongs to the slice that owns the data.",
+      "The only tokens in play are `border` on each item and `ring` on the trigger's focus outline, so an accordion sits straight on the page surface with no `bg-card` and nothing to lift it (the theme compiles `shadow-*` to a transparent value in any case). The open and close height animation comes from the `animate-accordion-down` / `animate-accordion-up` keyframes in `tw-animate-css`, imported once in `app/global.css`, and `base.css` already flattens it to 1ms under `prefers-reduced-motion`, so do not layer a transition of your own on top. Trigger labels and panel copy are user-facing text, which means react-i18next keys and no literals in JSX. The component comes from `@plainconceptsplatform/ui-components`, while the list of sections and the content inside them belongs to the slice that owns the data.",
   },
   alert: {
     title: "Alert",
     description: "Displays a callout for user attention.",
     demo: "AlertDemo",
+    source: "package",
     whenToUse:
       "Alert is the persistent inline message about the state of a screen or form: a validation summary, a degraded integration, a warning the user should keep seeing. Use `toast` when the message is transient and `AlertDialog` when the user must respond before continuing.",
     platformNotes:
@@ -35,10 +37,11 @@ export const COMPONENTS = {
     description:
       "A modal dialog that interrupts the user with important content and expects a response.",
     demo: "AlertDialogDemo",
+    source: "package",
     whenToUse:
       "Reach for AlertDialog when the user must confirm something consequential before anything happens: deleting a record, discarding unsaved work, running a job that cannot be undone. For ordinary editing use `Dialog`, and report the outcome afterwards with a toast rather than a second AlertDialog.",
     platformNotes:
-      'The Platform copy diverges from upstream in a way worth knowing: `AlertDialogAction` and `AlertDialogCancel` render through the `Button` component, so they accept `variant` and `size` directly (`variant="destructive"` on the action for a delete, which pulls `--destructive`), and there is an extra `AlertDialogMedia` slot plus `size="sm"` on the content. Nothing dismisses it by outside click and there is no close icon, which is the point, so the two button labels carry the whole decision: make them specific verbs, and make them i18next messages, not `t("ok")`. Enter and exit come from tw-animate-css and the theme\'s base layer already collapses them under `prefers-reduced-motion: reduce`, so do not layer a transition on top.',
+      'The package\'s copy diverges from upstream in a way worth knowing: `AlertDialogAction` and `AlertDialogCancel` render through the `Button` component, so they accept `variant` and `size` directly (`variant="destructive"` on the action for a delete, which pulls `--destructive`), and there is an extra `AlertDialogMedia` slot plus `size="sm"` on the content. Nothing dismisses it by outside click and there is no close icon, which is the point, so the two button labels carry the whole decision: make them specific verbs, and make them i18next messages, not `t("ok")`. Enter and exit come from tw-animate-css and the theme\'s base layer already collapses them under `prefers-reduced-motion: reduce`, so do not layer a transition on top.',
   },
   "app-layout": {
     title: "AppLayout",
@@ -67,6 +70,7 @@ export const COMPONENTS = {
     title: "Aspect Ratio",
     description: "Displays content within a desired ratio.",
     demo: "AspectRatioDemo",
+    source: "package",
     whenToUse:
       "Hold a fixed ratio box with `AspectRatio` when the media's intrinsic size is outside your control: a screenshot, a video embed, a map, a chart slot in a grid. If the ratio is static, Tailwind's `aspect-video` or `aspect-square` on a plain `div` does the same with less machinery. For the pending state, put a `Skeleton` inside the ratio box, not in place of it.",
     platformNotes:
@@ -77,6 +81,7 @@ export const COMPONENTS = {
     description: "A file attachment component with upload states and media preview.",
     demo: "AttachmentDemo",
     block: true,
+    source: "package",
     whenToUse:
       'Use `Attachment` to render a file that already exists in the flow: uploads queued in a chat composer, evidence on a record, an export an agent produced. The affordance for choosing a file is a labelled `Input type="file"` inside a `Field`, and a row that is not a file is an `Item`.',
     platformNotes:
@@ -86,6 +91,7 @@ export const COMPONENTS = {
     title: "Avatar",
     description: "An image element with a fallback for representing the user.",
     demo: "AvatarDemo",
+    source: "package",
     whenToUse:
       'Avatar carries a person or tenant identity next to a name: table rows, comment headers, the account menu. When several people share one row, use `AvatarGroup` with `AvatarGroupCount` for the overflow. For a non-person entity such as an app, a document or an integration, an `Item` with `ItemMedia variant="icon"` communicates better than a circle of initials.',
     platformNotes:
@@ -95,6 +101,7 @@ export const COMPONENTS = {
     title: "Badge",
     description: "Displays a badge or a component that looks like a badge.",
     demo: "BadgeDemo",
+    source: "package",
     whenToUse:
       "Badges label the state or category of a record inline: status in a table cell, a count beside a tab, a role next to a name. If it is clickable it is an action, so use a `Button` (or a link via `asChild`) instead. For something the user has to read and acknowledge, use `Alert`.",
     platformNotes:
@@ -104,16 +111,18 @@ export const COMPONENTS = {
     title: "Breadcrumb",
     description: "Displays the path to the current resource using a hierarchy of links.",
     demo: "BreadcrumbDemo",
+    source: "package",
     whenToUse:
       "`Breadcrumb` shows where the current screen sits in a hierarchy three or more levels deep and gives a way back up it. A two-level screen only needs a back link. It does not move between siblings, which is what `Tabs` and `Pagination` are for.",
     platformNotes:
-      'The final crumb is `BreadcrumbPage`, which carries `aria-current="page"` and is deliberately not a link; turning it into one breaks the pattern for screen reader users. Separators are `aria-hidden`, so assistive tech hears just the trail, but the vendored `BreadcrumbEllipsis` contains a hardcoded sr-only `More` that has to be replaced with a react-i18next message. Crumb labels come from the entity\'s translated display name, never from the URL slug. Links render at `--muted-foreground` with the current page at `--foreground`; that pairing already clears AA, so do not lighten it further to make the trail recede.',
+      'The final crumb is `BreadcrumbPage`, which carries `aria-current="page"` and is deliberately not a link; turning it into one breaks the pattern for screen reader users. Separators are `aria-hidden`, so assistive tech hears just the trail, but the `BreadcrumbEllipsis` in `@plainconceptsplatform/ui-components` contains a hardcoded sr-only `More`. To replace it with a react-i18next message, copy the component into `shared/ui` and change it there. Crumb labels come from the entity\'s translated display name, never from the URL slug. Links render at `--muted-foreground` with the current page at `--foreground`; that pairing already clears AA, so do not lighten it further to make the trail recede.',
   },
   bubble: {
     title: "Bubble",
     description: "A chat bubble component for messaging UIs.",
     demo: "BubbleDemo",
     block: true,
+    source: "package",
     whenToUse:
       "`Bubble` is the surface for a single utterance in a conversational UI: chat, an agent transcript, an inline assistant panel. Nest it inside `Message` when the turn needs an avatar, author or timestamp; content that is not part of a conversation belongs in a `Card` or an `Item`.",
     platformNotes:
@@ -123,6 +132,7 @@ export const COMPONENTS = {
     title: "Button",
     description: "Displays a button or a component that looks like a button.",
     demo: "ButtonDemo",
+    source: "package",
     whenToUse:
       "Use `Button` for anything that performs an action: submit, save, delete, open a dialog. If the control navigates, render a link (or `BreadcrumbLink` / `NavigationMenuLink`) styled as a button rather than a button that pushes a route. For a persistent on/off state reach for `Toggle`, and for two or three actions that read as one control use `ButtonGroup`.",
     platformNotes:
@@ -132,40 +142,44 @@ export const COMPONENTS = {
     title: "Button Group",
     description: "Group multiple buttons together with separators and text slots.",
     demo: "ButtonGroupDemo",
+    source: "package",
     whenToUse:
       "Reach for `ButtonGroup` when two or three related actions belong together as one control: copy plus confirm, a value with an adjacent action, an input with a trailing button. When the members are mutually exclusive states, use `ToggleGroup` instead, and when there are more than about three choices, collapse them into a `DropdownMenu`.",
     platformNotes:
-      "`ButtonGroupSeparator` paints `bg-input` rather than `--border`, one step darker, so the divider stays visible between two `outline` buttons that already have borders. Focus inside the group is raised with `z-index` on `focus-visible` instead of a shadow, which keeps the ring unclipped under the border plus `bg-card` elevation rule. `ButtonGroupText` (the `$ 99` slot in the demo) is a non-interactive label: it is not focusable and must not hold the action or a value users need to change. The group itself is `shared/ui`; which actions get grouped is a decision for the feature composing them, so that arrangement lives in the slice, not in the shared component.",
+      "`ButtonGroupSeparator` paints `bg-input` rather than `--border`, one step darker, so the divider stays visible between two `outline` buttons that already have borders. Focus inside the group is raised with `z-index` on `focus-visible` instead of a shadow, which keeps the ring unclipped under the border plus `bg-card` elevation rule. `ButtonGroupText` (the `$ 99` slot in the demo) is a non-interactive label: it is not focusable and must not hold the action or a value users need to change. The group itself comes from `@plainconceptsplatform/ui-components`. Which actions get grouped is a decision for the feature composing them, so that arrangement lives in the slice, not in the package.",
   },
   calendar: {
     title: "Calendar",
     description: "A date field component that allows users to enter and edit date.",
     demo: "CalendarDemo",
     block: true,
+    source: "package",
     whenToUse:
       "Use Calendar when the month itself is the interface: an availability grid, a booking screen, or a filter panel that stays open and shows which days are selectable. When the date is one field among many, put it behind a trigger with the [Date Picker](/docs/components/date-picker) recipe so the grid does not dominate the layout, and for a typed date or a value that carries a time use `Input` with a zod schema instead.",
     platformNotes:
-      'Selected days and range endpoints paint with `--primary` / `--primary-foreground`, while `today` and the middle of a range use `--accent` / `--accent-foreground`, the same tint the theme uses for hover, so today and a hovered day read alike and a single `--accent` change moves both states: check light and dark after a theme bump. Month, weekday and caption text is formatted by react-day-picker (en-US by default) and the vendored month dropdown formatter calls `toLocaleString("default")`, which follows the browser locale rather than the active i18next language, so pass the matching `date-fns` locale on the `locale` prop and keep legends, hints and captions as translation messages. Focus renders on the day button itself (`--ring`, via `group-data-[focused=true]/day`), so leave that ring intact; the `disabled` day style is `text-muted-foreground` at 50% opacity, too faint to be the only signal that a day is unavailable, so pair it with a legend or helper text and show a `Skeleton` while the unavailable set is still loading. The `shadow-xs` on the caption dropdown compiles to nothing under the theme, so when a standalone month has to read as a raised surface, give it `border bg-card` (the demo settles for `rounded-md border`).',
+      'Selected days and range endpoints paint with `--primary` / `--primary-foreground`, while `today` and the middle of a range use `--accent` / `--accent-foreground`, the same tint the theme uses for hover, so today and a hovered day read alike and a single `--accent` change moves both states: check light and dark after a theme bump. Month, weekday and caption text is formatted by react-day-picker (en-US by default) and the package\'s month dropdown formatter calls `toLocaleString("default")`, which follows the browser locale rather than the active i18next language, so pass the matching `date-fns` locale on the `locale` prop and keep legends, hints and captions as translation messages. Focus renders on the day button itself (`--ring`, via `group-data-[focused=true]/day`), so leave that ring intact; the `disabled` day style is `text-muted-foreground` at 50% opacity, too faint to be the only signal that a day is unavailable, so pair it with a legend or helper text and show a `Skeleton` while the unavailable set is still loading. The `shadow-xs` on the caption dropdown compiles to nothing under the theme, so when a standalone month has to read as a raised surface, give it `border bg-card` (the demo settles for `rounded-md border`).',
   },
   card: {
     title: "Card",
     description: "Displays content and actions in a card, with a header, content, and footer.",
     demo: "CardDemo",
     block: true,
+    source: "package",
     whenToUse:
       "Card is the default container for a self-contained block on a Platform screen: a dashboard panel, a form section, a summary tile. Prefer it to a bare `div` with borders so every surface in the app matches. It is the wrong choice for a repeated list of records, where `Item` in an `ItemGroup` is lighter, and for anything that overlays the page, where `Dialog`, `Sheet` or `Popover` belong.",
     platformNotes:
-      "Card is the canonical elevation in this theme: `border` plus `bg-card` and `text-card-foreground`, with no shadow. The vendored component still carries `shadow-sm`, which compiles to a fully transparent shadow because the theme overrides Tailwind's shadow scale, so leave the class in place (upstream source stays copy-pasteable) and do not reach for `shadow-md` expecting depth. `CardTitle` and `CardDescription` render as `div`, not headings, so pass a heading element through `CardTitle` (or wire `aria-labelledby`) when the card is a real section of the page. A card holding fetched data owns its states: skeleton inside `CardContent` with the header left intact so nothing jumps, plus a written empty state and an error path.",
+      "Card is the canonical elevation in this theme: `border` plus `bg-card` and `text-card-foreground`, with no shadow. The package's component still carries the upstream `shadow-sm`, which compiles to a fully transparent shadow because the theme overrides Tailwind's shadow scale, so it paints nothing. Do not reach for `shadow-md` expecting depth. `CardTitle` and `CardDescription` render as `div`, not headings, so pass a heading element through `CardTitle` (or wire `aria-labelledby`) when the card is a real section of the page. A card holding fetched data owns its states: skeleton inside `CardContent` with the header left intact so nothing jumps, plus a written empty state and an error path.",
   },
   carousel: {
     title: "Carousel",
     description: "A carousel with motion and slide effects built on Embla.",
     demo: "CarouselDemo",
     block: true,
+    source: "package",
     whenToUse:
       "A carousel suits browsable, order-agnostic content: screenshots, onboarding slides, a strip of promo cards on a dashboard. Anything a user must not miss or needs to compare goes in a `DataTable` or a wrapped grid, and a long list of peers scrolls better inside a `ScrollArea`.",
     platformNotes:
-      "Autoplay is out of bounds: the motion contract in DESIGN.md rules out auto-rotating carousels, so do not add `embla-carousel-autoplay`, and slides move only on a click, swipe or arrow key. Embla animates with JavaScript transforms, which the theme's CSS `prefers-reduced-motion` block cannot neutralise, so pass `opts.duration: 0` when that query matches. The `sr-only` labels on `CarouselPrevious` and `CarouselNext` are English literals in the vendored file and are the only names a screen reader gets, so replace them with i18next messages. Watch the geometry too: the arrows sit at `-left-12` and `-right-12`, outside the frame, so give the wrapper horizontal room or move them inside at small breakpoints.",
+      "Autoplay is out of bounds: the motion contract in DESIGN.md rules out auto-rotating carousels, so do not add `embla-carousel-autoplay`, and slides move only on a click, swipe or arrow key. Embla animates with JavaScript transforms, which the theme's CSS `prefers-reduced-motion` block cannot neutralise, so pass `opts.duration: 0` when that query matches. The `sr-only` labels on `CarouselPrevious` and `CarouselNext` are English literals in the package's file and are the only names a screen reader gets. To replace them with i18next messages, copy the component into `shared/ui` and change it there. Watch the geometry too: the arrows sit at `-left-12` and `-right-12`, outside the frame, so give the wrapper horizontal room or move them inside at small breakpoints.",
   },
   changelog: {
     title: "Changelog",
@@ -190,6 +204,7 @@ export const COMPONENTS = {
     description: "Themed charts built on Recharts with shared tokens.",
     demo: "ChartDemo",
     block: true,
+    source: "package",
     whenToUse:
       "Charts earn their place when a trend or a comparison is faster to read than the numbers, typically two to five series on a dashboard. A single value or a delta reads better as a `Card` with typography. Data that people will scan, sort or export belongs in [Data Table](/docs/components/data-table), not in a chart.",
     platformNotes:
@@ -199,6 +214,7 @@ export const COMPONENTS = {
     title: "Checkbox",
     description: "A control that allows the user to toggle between checked and not checked.",
     demo: "CheckboxDemo",
+    source: "package",
     whenToUse:
       "For independent boolean choices, and for multi-select lists where each row is on or off. When the boolean applies a setting immediately instead of being submitted with a form, use `Switch`; when the options are mutually exclusive, use `RadioGroup`.",
     platformNotes:
@@ -208,6 +224,7 @@ export const COMPONENTS = {
     title: "Collapsible",
     description: "An interactive component which expands and collapses a panel.",
     demo: "CollapsibleDemo",
+    source: "package",
     whenToUse:
       "Reach for `Collapsible` for a single show/hide region: advanced options in a form, a filter panel above a table, extra detail under a summary row. Several sibling regions with their own headings are an `Accordion` instead, and content that should float over the page rather than push it down belongs in a `Popover` or `Sheet`.",
     platformNotes:
@@ -217,6 +234,9 @@ export const COMPONENTS = {
     title: "Combobox",
     description: "A searchable select built on the Command and Popover primitives.",
     demo: "ComboboxDemo",
+    source: "recipe",
+    composedFrom:
+      "Compose it from `Popover` and `Command`, both published by `@plainconceptsplatform/ui-components`:\n\n```bash\npnpm add @plainconceptsplatform/ui-components\n```",
     whenToUse:
       'Use when the list is long enough that the user should type to narrow it: people, projects, clients, anything past roughly fifteen entries. For a short fixed list use `Select` or `RadioGroup`; for a global "jump to" or action launcher use `Command` in a dialog, not this.',
     platformNotes:
@@ -227,15 +247,17 @@ export const COMPONENTS = {
     description: "Fast, composable, unstyled command menu.",
     demo: "CommandDemo",
     block: true,
+    source: "package",
     whenToUse:
       "`Command` is for keyboard-first search across actions, records, or navigation targets, either inline as in the demo or wrapped in `CommandDialog` as a palette. To pick a value inside a form use `Combobox`, and for a short fixed list use `Select`.",
     platformNotes:
-      "cmdk filters on rendered text, so under react-i18next it only matches the active locale; add a translated `keywords` list per item when users type English terms in a non-English UI. `CommandEmpty` is the mandatory empty state and its text is a translation message, as is the input placeholder, and the vendored file exports no loading wrapper, so a remote-backed palette renders its own skeleton and error rows inside `CommandList`. `CommandDialog` defaults `title` to `Command Palette` and `description` to `Search for a command to run...`, both hardcoded English and both the dialog's accessible name, so pass translated values in. Keep the palette shell in `shared/ui` and let each slice contribute its own item list, so the search surface does not accumulate knowledge of every domain.",
+      "cmdk filters on rendered text, so under react-i18next it only matches the active locale; add a translated `keywords` list per item when users type English terms in a non-English UI. `CommandEmpty` is the mandatory empty state and its text is a translation message, as is the input placeholder, and the package exports no loading wrapper, so a remote-backed palette renders its own skeleton and error rows inside `CommandList`. `CommandDialog` defaults `title` to `Command Palette` and `description` to `Search for a command to run...`, both hardcoded English and both the dialog's accessible name, so pass translated values in. Take the primitives from `@plainconceptsplatform/ui-components`, keep one shared palette shell, and let each slice contribute its own item list, so the search surface does not accumulate knowledge of every domain.",
   },
   "context-menu": {
     title: "Context Menu",
     description: "Displays a menu of actions triggered by a right-click.",
     demo: "ContextMenuDemo",
+    source: "package",
     whenToUse:
       "Add `ContextMenu` as a secondary shortcut to actions that are already reachable another way, typically on a table row or a card. Right-click is not discoverable and does not exist on touch, so it must never be the only route to an action: pair it with the same items behind a `DropdownMenu` trigger.",
     platformNotes:
@@ -251,7 +273,7 @@ export const COMPONENTS = {
     whenToUse:
       "Reach for this when a Platform screen needs a working grid: sort from the column headers (on the client or on the server), drag-to-group with collapsible sections and aggregates, column reorder, show/hide columns, and that arrangement remembered per user. If none of those apply, the plain `Table` is the right answer. If you need row virtualisation or row selection, build on TanStack Table directly instead of stretching this component.",
     platformNotes:
-      'The package carries no shadcn, i18n or icon dependency: you supply `slots` (Table, Button, DropdownMenu), `icons` and `texts`, so the wired wrapper lives in `shared/ui` and `texts` is fed from `useTranslation`, including the function entries (`stopGrouping`, `columnsCount`). Every sortable header shows an arrow: muted while the column is not sorted, and in the primary colour, pointing up or down, while it sorts ascending or descending. A click cycles ascending, descending and off. By default the table sorts the `rows` you pass on the client, which under server-side paging orders only the current page. For a paged list, set `manualSorting`, keep the sort in the page with `sort` and `onSortChange`, send it to the API with the page request, and set `sortable: true` on each column the API can sort. The header arrows are the sort control, so do not add a separate "Sort by" select above the table. Grouping is always computed client-side over the `rows` you pass. Column order, visibility and grouping persist in `localStorage` under `dt:<tableId>:*`, which makes `tableId` a stable contract (reusing one across two grids crosses their state, and renaming a column key orphans the saved entry). On keyboard, header sorting is a real button, but column reorder and adding a group are HTML5 drag only and group rows toggle on row click, so give keyboard users another route to those if the grid is a primary workflow.',
+      'The package carries no shadcn, i18n or icon dependency: you supply `slots` (Table, Button, DropdownMenu), `icons` and `texts`, so the wired wrapper lives in `shared/ui` (the slots can be the package\'s own `Table`, `Button` and `DropdownMenu`) and `texts` is fed from `useTranslation`, including the function entries (`stopGrouping`, `columnsCount`). Every sortable header shows an arrow: muted while the column is not sorted, and in the primary colour, pointing up or down, while it sorts ascending or descending. A click cycles ascending, descending and off. By default the table sorts the `rows` you pass on the client, which under server-side paging orders only the current page. For a paged list, set `manualSorting`, keep the sort in the page with `sort` and `onSortChange`, send it to the API with the page request, and set `sortable: true` on each column the API can sort. The header arrows are the sort control, so do not add a separate "Sort by" select above the table. Grouping is always computed client-side over the `rows` you pass. Column order, visibility and grouping persist in `localStorage` under `dt:<tableId>:*`, which makes `tableId` a stable contract (reusing one across two grids crosses their state, and renaming a column key orphans the saved entry). On keyboard, header sorting is a real button, but column reorder and adding a group are HTML5 drag only and group rows toggle on row click, so give keyboard users another route to those if the grid is a primary workflow.',
   },
   "date-picker": {
     title: "Date Picker",
@@ -259,25 +281,27 @@ export const COMPONENTS = {
     demo: "DatePickerDemo",
     source: "recipe",
     composedFrom:
-      "Compose it from `calendar` and `popover`, both of which are registry items:\n\n```bash\nnpx shadcn@latest add calendar popover\n```",
+      "Compose it from `Calendar` and `Popover`, both published by `@plainconceptsplatform/ui-components`:\n\n```bash\npnpm add @plainconceptsplatform/ui-components\n```",
     whenToUse:
       "Compose Calendar inside a Popover when a date or a range is one field in a form or a filter bar and the month should stay out of the way until it is asked for. Reach for plain `Calendar` when the month must be permanently visible, and for a date entered as text or a value that includes a time use `Input` with a zod schema rather than stretching this pattern.",
     platformNotes:
-      "This is a recipe, not a registry entry: `Calendar`, `Popover` and `Button` come from `shared/ui`, while the composed field lives in the slice that owns it and is exported through that slice's `index.ts`. Everything the trigger renders is user-facing, so the placeholder, the range separator and the `date-fns` pattern all come from i18next with the matching `date-fns` locale; the demo's hardcoded placeholder and `LLL d, y` pattern do not survive review. Selection is controlled in the demo while the popover's open state is not, and in `mode=\"range\"` the value passes through a state where `from` is set and `to` is still undefined, so guard on both before you submit and do not take over `open` just to close on the first click; the trigger is a `Button`, not a labelled input, so give it its own accessible name instead of relying on the formatted date. Keep `PopoverContent` at `w-auto p-0`: the default `w-72` is too narrow for `numberOfMonths={2}`, the calendar drops its own background inside `data-slot=popover-content`, and the popover border carries the elevation because its `shadow-md` paints nothing, so verify the two-month layout below `md` where the months stack into a column.",
+      "This is a recipe, not a registry entry: `Calendar`, `Popover` and `Button` come from `@plainconceptsplatform/ui-components`, while the composed field lives in the slice that owns it and is exported through that slice's `index.ts`. Everything the trigger renders is user-facing, so the placeholder, the range separator and the `date-fns` pattern all come from i18next with the matching `date-fns` locale; the demo's hardcoded placeholder and `LLL d, y` pattern do not survive review. Selection is controlled in the demo while the popover's open state is not, and in `mode=\"range\"` the value passes through a state where `from` is set and `to` is still undefined, so guard on both before you submit and do not take over `open` just to close on the first click; the trigger is a `Button`, not a labelled input, so give it its own accessible name instead of relying on the formatted date. Keep `PopoverContent` at `w-auto p-0`: the default `w-72` is too narrow for `numberOfMonths={2}`, the calendar drops its own background inside `data-slot=popover-content`, and the popover border carries the elevation because its `shadow-md` paints nothing, so verify the two-month layout below `md` where the months stack into a column.",
   },
   dialog: {
     title: "Dialog",
     description: "A window overlaid on the primary window, rendering the content underneath inert.",
     demo: "DialogDemo",
+    source: "package",
     whenToUse:
       "Use a Dialog for a focused create or edit task the user should finish without losing the screen behind it, typically a short form with Save and Cancel. When the decision is destructive or irreversible, use `AlertDialog` instead so it cannot be dismissed by clicking outside; when the content is a long form or a detail panel, use `Sheet`.",
     platformNotes:
-      "Elevation here is not a shadow: `DialogContent` ships `shadow-lg`, which the theme resolves to a transparent value, so the `bg-black/50` overlay and the content border are the only separation from the page. That matters in light mode, where `--background`, `--card` and `--popover` are all the same white, so never strip the border from `DialogContent`. Always render `DialogTitle` and `DialogDescription` (Radix uses them for the accessible name and description) and source every label, including the trigger and footer buttons, from react-i18next. The primitive stays in `shared/ui`; the form inside it belongs to the feature slice that owns the use case, wired with react-hook-form and zod.",
+      "Elevation here is not a shadow: `DialogContent` ships `shadow-lg`, which the theme resolves to a transparent value, so the `bg-black/50` overlay and the content border are the only separation from the page. That matters in light mode, where `--background`, `--card` and `--popover` are all the same white, so never strip the border from `DialogContent`. Always render `DialogTitle` and `DialogDescription` (Radix uses them for the accessible name and description) and source every label, including the trigger and footer buttons, from react-i18next. The primitive comes from `@plainconceptsplatform/ui-components`, and the form inside it belongs to the feature slice that owns the use case, wired with react-hook-form and zod.",
   },
   direction: {
     title: "Direction",
     description: "A text direction provider for RTL and LTR language support.",
     demo: "DirectionDemo",
+    source: "package",
     whenToUse:
       "`DirectionProvider` tells Radix primitives which side is start, so wrap the app in it as soon as a Platform app ships an RTL locale such as Arabic or Hebrew. Drive its value from the active react-i18next language rather than a fixed string; it renders nothing itself, so it is never the fix for a layout problem.",
     platformNotes:
@@ -287,6 +311,7 @@ export const COMPONENTS = {
     title: "Drawer",
     description: "A panel that slides in from the edge of the screen.",
     demo: "DrawerDemo",
+    source: "package",
     whenToUse:
       "Use Drawer for a bottom sheet on touch and narrow viewports where dragging to dismiss is the expected gesture. On desktop, a side panel should be a `Sheet` and a centred task should be a `Dialog`; the common Platform pattern is Dialog above `md` and Drawer below, switched by a media query hook in `shared/hooks`.",
     platformNotes:
@@ -296,16 +321,18 @@ export const COMPONENTS = {
     title: "Dropdown Menu",
     description: "Displays a menu of actions, triggered by a button.",
     demo: "DropdownMenuDemo",
+    source: "package",
     whenToUse:
       "`DropdownMenu` holds actions on the current record, row, or account behind an explicit trigger. It is not a form control: pick a value with `Select`, filter a long list with `Combobox`, and offer a right-click shortcut with `ContextMenu`.",
     platformNotes:
-      'Content sits on `--popover` with items highlighting through `--accent`, and `variant="destructive"` on the item is the only correct way to colour a destructive entry; hand-applying `text-destructive` skips the matching hover and focus treatment. Radix runs its own enter and exit animation on the content, so do not add a `transition` class on top of it, and the theme already drops those animations under `prefers-reduced-motion`. Item labels, section labels, and shortcut hints are all react-i18next messages, and the modifier glyph must be resolved per platform rather than shipped as a literal Command symbol. Menu content that acts on a domain object belongs in the feature or entity slice that owns the object, while the primitives stay in `shared/ui`.',
+      'Content sits on `--popover` with items highlighting through `--accent`, and `variant="destructive"` on the item is the only correct way to colour a destructive entry; hand-applying `text-destructive` skips the matching hover and focus treatment. Radix runs its own enter and exit animation on the content, so do not add a `transition` class on top of it, and the theme already drops those animations under `prefers-reduced-motion`. Item labels, section labels, and shortcut hints are all react-i18next messages, and the modifier glyph must be resolved per platform rather than shipped as a literal Command symbol. Menu content that acts on a domain object belongs in the feature or entity slice that owns the object, while the primitives come from `@plainconceptsplatform/ui-components`.',
   },
   empty: {
     title: "Empty",
     description: "An empty state component for no-data scenarios.",
     demo: "EmptyDemo",
     block: true,
+    source: "package",
     whenToUse:
       'Empty is the required no-data state for a list, table or search result, and it should distinguish "nothing here yet" (offer the create action) from "no matches" (offer clearing the filters). Use `Alert` when the reason is a failure rather than an absence, and `Skeleton` while the request is still in flight.',
     platformNotes:
@@ -329,6 +356,7 @@ export const COMPONENTS = {
     description: "A form field component with labels, descriptions, and error messages.",
     demo: "FieldDemo",
     block: true,
+    source: "package",
     whenToUse:
       "The layout and semantics wrapper for every form in a Platform app: label, control, helper text and validation message as one group. Use it instead of hand-rolling a `div` with a `Label` and a `p`, and reach for `FieldSet` with `FieldLegend` when several controls answer one question.",
     platformNotes:
@@ -338,24 +366,27 @@ export const COMPONENTS = {
     title: "Hover Card",
     description: "For sighted users to preview information available behind a link.",
     demo: "HoverCardDemo",
+    source: "package",
     whenToUse:
       "A HoverCard previews an entity behind a link on pointer devices: the person, project or record a name refers to. It is a supplement and never the only route to that information; when the content is interactive or must be reachable by keyboard and touch, use `Popover`, and when it is a one line hint use `Tooltip`.",
     platformNotes:
-      "Hover is the only trigger, so under WCAG 2.2 AA nothing in the card may be information the user cannot get another way, typically by following the link itself. It renders on the same `--popover` surface as `Popover`, which in light mode matches the page background, so the border is what separates it and should stay. When the card loads entity data on open it still owes the required states: a skeleton in place of the body and a quiet inline error, not a silent empty card. The card body is entity UI and belongs in the `entities/<name>/ui` slice while the primitive stays in `shared/ui`, with all copy resolved through react-i18next.",
+      "Hover is the only trigger, so under WCAG 2.2 AA nothing in the card may be information the user cannot get another way, typically by following the link itself. It renders on the same `--popover` surface as `Popover`, which in light mode matches the page background, so the border is what separates it and should stay. When the card loads entity data on open it still owes the required states: a skeleton in place of the body and a quiet inline error, not a silent empty card. The card body is entity UI and belongs in the `entities/<name>/ui` slice while the primitive comes from `@plainconceptsplatform/ui-components`, with all copy resolved through react-i18next.",
   },
   input: {
     title: "Input",
     description: "Displays a form input field.",
     demo: "InputDemo",
+    source: "package",
     whenToUse:
       "The default single-line control for any short scalar value in a form: names, emails, quantities, references. Reach for `Textarea` when the value is multi-line prose, `InputGroup` when it needs a prefix, suffix or inline action, and `NativeSelect` or `Select` when the value comes from a fixed list.",
     platformNotes:
-      "The control is `bg-transparent` with `border-input`, so `--input` is the entire affordance; `shadow-xs` sits in the class list but paints nothing, because the theme flattens the whole shadow scale to a transparent value. Validation styling hangs off `aria-invalid`, so a zod failure has to reach the DOM as `aria-invalid` (which the shadcn `Field` and `Form` wiring sets for you) rather than as a hand-added red border class. A placeholder is not a label: pair every `Input` with a `Label` or `FieldLabel`, and route the label, the placeholder and the error message through react-i18next `t()` calls. It lives in `shared/ui`; the form that composes it belongs to the feature or entity that owns the data.",
+      "The control is `bg-transparent` with `border-input`, so `--input` is the entire affordance; `shadow-xs` sits in the class list but paints nothing, because the theme flattens the whole shadow scale to a transparent value. Validation styling hangs off `aria-invalid`, so a zod failure has to reach the DOM as `aria-invalid` (which the shadcn `Field` and `Form` wiring sets for you) rather than as a hand-added red border class. A placeholder is not a label: pair every `Input` with a `Label` or `FieldLabel`, and route the label, the placeholder and the error message through react-i18next `t()` calls. It comes from `@plainconceptsplatform/ui-components`, and the form that composes it belongs to the feature or entity that owns the data.",
   },
   "input-group": {
     title: "Input Group",
     description: "An input component with prefix and suffix addons.",
     demo: "InputGroupDemo",
+    source: "package",
     whenToUse:
       "This is the wrapper when a text control needs something attached to it: a search icon, a unit or currency suffix, a URL scheme prefix, or a small inline button such as clear or reveal. A plain `Input` is enough with no affix, and a row of separate buttons beside a field is `ButtonGroup`, not this.",
     platformNotes:
@@ -365,6 +396,7 @@ export const COMPONENTS = {
     title: "Input OTP",
     description: "A one-time password input built on the input-otp library.",
     demo: "InputOtpDemo",
+    source: "package",
     whenToUse:
       "For fixed-length codes typed or pasted in from another channel: two-factor confirmation, email verification, a short PIN. Anything of variable length is an `Input`, and a long-lived secret belongs in a password `Input`, not here.",
     platformNotes:
@@ -375,6 +407,7 @@ export const COMPONENTS = {
     description: "A generic item component for lists and menus.",
     demo: "ItemDemo",
     block: true,
+    source: "package",
     whenToUse:
       "Item composes a row out of media, title, description and actions, which is what most Platform lists actually are: notifications, search results, integrations, settings rows. Wrap a set of them in `ItemGroup`. Use `Table` when the data is genuinely columnar and worth comparing across rows, and `Card` when a block deserves its own surface.",
     platformNotes:
@@ -384,6 +417,7 @@ export const COMPONENTS = {
     title: "Kbd",
     description: "Represents keyboard input or hotkeys.",
     demo: "KbdDemo",
+    source: "package",
     whenToUse:
       "Kbd prints a key or a chord inline: help text, tooltips, command palette rows, menu items that advertise a shortcut. Use `KbdGroup` for multi-key chords. For inline code, a file path or a value, use a `<code>` element with `bg-muted`, not Kbd.",
     platformNotes:
@@ -393,6 +427,7 @@ export const COMPONENTS = {
     title: "Label",
     description: "Renders an accessible label associated with controls.",
     demo: "LabelDemo",
+    source: "package",
     whenToUse:
       "Names a single control when you are not inside a `Field`. Within the mandated form stack prefer `FieldLabel`, which is this component plus the `Field` grouping and disabled propagation; use `FieldSet` with `FieldLegend` when the thing being named is a group such as a `RadioGroup`.",
     platformNotes:
@@ -402,6 +437,7 @@ export const COMPONENTS = {
     title: "Marker",
     description: "A marker component for timestamps, separators, and section breaks.",
     demo: "MarkerDemo",
+    source: "package",
     whenToUse:
       'Marker annotates a point in a flow: a date stamp in an activity feed, an "Or continue with" divider between form sections, a labelled section break. When the boundary needs no label, `Separator` is simpler and cheaper. For state attached to a record, use `Badge`.',
     platformNotes:
@@ -412,6 +448,7 @@ export const COMPONENTS = {
     description: "A visually persistent menu giving quick access to a consistent set of commands.",
     demo: "MenubarDemo",
     block: true,
+    source: "package",
     whenToUse:
       "`Menubar` fits document-style surfaces with many grouped commands, an editor or an authoring view. Most Platform screens are CRUD and do not need it: use `Sidebar` for the app shell and `DropdownMenu` for a page's handful of actions.",
     platformNotes:
@@ -422,16 +459,18 @@ export const COMPONENTS = {
     description: "A message component for chat and messaging UIs with avatar alignment.",
     demo: "MessageDemo",
     block: true,
+    source: "package",
     whenToUse:
       '`Message` composes one turn: avatar, content, and optional header and footer, aligned by author. Give the current user `align="end"` and everyone else `align="start"`, and leave the surface styling to `Bubble`; when a turn carries no avatar or metadata, a `Bubble` on its own is enough.',
     platformNotes:
-      "This is layout plus two tokens: `bg-muted` behind the avatar and `text-muted-foreground` for header and footer text. Alignment is a `data-align` attribute that reverses the flex row and is read by children through `group-data-[align=end]/message:`, which is why the demo sets `align` on both `Message` and its `Bubble`; setting it in one place only half works. Author names, status labels and relative times go through react-i18next and are formatted for the active locale, while the message body is user data and must never be passed to the translator. Keep `Message` in `shared/ui` and put the mapping from your conversation model onto it in the slice that owns the conversation, exposed through that slice's `index.ts`.",
+      "This is layout plus two tokens: `bg-muted` behind the avatar and `text-muted-foreground` for header and footer text. Alignment is a `data-align` attribute that reverses the flex row and is read by children through `group-data-[align=end]/message:`, which is why the demo sets `align` on both `Message` and its `Bubble`; setting it in one place only half works. Author names, status labels and relative times go through react-i18next and are formatted for the active locale, while the message body is user data and must never be passed to the translator. `Message` comes from `@plainconceptsplatform/ui-components`. Put the mapping from your conversation model onto it in the slice that owns the conversation, exposed through that slice's `index.ts`.",
   },
   "message-scroller": {
     title: "Message Scroller",
     description: "A scrollable message container with auto-scroll and jump-to-end button.",
     demo: "MessageScrollerDemo",
     block: true,
+    source: "package",
     whenToUse:
       "`MessageScroller` is for a live transcript: it holds the newest message in view while output streams in and reveals a jump-to-latest button once the user scrolls away. A bounded static list is a `ScrollArea` instead, and the turns inside the transcript are still `Message` and `Bubble`.",
     platformNotes:
@@ -441,6 +480,7 @@ export const COMPONENTS = {
     title: "Native Select",
     description: "A styled native HTML select element.",
     demo: "NativeSelectDemo",
+    source: "package",
     whenToUse:
       "Reach for this when you want the operating system's own picker: long option lists, dense data-entry forms, and mobile, where the native wheel beats a custom panel. Use `Select` for grouped items with icons or custom item rendering, and `Combobox` when the list needs a search box.",
     platformNotes:
@@ -451,43 +491,48 @@ export const COMPONENTS = {
     description: "A collection of links for navigating between pages.",
     demo: "NavigationMenuDemo",
     block: true,
+    source: "package",
     whenToUse:
       "Use `NavigationMenu` for top-level navigation with grouped links, especially when a section needs a short description under its title. For switching panels inside one screen use `Tabs`, and for the shell of an internal Platform tool use `Sidebar`, which is the default there.",
     platformNotes:
-      "`NavigationMenuLink` renders a plain anchor, so in a Next.js app pass `asChild` with a `next/link` child; the demo uses bare `href` values because the docs routes are static, and copying that pattern into an app costs you client-side navigation. `viewport={false}` (as in the demo) drops the shared animated viewport and positions each panel under its own item, which is what you want when panels differ noticeably in size. Panels use `--popover` for the surface and `--muted-foreground` for descriptions, both already AA against their background. The trigger chevron ships an upstream `transition duration-300`, longer than the 150ms ease-out contract; if you want it in line, change the vendored file rather than layering a second transition over it.",
+      "`NavigationMenuLink` renders a plain anchor, so in a Next.js app pass `asChild` with a `next/link` child; the demo uses bare `href` values because the docs routes are static, and copying that pattern into an app costs you client-side navigation. `viewport={false}` (as in the demo) drops the shared animated viewport and positions each panel under its own item, which is what you want when panels differ noticeably in size. Panels use `--popover` for the surface and `--muted-foreground` for descriptions, both already AA against their background. The trigger chevron ships an upstream `transition duration-300`, longer than the 150ms ease-out contract. To bring it in line, copy the component into `shared/ui` and change it there, or raise the change in `@plainconceptsplatform/ui-components`. Do not layer a second transition over it.",
   },
   pagination: {
     title: "Pagination",
     description: "A component for navigating between pages of content.",
     demo: "PaginationDemo",
     block: true,
+    source: "package",
     whenToUse:
       "Use `Pagination` for server-paged lists where the page belongs in the URL and users need to jump to a specific one. Client-side paging inside a table should use the `DataTable` controls instead, and an unbounded feed is better served by a load-more button.",
     platformNotes:
-      'It renders anchors, so every page must be a real URL; give `PaginationLink` a `next/link` through `asChild` or you lose client-side navigation on each page change. The vendored source hardcodes `Previous`, `Next`, and the sr-only `More pages`, three user-facing strings that must be routed through react-i18next before the component ships in an app. `isActive` already sets `aria-current="page"` and switches the link to the `outline` button style, so do not add a second current-page marker. The list it pages needs both required states wired up: skeleton rows while the next page loads (never an emptied table) and an empty state when a filter returns nothing.',
+      'It renders anchors, so every page must be a real URL; give `PaginationLink` a `next/link` through `asChild` or you lose client-side navigation on each page change. The source in `@plainconceptsplatform/ui-components` hardcodes `Previous`, `Next`, and the sr-only `More pages`, three user-facing strings. Before the component ships in an app, copy it into `shared/ui` and route them through react-i18next. `isActive` already sets `aria-current="page"` and switches the link to the `outline` button style, so do not add a second current-page marker. The list it pages needs both required states wired up: skeleton rows while the next page loads (never an emptied table) and an empty state when a filter returns nothing.',
   },
   popover: {
     title: "Popover",
     description: "Displays rich content in a portal, triggered by a button.",
     demo: "PopoverDemo",
+    source: "package",
     whenToUse:
       "Popover holds a small interactive layer anchored to the control that opened it: a filter, a quick edit, a colour or date choice. Use `Tooltip` when the content is a short non-interactive hint, `DropdownMenu` when it is a list of actions, and `Dialog` when the task deserves a focus trap and the page behind it should go inert.",
     platformNotes:
-      "Content consumes `--popover` and `--popover-foreground`, and in light mode `--popover` is the same white as `--background`, so with `shadow-md` neutralised the border is the only thing that makes the popover look like a separate surface; do not remove it or swap the surface for `bg-background`. A Popover is not modal, so nothing inside is focus trapped: everything must be reachable by keyboard with a visible `ring`, and every input needs a real label. The enter and exit animation reads `--radix-popover-content-transform-origin`, so if you reposition the content with `align` or `sideOffset` the animation follows automatically and needs no extra transition. Keep the primitive in `shared/ui` and the popover body (a filter form, an entity picker) in the feature slice that owns it, with its strings coming from react-i18next.",
+      "Content consumes `--popover` and `--popover-foreground`, and in light mode `--popover` is the same white as `--background`, so with `shadow-md` neutralised the border is the only thing that makes the popover look like a separate surface; do not remove it or swap the surface for `bg-background`. A Popover is not modal, so nothing inside is focus trapped: everything must be reachable by keyboard with a visible `ring`, and every input needs a real label. The enter and exit animation reads `--radix-popover-content-transform-origin`, so if you reposition the content with `align` or `sideOffset` the animation follows automatically and needs no extra transition. The primitive comes from `@plainconceptsplatform/ui-components`, and the popover body (a filter form, an entity picker) belongs in the feature slice that owns it, with its strings coming from react-i18next.",
   },
   progress: {
     title: "Progress",
     description: "Displays an indicator showing the completion progress of a task.",
     demo: "ProgressDemo",
+    source: "package",
     whenToUse:
       "Use Progress when the completion ratio of a task is actually known: a file upload, a bulk import, a step counter through a wizard. When the duration is unknown use `Spinner`, and when content is loading in place use `Skeleton`.",
     platformNotes:
-      "Track and bar are both brand tinted (`bg-primary/20` behind `bg-primary`); leave them that way and never reach for `--chart-*`, which is reserved for data series, or `--accent`, which is a hover surface. This copy has no indeterminate mode: with `value` omitted the indicator falls back to 0 and renders an empty track, which looks like a stalled task, so switch to `Spinner` rather than passing nothing. The bar is the only visual carrier of the number, so give the root an accessible name and render the percentage or step label beside it as a translated string. Its `transition-all` only ever animates `transform`, which is inside the motion contract, and the theme base layer already handles `prefers-reduced-motion`.",
+      "Track and bar are both brand tinted (`bg-primary/20` behind `bg-primary`); leave them that way and never reach for `--chart-*`, which is reserved for data series, or `--accent`, which is a hover surface. The package's copy has no indeterminate mode: with `value` omitted the indicator falls back to 0 and renders an empty track, which looks like a stalled task, so switch to `Spinner` rather than passing nothing. The bar is the only visual carrier of the number, so give the root an accessible name and render the percentage or step label beside it as a translated string. Its `transition-all` only ever animates `transform`, which is inside the motion contract, and the theme base layer already handles `prefers-reduced-motion`.",
   },
   "radio-group": {
     title: "Radio Group",
     description: "A set of checkable buttons where no more than one can be checked at a time.",
     demo: "RadioGroupDemo",
+    source: "package",
     whenToUse:
       "Pick this when a user chooses exactly one option from a short, visible set of roughly two to five. Above that, `Select` or `Combobox` scale better; for a plain on/off, use `Switch` or `Checkbox`.",
     platformNotes:
@@ -498,6 +543,7 @@ export const COMPONENTS = {
     description: "A set of resizable panels built on react-resizable-panels.",
     demo: "ResizableDemo",
     block: true,
+    source: "package",
     whenToUse:
       "Panels earn their place when a user genuinely rebalances two regions: a list beside a detail pane, an editor beside a preview, filters beside results. Fixed proportions should just be a grid, a temporary side surface is a `Sheet`, and collapsing app navigation is the `Sidebar`.",
     platformNotes:
@@ -508,6 +554,7 @@ export const COMPONENTS = {
     description: "Custom scrollbars with consistent styling across browsers.",
     demo: "ScrollAreaDemo",
     block: true,
+    source: "package",
     whenToUse:
       "Wrap a bounded region in `ScrollArea` when it needs its own themed scrollbar: a long option list inside a `Popover`, an activity log, a column of many items. Let the page scroll natively when the whole screen is the scroll container, and use `MessageScroller` for a transcript that has to stay pinned to the newest entry.",
     platformNotes:
@@ -537,15 +584,17 @@ export const COMPONENTS = {
     title: "Select",
     description: "Displays a list of options for the user to pick from, triggered by a button.",
     demo: "SelectDemo",
+    source: "package",
     whenToUse:
       "The default choice for one value from a known list of roughly five to fifteen options, when you want the Platform dropdown surface with grouping and checkmarks. Below that count, `RadioGroup` shows everything at once; above it, or whenever a user would want to type to narrow, use `Combobox`; on dense data-entry or mobile-first screens `NativeSelect` is faster.",
     platformNotes:
-      'This vendored copy defaults `SelectContent` to `position="item-aligned"` and `align="center"` rather than the upstream `popper`, so the panel overlays the trigger: pass `position="popper"` when you need it to sit below. Content renders through a Radix portal onto `--popover`, with item hover on `--accent`, which is exactly why `--accent` is a hover surface and not a value to reuse as a chart series or badge colour. The panel is `bg-popover` plus a border and no visible shadow, since `shadow-md` compiles to transparent here. Wrap the trigger in `Field` so it gets a label, set `aria-invalid` on it when the form reports an error, and take the `SelectValue` placeholder and every `SelectItem` label from react-i18next.',
+      'The package\'s copy defaults `SelectContent` to `position="item-aligned"` and `align="center"` rather than the upstream `popper`, so the panel overlays the trigger: pass `position="popper"` when you need it to sit below. Content renders through a Radix portal onto `--popover`, with item hover on `--accent`, which is exactly why `--accent` is a hover surface and not a value to reuse as a chart series or badge colour. The panel is `bg-popover` plus a border and no visible shadow, since `shadow-md` compiles to transparent here. Wrap the trigger in `Field` so it gets a label, set `aria-invalid` on it when the form reports an error, and take the `SelectValue` placeholder and every `SelectItem` label from react-i18next.',
   },
   separator: {
     title: "Separator",
     description: "Visually or semantically separates content.",
     demo: "SeparatorDemo",
+    source: "package",
     whenToUse:
       "A separator draws the line between groups of content or controls: sections inside a card, entries in a menu, inline metadata in a toolbar. Use it when the boundary is visual only. When the divider needs a label, use `Marker`; when blocks just need air between them, use margin rather than a line.",
     platformNotes:
@@ -555,6 +604,7 @@ export const COMPONENTS = {
     title: "Sheet",
     description: "A panel that slides out from the edge of the screen, extending a dialog.",
     demo: "SheetDemo",
+    source: "package",
     whenToUse:
       "A Sheet is the side panel for a secondary flow that should keep the current screen in view: record details, a filter panel, a multi-field form too tall for a centred window. Use `Dialog` when the content is short and belongs in the middle of the screen, and `Drawer` when it needs to be a draggable bottom sheet on touch devices.",
     platformNotes:
@@ -565,6 +615,7 @@ export const COMPONENTS = {
     description: "A composable, collapsible sidebar with a provider and many sub-parts.",
     demo: "SidebarDemo",
     block: true,
+    source: "package",
     whenToUse:
       "`Sidebar` is the default app shell for a Platform tool: persistent primary navigation, collapsible to icons. Use `Sheet` when the panel is temporary and task-scoped, and `Menubar` or `NavigationMenu` when what you need is a command surface rather than a shell.",
     platformNotes:
@@ -574,6 +625,7 @@ export const COMPONENTS = {
     title: "Skeleton",
     description: "Used to show a placeholder while content is loading.",
     demo: "SkeletonDemo",
+    source: "package",
     whenToUse:
       "Skeleton is the mandated loading state for content that will appear in place: lists, cards, tables, detail panels. Use `Spinner` for a wait attached to a control such as a submitting button, and `Progress` when you know how far along the work is.",
     platformNotes:
@@ -583,15 +635,17 @@ export const COMPONENTS = {
     title: "Slider",
     description: "An input where the user selects a value from a given range.",
     demo: "SliderDemo",
+    source: "package",
     whenToUse:
       "Good for imprecise, continuous values where the visual position is the point: opacity, zoom, a price band, a threshold someone is tuning. When an exact figure matters use a numeric `Input`, and when both matter, pair the slider with an `Input` bound to the same value.",
     platformNotes:
-      "A gotcha in this copy: the thumb is `bg-white` with `border-primary`, hardcoded rather than tokenised, so it does not follow dark mode; switch it to `bg-background` if you re-vendor the file. The track is `--muted` and the filled range is `--primary`, a colour-only signal, so the current value has to be rendered as text near the control as well. It renders no label of its own, so supply an `aria-label` or an `aria-labelledby` pointing at a `FieldLabel`, and check that the hover-to-`ring-4` growth still reads as focus rather than decoration. Thumbs are keyed by their value, so a range slider whose two handles land on the same number produces a duplicate React key.",
+      "The thumb uses `bg-background`, so it follows dark mode. The track is `--muted` and the filled range is `--primary`, a colour-only signal, so the current value has to be rendered as text near the control as well. It renders no label of its own, so supply an `aria-label` or an `aria-labelledby` pointing at a `FieldLabel`, and check that the hover-to-`ring-4` growth still reads as focus rather than decoration. Thumbs are keyed by their value, so a range slider whose two handles land on the same number produces a duplicate React key.",
   },
   spinner: {
     title: "Spinner",
     description: "A loading spinner component.",
     demo: "SpinnerDemo",
+    source: "package",
     whenToUse:
       "Use Spinner for an indeterminate wait tied to a control or a small region: a submitting button, an inline refresh, a panel too small for a skeleton. For a screen or section of content that is loading, use `Skeleton`; when the ratio is known, use `Progress`.",
     platformNotes:
@@ -601,6 +655,7 @@ export const COMPONENTS = {
     title: "Switch",
     description: "A control that toggles between checked and not checked.",
     demo: "SwitchDemo",
+    source: "package",
     whenToUse:
       "A setting that takes effect the moment it is flipped belongs here: a notification preference, a feature toggle, a display option. If the value is submitted with the rest of a form, use `Checkbox`; if flipping it is destructive or slow, use a `Button` plus `AlertDialog` so the action stays explicit.",
     platformNotes:
@@ -611,16 +666,18 @@ export const COMPONENTS = {
     description: "A responsive table component.",
     demo: "TableDemo",
     block: true,
+    source: "package",
     whenToUse:
       "Use `Table` for a read-only tabular set that fits on a screen and needs no sorting, grouping or column control: a summary panel, an invoice line list, a config dump. The moment users need to sort, group, reorder or hide columns, move to [Data Table](/docs/components/data-table) rather than hand-rolling those behaviours on top. For records that read as a title plus description plus actions, `Item` inside an `ItemGroup` is a better fit than a two-column table.",
     platformNotes:
-      "The primitives paint row rules with `--border`, hover and footer with `--muted` at 50%, and header cells with `--foreground`; nothing here is elevated, so the surface around it is `bg-card` plus `border-border`. Both `TableHead` and `TableCell` set `whitespace-nowrap` and the wrapper is `overflow-x-auto`, so a wide table scrolls sideways instead of wrapping: cap the offending column with `max-w-*` and truncate if you need it to fit. Column headers, cell copy and the caption are all react-i18next messages, and status enums arriving from the API get mapped to messages in the slice rather than rendered raw. Table itself belongs in `shared/ui`, while the column set and cell renderers for one screen belong to the slice that owns that screen, and that slice owes the table a skeleton, an empty row and an error path, since the component renders only the rows you hand it.",
+      "The primitives paint row rules with `--border`, hover and footer with `--muted` at 50%, and header cells with `--foreground`; nothing here is elevated, so the surface around it is `bg-card` plus `border-border`. Both `TableHead` and `TableCell` set `whitespace-nowrap` and the wrapper is `overflow-x-auto`, so a wide table scrolls sideways instead of wrapping: cap the offending column with `max-w-*` and truncate if you need it to fit. Column headers, cell copy and the caption are all react-i18next messages, and status enums arriving from the API get mapped to messages in the slice rather than rendered raw. Table itself comes from `@plainconceptsplatform/ui-components`, while the column set and cell renderers for one screen belong to the slice that owns that screen, and that slice owes the table a skeleton, an empty row and an error path, since the component renders only the rows you hand it.",
   },
   tabs: {
     title: "Tabs",
     description: "A set of layered sections of content, shown one at a time.",
     demo: "TabsDemo",
     block: true,
+    source: "package",
     whenToUse:
       "`Tabs` switches between panels of content that all belong to the same object, on one screen. Do not use it for steps in a process (use an explicit stepper or a multi-page form) or for sections that should be linkable, which belong to real routes with `NavigationMenu` or a Next.js segment layout.",
     platformNotes:
@@ -630,6 +687,7 @@ export const COMPONENTS = {
     title: "Textarea",
     description: "Displays a form textarea field.",
     demo: "TextareaDemo",
+    source: "package",
     whenToUse:
       "Use for free-form multi-line input: comments, descriptions, internal notes. If the value is a single short string, use `Input`; if it needs a character counter or an inline send button, compose it as `InputGroupTextarea` inside an `InputGroup`.",
     platformNotes:
@@ -639,15 +697,17 @@ export const COMPONENTS = {
     title: "Toast",
     description: "A succinct message that is displayed temporarily.",
     demo: "ToastDemo",
+    source: "package",
     whenToUse:
       "Use a toast to confirm that an action the user already left behind has finished, or to report a non-blocking failure with a retry. If the message must stay on screen until it is resolved, use `Alert`; if the user has to decide before anything continues, use `AlertDialog`.",
     platformNotes:
-      "sonner is the mandated toast library for Platform apps per ARCHITECTURE.md; the copy previewed in this catalog is the Radix based `Toast` with a `use-toast` hook, so follow whichever one your app installed and do not run both. Mount the toaster exactly once, in the providers module under `app/`, never inside a view. Title, description and action label are all react-i18next messages, and the action needs an `altText` for screen readers as the demo shows. Because shadows paint nothing, a toast is separated from the page by its border and surface: the destructive variant switches to `--destructive`, so check the contrast of any action button you place inside it.",
+      "sonner is the mandated toast library for Platform apps per ARCHITECTURE.md; the copy in `@plainconceptsplatform/ui-components`, previewed in this catalog, is the Radix based `Toast` with a `use-toast` hook, so follow whichever one your app installed and do not run both. Mount the toaster exactly once, in the providers module under `app/`, never inside a view. Title, description and action label are all react-i18next messages, and the action needs an `altText` for screen readers as the demo shows. Because shadows paint nothing, a toast is separated from the page by its border and surface: the destructive variant switches to `--destructive`, so check the contrast of any action button you place inside it.",
   },
   toggle: {
     title: "Toggle",
     description: "A two-state button that can be toggled on or off.",
     demo: "ToggleDemo",
+    source: "package",
     whenToUse:
       "`Toggle` is for a single independent on/off control that acts on content, formatting-style: underline, mute, pin. Use `Switch` for a setting that reads as on/off in prose and applies immediately, `Checkbox` when the value is a form field, and `ToggleGroup` when the options are exclusive.",
     platformNotes:
@@ -657,6 +717,7 @@ export const COMPONENTS = {
     title: "Toggle Group",
     description: "A set of two-state buttons that can be toggled on or off.",
     demo: "ToggleGroupDemo",
+    source: "package",
     whenToUse:
       "Use `ToggleGroup` for choosing from a small set that stays visible: a view switcher, alignment, a 7 / 30 / 90 day range. Past roughly five options move to `Select`, and if the choice swaps panels of content rather than a value, use `Tabs`.",
     platformNotes:
@@ -666,10 +727,11 @@ export const COMPONENTS = {
     title: "Tooltip",
     description: "A popup that displays information when hovering or focusing an element.",
     demo: "TooltipDemo",
+    source: "package",
     whenToUse:
       "Use a Tooltip to name an icon-only control or add a short hint next to a label. It must never carry information the user needs to complete a task; if the content is interactive, longer than a line, or needs to be readable on touch, use `Popover` or `HoverCard`.",
     platformNotes:
-      "Alone among these overlays, tooltip content is an inverted surface (`bg-foreground` with `text-background`) rather than `--popover`, so it needs no border to stand out and the arrow is already included in `TooltipContent`. Mount a single `TooltipProvider` in the providers module under `app/` rather than per component as the preview does for isolation, and note that `delayDuration` defaults to `0` in the vendored copy, so tooltips appear immediately unless you raise it. An icon-only button still needs its own accessible name (an `sr-only` span or `aria-label`); a tooltip is not a substitute for a label, and both strings are separate react-i18next messages.",
+      "Alone among these overlays, tooltip content is an inverted surface (`bg-foreground` with `text-background`) rather than `--popover`, so it needs no border to stand out and the arrow is already included in `TooltipContent`. Mount a single `TooltipProvider` in the providers module under `app/` rather than per component as the preview does for isolation, and note that `delayDuration` defaults to `0` in the package's copy, so tooltips appear immediately unless you raise it. An icon-only button still needs its own accessible name (an `sr-only` span or `aria-label`); a tooltip is not a substitute for a label, and both strings are separate react-i18next messages.",
   },
   typography: {
     title: "Typography",

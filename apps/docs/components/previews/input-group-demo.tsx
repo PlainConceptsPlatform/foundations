@@ -3,7 +3,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
   InputGroupText,
-} from "@/components/ui/input-group";
+} from "@plainconceptsplatform/ui-components/input-group";
 import { Search } from "lucide-react";
 
 export function InputGroupDemo() {

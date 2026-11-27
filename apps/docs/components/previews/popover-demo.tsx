@@ -1,7 +1,11 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import { Input } from "@plainconceptsplatform/ui-components/input";
+import { Label } from "@plainconceptsplatform/ui-components/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@plainconceptsplatform/ui-components/popover";
 
 export function PopoverDemo() {
   return (

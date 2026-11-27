@@ -20,8 +20,10 @@ Visually it is a row of `div` slots, but the real control is a single hidden inp
 ## Install
 
 ```bash
-npx shadcn@latest add input-otp
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/input-otp`.
 
 ## Code
 
@@ -31,7 +33,7 @@ import {
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
-} from "@/components/ui/input-otp";
+} from "@plainconceptsplatform/ui-components/input-otp";
 
 export function InputOtpDemo() {
   return (
@@ -54,4 +56,4 @@ export function InputOtpDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/input-otp](https://ui.shadcn.com/docs/components/input-otp)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

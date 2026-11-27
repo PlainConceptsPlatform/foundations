@@ -1,4 +1,4 @@
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "@plainconceptsplatform/ui-components/toggle-group";
 
 export function ToggleGroupDemo() {
   return (

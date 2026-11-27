@@ -15,7 +15,7 @@ The practical test: could a new engineer learn this from public documentation, o
 
 Do not wrap them, and do not build a proprietary component library on top of them.
 
-Apps copy component source into their own repo, so they can read it, edit it, and are never blocked on our release cycle. What keeps them consistent is that they all import the same tokens. That is the whole trick: local control and a shared look at the same time.
+Apps import the shadcn components from `@plainconceptsplatform/ui-components`, one sub-path per component. The package publishes the shadcn source with only the fixes the theme needs, so a component behaves as its shadcn docs say. When an app must change one, it copies that component's source into its own `shared/ui` and owns the copy, so it is never blocked on our release cycle. Apps stay consistent because they import the same tokens and the same component source.
 
 <Callout type="warn">
   Wrapping a shadcn component "just in case" is the most common way this principle gets broken. The wrapper starts as a pass-through, accumulates props, and becomes the proprietary library this principle exists to prevent.

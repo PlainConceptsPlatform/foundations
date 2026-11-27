@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import { Spinner } from "@plainconceptsplatform/ui-components/spinner";
 
 export function SpinnerDemo() {
   return (

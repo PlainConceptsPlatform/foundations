@@ -8,8 +8,8 @@ import {
   AttachmentMedia,
   AttachmentTitle,
   AttachmentTrigger,
-} from "@/components/ui/attachment";
-import { Spinner } from "@/components/ui/spinner";
+} from "@plainconceptsplatform/ui-components/attachment";
+import { Spinner } from "@plainconceptsplatform/ui-components/spinner";
 import { FileText } from "lucide-react";
 
 export function AttachmentDemo() {

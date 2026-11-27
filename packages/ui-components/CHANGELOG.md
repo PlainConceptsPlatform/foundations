@@ -1,5 +1,15 @@
 # @plainconceptsplatform/ui-components
 
+## 1.13.0
+
+### Minor Changes
+
+- The package now publishes the themed shadcn/ui components, one sub-path per component, for example `import { Slider } from "@plainconceptsplatform/ui-components/slider"`. These are the same 59 components that the docs site previews, with `toaster` and `use-toast` as extra sub-paths for the Radix toast. Before, apps copied each component from shadcn, and agents searched the docs site for components that the package did not export.
+- `Slider` uses `bg-background` for the thumb, so the thumb follows dark mode. The shadcn source uses `bg-white`.
+- `radix-ui` and `lucide-react` are new peer dependencies. `cmdk`, `vaul`, `embla-carousel-react`, `react-day-picker`, `recharts`, `input-otp`, `react-resizable-panels`, `@radix-ui/react-toast` and `@shadcn/react` are optional peer dependencies. Install one only if you import the component that needs it.
+
+  Migration notes: none are required. Copies in an app's `shared/ui` keep working. To move to the package, change the import from `@/shared/ui/<name>` to `@plainconceptsplatform/ui-components/<name>` and delete the copy. Keep a copy only when the app changed it. Tailwind must scan the package `dist`, as for the other components.
+
 ## 1.12.0
 
 ### Minor Changes

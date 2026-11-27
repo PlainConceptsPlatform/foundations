@@ -1,8 +1,13 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bubble, BubbleContent } from "@/components/ui/bubble";
-import { Message, MessageAvatar, MessageContent, MessageGroup } from "@/components/ui/message";
+import { Avatar, AvatarFallback } from "@plainconceptsplatform/ui-components/avatar";
+import { Bubble, BubbleContent } from "@plainconceptsplatform/ui-components/bubble";
+import {
+  Message,
+  MessageAvatar,
+  MessageContent,
+  MessageGroup,
+} from "@plainconceptsplatform/ui-components/message";
 import {
   MessageScroller,
   MessageScrollerButton,
@@ -10,7 +15,7 @@ import {
   MessageScrollerItem,
   MessageScrollerProvider,
   MessageScrollerViewport,
-} from "@/components/ui/message-scroller";
+} from "@plainconceptsplatform/ui-components/message-scroller";
 import { Bot } from "lucide-react";
 
 const messages = [

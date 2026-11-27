@@ -20,8 +20,10 @@ It consumes the whole `--sidebar-*` token group and renders unstyled without it;
 ## Install
 
 ```bash
-npx shadcn@latest add sidebar
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/sidebar`.
 
 ## Code
 
@@ -30,7 +32,7 @@ npx shadcn@latest add sidebar
 
 import { Frame, LifeBuoy, Map as MapIcon, Send } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@plainconceptsplatform/ui-components/button";
 import {
   Sidebar,
   SidebarContent,
@@ -46,7 +48,7 @@ import {
   SidebarProvider,
   SidebarSeparator,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
+} from "@plainconceptsplatform/ui-components/sidebar";
 
 const items = [
   { title: "Overview", icon: Frame },
@@ -111,4 +113,4 @@ export function SidebarDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/sidebar](https://ui.shadcn.com/docs/components/sidebar)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

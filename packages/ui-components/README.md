@@ -1,8 +1,11 @@
 # @plainconceptsplatform/ui-components
 
-Shared React components for Platform frontend apps. These are **custom** foundation components (not from shadcn) that are useful across multiple apps.
+Shared React components for Platform frontend apps: the themed shadcn/ui components and the custom Platform components.
 
 ## What it contains
+
+- The shadcn/ui components, one sub-path per component, with the fixes the theme needs. Import them directly, for example `import { Slider } from "@plainconceptsplatform/ui-components/slider"`. The sub-path is the shadcn name in kebab-case (`dropdown-menu`, `alert-dialog`). The Radix toast is `toast`, `toaster` and `use-toast`. Copy a component into your app's `shared/ui` only when you must change it.
+  - Install `radix-ui` and `lucide-react` with the package. Some components need one more library, which is an optional peer dependency. Install it only if you import that component: `command` needs `cmdk`, `drawer` needs `vaul`, `carousel` needs `embla-carousel-react`, `calendar` needs `react-day-picker`, `chart` needs `recharts`, `input-otp` needs `input-otp`, `resizable` needs `react-resizable-panels`, `toast` needs `@radix-ui/react-toast`, and `message-scroller` needs `@shadcn/react`.
 
 - `PlainLogo`: responsive brand logo that uses CSS container queries (no JavaScript) to show the biggest mark that fits its parent. Text follows `currentColor` (adapts to light/dark); the brand mark stays blue.
 - `DataTable`: generic table with click-to-sort, drag-to-group, and column reorder/show-hide. It owns the logic and DOM structure and takes *slots* for every piece of UI that varies between apps (your Button, Table, icons, and translated strings), so it carries no shadcn, i18n, or icon dependency of its own.

@@ -1,5 +1,5 @@
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@plainconceptsplatform/ui-components/label";
+import { Textarea } from "@plainconceptsplatform/ui-components/textarea";
 
 export function TextareaDemo() {
   return (

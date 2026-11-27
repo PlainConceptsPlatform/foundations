@@ -1,13 +1,13 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import { PlainLogo } from "@plainconceptsplatform/ui-components";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
-import { PlainLogo } from "@plainconceptsplatform/ui-components";
+} from "@plainconceptsplatform/ui-components/dropdown-menu";
 import { SearchToggle } from "fumadocs-ui/components/layout/search-toggle";
 import { ThemeToggle } from "fumadocs-ui/components/layout/theme-toggle";
 import { ChevronDown } from "lucide-react";

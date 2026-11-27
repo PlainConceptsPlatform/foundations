@@ -1,7 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@/components/ui/button-group";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
+} from "@plainconceptsplatform/ui-components/button-group";
 import { Check, ChevronRight, Copy } from "lucide-react";
 
 export function ButtonGroupDemo() {

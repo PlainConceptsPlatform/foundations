@@ -20,13 +20,15 @@ The fallback (`bg-muted` with `text-muted-foreground`) is what most Platform scr
 ## Install
 
 ```bash
-npx shadcn@latest add avatar
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/avatar`.
 
 ## Code
 
 ```tsx
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@plainconceptsplatform/ui-components/avatar";
 
 export function AvatarDemo() {
   return (
@@ -45,4 +47,4 @@ export function AvatarDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/avatar](https://ui.shadcn.com/docs/components/avatar)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

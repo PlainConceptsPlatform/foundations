@@ -1,8 +1,13 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bubble, BubbleContent } from "@/components/ui/bubble";
-import { Message, MessageAvatar, MessageContent, MessageGroup } from "@/components/ui/message";
+import { Avatar, AvatarFallback } from "@plainconceptsplatform/ui-components/avatar";
+import { Bubble, BubbleContent } from "@plainconceptsplatform/ui-components/bubble";
+import {
+  Message,
+  MessageAvatar,
+  MessageContent,
+  MessageGroup,
+} from "@plainconceptsplatform/ui-components/message";
 import { Bot } from "lucide-react";
 
 export function MessageDemo() {
@@ -31,8 +36,8 @@ export function MessageDemo() {
         <MessageContent>
           <Bubble variant="tinted" align="end">
             <BubbleContent>
-              Just run <code>npx shadcn@latest add</code> with the component name. The docs use the
-              Platform theme automatically.
+              Import it from <code>@plainconceptsplatform/ui-components</code>. It uses the Platform
+              theme automatically.
             </BubbleContent>
           </Bubble>
         </MessageContent>

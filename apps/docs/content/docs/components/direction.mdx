@@ -20,16 +20,18 @@ The provider is context only. It flips Radix behaviour (menu arrow keys, popover
 ## Install
 
 ```bash
-npx shadcn@latest add direction
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/direction`.
 
 ## Code
 
 ```tsx
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { DirectionProvider } from "@/components/ui/direction";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import { DirectionProvider } from "@plainconceptsplatform/ui-components/direction";
 
 export function DirectionDemo() {
   return (
@@ -49,4 +51,4 @@ export function DirectionDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/direction](https://ui.shadcn.com/docs/components/direction)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

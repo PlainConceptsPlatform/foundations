@@ -20,8 +20,10 @@ Put `InputGroupInput` or `InputGroupTextarea` inside, never a bare `Input`: the 
 ## Install
 
 ```bash
-npx shadcn@latest add input-group
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/input-group`.
 
 ## Code
 
@@ -31,7 +33,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
   InputGroupText,
-} from "@/components/ui/input-group";
+} from "@plainconceptsplatform/ui-components/input-group";
 import { Search } from "lucide-react";
 
 export function InputGroupDemo() {
@@ -62,4 +64,4 @@ export function InputGroupDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/input-group](https://ui.shadcn.com/docs/components/input-group)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

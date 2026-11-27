@@ -20,13 +20,19 @@ Pass `withHandle` as the demo does: the bare separator is a 1px `bg-border` line
 ## Install
 
 ```bash
-npx shadcn@latest add resizable
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/resizable`.
 
 ## Code
 
 ```tsx
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@plainconceptsplatform/ui-components/resizable";
 
 export function ResizableDemo() {
   return (
@@ -49,4 +55,4 @@ export function ResizableDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/resizable](https://ui.shadcn.com/docs/components/resizable)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

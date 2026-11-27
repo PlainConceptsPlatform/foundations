@@ -20,8 +20,10 @@ It has no responsive fallback and does not collapse, so any screen using it need
 ## Install
 
 ```bash
-npx shadcn@latest add menubar
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/menubar`.
 
 ## Code
 
@@ -34,7 +36,7 @@ import {
   MenubarSeparator,
   MenubarShortcut,
   MenubarTrigger,
-} from "@/components/ui/menubar";
+} from "@plainconceptsplatform/ui-components/menubar";
 
 export function MenubarDemo() {
   return (
@@ -72,4 +74,4 @@ export function MenubarDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/menubar](https://ui.shadcn.com/docs/components/menubar)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

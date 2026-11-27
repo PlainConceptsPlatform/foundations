@@ -69,7 +69,7 @@ Capture Playwright characterization tests for every existing route. Take desktop
    - `rsc`: `false` (the SPA is not RSC)
    - `tsx`: `true`
    - Tailwind config aliases matching the FSD structure (step 6)
-2. Add shadcn components as source files under `src/shared/ui/`. Start with: Button, Input, Label, Dialog, DropdownMenu, Select, Table, Card, Badge, Avatar, Separator, Skeleton, Popover, Tooltip, ScrollArea.
+2. Import the shadcn components from `@plainconceptsplatform/ui-components`, one sub-path per component (`@plainconceptsplatform/ui-components/button`). Replace each existing copy under `src/shared/ui/` with the package import, and keep a copy only when the app changed it.
 3. Icons: an own design app uses lucide-react (shadcn default). A family app uses Tabler (`@tabler/icons-react`) and aliases the few shadcn recipes that import Lucide, such as the calendar, to Tabler.
 4. Create a `cn()` utility under `src/shared/lib/utils.ts` using `clsx` + `tailwind-merge`.
 5. Migrate existing custom UI primitives to shadcn compositions. Use `Alert` for callouts, `Empty` for empty states, `Separator` for dividers, `Skeleton` for loading.

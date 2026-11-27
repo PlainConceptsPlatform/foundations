@@ -1,9 +1,9 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Kbd } from "@/components/ui/kbd";
 import { cn } from "@/lib/utils";
+import { Badge } from "@plainconceptsplatform/ui-components/badge";
+import { Button } from "@plainconceptsplatform/ui-components/button";
+import { Kbd } from "@plainconceptsplatform/ui-components/kbd";
 import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock";
 import { BookOpen, Headphones } from "lucide-react";
 import Link from "next/link";

@@ -15,13 +15,15 @@ The default choice for one value from a known list of roughly five to fifteen op
 
 ## Platform notes
 
-This vendored copy defaults `SelectContent` to `position="item-aligned"` and `align="center"` rather than the upstream `popper`, so the panel overlays the trigger: pass `position="popper"` when you need it to sit below. Content renders through a Radix portal onto `--popover`, with item hover on `--accent`, which is exactly why `--accent` is a hover surface and not a value to reuse as a chart series or badge colour. The panel is `bg-popover` plus a border and no visible shadow, since `shadow-md` compiles to transparent here. Wrap the trigger in `Field` so it gets a label, set `aria-invalid` on it when the form reports an error, and take the `SelectValue` placeholder and every `SelectItem` label from react-i18next.
+The package's copy defaults `SelectContent` to `position="item-aligned"` and `align="center"` rather than the upstream `popper`, so the panel overlays the trigger: pass `position="popper"` when you need it to sit below. Content renders through a Radix portal onto `--popover`, with item hover on `--accent`, which is exactly why `--accent` is a hover surface and not a value to reuse as a chart series or badge colour. The panel is `bg-popover` plus a border and no visible shadow, since `shadow-md` compiles to transparent here. Wrap the trigger in `Field` so it gets a label, set `aria-invalid` on it when the form reports an error, and take the `SelectValue` placeholder and every `SelectItem` label from react-i18next.
 
 ## Install
 
 ```bash
-npx shadcn@latest add select
+pnpm add @plainconceptsplatform/ui-components
 ```
+
+Import from the sub-path: `@plainconceptsplatform/ui-components/select`.
 
 ## Code
 
@@ -32,7 +34,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@plainconceptsplatform/ui-components/select";
 
 export function SelectDemo() {
   return (
@@ -53,4 +55,4 @@ export function SelectDemo() {
 
 ## Full API
 
-[ui.shadcn.com/docs/components/select](https://ui.shadcn.com/docs/components/select)
+[`packages/ui-components` README](https://github.com/PlainConceptsPlatform/Foundations/blob/main/packages/ui-components/README.md)

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@plainconceptsplatform/ui-components/button";
 
 export function ButtonDemo() {
   return (
